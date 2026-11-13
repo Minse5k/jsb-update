@@ -64,7 +64,8 @@ public class Question extends BaseEntity { // id, createDate, modifyDate 는 Bas
         this.content = content;
     }
 
-    public void modify(String subject, String content) {
+    public void modify(Category category, String subject, String content) {
+        this.category = category;
         this.subject = subject;
         this.content = content;
     }

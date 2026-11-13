@@ -18,7 +18,7 @@
 
     <div class="row my-3">
         <div class="col-6">
-            <a th:href="@{/questions/write}" class="btn btn-primary">질문 등록하기</a>
+            <a th:href="@{/questions/write(category=${category == '' ? 'qna' : category})}" class="btn btn-primary">질문 등록하기</a> <!-- 보고 있던 카테고리가 기본 선택 -->
         </div>
         <div class="col-6">
             <!-- 검색 폼 : 전송하면 GET /questions?kw=검색어 (폼은 URL 생성기). page 가 없으므로 첫 페이지부터 -->

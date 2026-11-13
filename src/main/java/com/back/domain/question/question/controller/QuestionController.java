@@ -3,6 +3,7 @@ package com.back.domain.question.question.controller;
 import com.back.domain.question.answer.controller.AnswerController;
 import com.back.domain.question.answer.entity.Answer;
 import com.back.domain.question.answer.service.AnswerService;
+import com.back.domain.question.category.entity.Category;
 import com.back.domain.question.category.service.CategoryService;
 import com.back.domain.question.question.entity.Question;
 import com.back.domain.question.question.service.QuestionService;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Principal;
+import java.util.List;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
 
@@ -41,6 +43,12 @@ public class QuestionController {
     private final AnswerService answerService;
     private final CategoryService categoryService;
 
+    // 이 컨트롤러의 모든 액션이 실행되기 전에 모델에 "categories" 를 넣는다. (목록 탭, 등록·수정 폼의 선택 상자)
+    @ModelAttribute("categories")
+    public List<Category> categories() {
+        return categoryService.findAll();
+    }
+
     @GetMapping // → GET /questions (질문 "목록" = 질문들)
     @Transactional(readOnly = true) // 조회만 하는 요청: 이 메서드가 끝날 때까지 하나의 트랜잭션(DB 연결) 안에서 처리
     public String list(
@@ -50,7 +58,6 @@ public class QuestionController {
             Model model // 스프링이 Model 객체를 만들어서 넣어 준다.
     ) {
         Page<Question> paging = questionService.findPage(page, category, kw); // 질문 10개 + 전체 개수·페이지 정보
-        model.addAttribute("categories", categoryService.findAll()); // 위쪽 카테고리 탭
         model.addAttribute("category", category);
 
         model.addAttribute("paging", paging); // 템플릿에서 ${paging} 으로 꺼내 쓸 수 있게 등록
@@ -82,6 +89,8 @@ public class QuestionController {
     // 폼 입력값을 담는 객체(DTO). record 는 생성자·getter 를 자동으로 만들어 준다.
     // 메시지 형식 "순번-필드명-메시지" : form_errors.html 이 순번으로 정렬하고, 필드명으로 포커스할 칸을 찾는다.
     public record WriteForm(
+            @NotBlank(message = "00-category-카테고리를 선택해주세요.")
+            String category, // 카테고리 code (qna, lecture, free)
             @NotBlank(message = "01-subject-제목을 입력해주세요.") // null, "", "   " 모두 실패
             @Size(min = 2, max = 200, message = "02-subject-제목은 2자 이상, 200자 이하로 입력해주세요.")
             String subject,
@@ -109,7 +118,7 @@ public class QuestionController {
         if (bindingResult.hasErrors()) return "question/question/write";
 
         SiteUser author = userService.findByUsername(principal.getName()).get(); // 로그인한 회원 = 글쓴이
-        Question question = questionService.write(author, form.subject(), form.content());
+        Question question = questionService.write(author, categoryService.getByCode(form.category()), form.subject(), form.content());
 
         return "redirect:/questions/" + question.getId(); // 방금 등록한 질문의 상세 페이지로 이동
     }
@@ -122,6 +131,8 @@ public class QuestionController {
     }
 
     public record ModifyForm(
+            @NotBlank(message = "00-category-카테고리를 선택해주세요.")
+            String category, // 카테고리 code (qna, lecture, free)
             @NotBlank(message = "01-subject-제목을 입력해주세요.")
             @Size(min = 2, max = 200, message = "02-subject-제목은 2자 이상, 200자 이하로 입력해주세요.")
             String subject,
@@ -139,7 +150,7 @@ public class QuestionController {
         checkAuthor(question.getAuthor(), principal);
 
         model.addAttribute("question", question);
-        model.addAttribute("form", new ModifyForm(question.getSubject(), question.getContent())); // 기존 값을 채운 폼
+        model.addAttribute("form", new ModifyForm(question.getCategory().getCode(), question.getSubject(), question.getContent())); // 기존 값을 채운 폼
 
         return "question/question/modify";
     }
@@ -162,7 +173,7 @@ public class QuestionController {
             return "question/question/modify";
         }
 
-        questionService.modify(question, form.subject(), form.content());
+        questionService.modify(question, categoryService.getByCode(form.category()), form.subject(), form.content());
 
         return "redirect:/questions/" + id;
     }

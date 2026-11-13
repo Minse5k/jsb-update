@@ -10,6 +10,13 @@
         <input type="hidden" name="_method" value="PUT">
         <div th:replace="~{form_errors :: formErrorsFragment}"></div>
         <div class="mb-3">
+            <label for="category" class="form-label">카테고리</label>
+            <!-- th:field 는 select 에서도 form.category 와 같은 값의 option 에 selected 를 붙여 준다. -->
+            <select th:field="*{category}" class="form-select">
+                <option th:each="c : ${categories}" th:value="${c.code}" th:text="${c.name}"></option>
+            </select>
+        </div>
+        <div class="mb-3">
             <label for="subject" class="form-label">제목</label>
             <input type="text" th:field="*{subject}" class="form-control" autofocus>
         </div>

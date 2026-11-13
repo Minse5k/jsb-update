@@ -134,6 +134,7 @@ public class QuestionControllerTest {
                         post("/questions/write")
                                 .with(csrf()) // 시큐리티 테스트 도구 : 진짜 폼처럼 CSRF 토큰을 붙여서 보낸다.
                                 .with(user("user1")) // user1(샘플 회원)로 로그인한 상태
+                                .param("category", "qna")
                                 .param("subject", "새 질문 제목")
                                 .param("content", "새 질문 내용")
                 )
@@ -160,6 +161,7 @@ public class QuestionControllerTest {
                         post("/questions/write")
                                 .with(csrf()) // 시큐리티 테스트 도구 : 진짜 폼처럼 CSRF 토큰을 붙여서 보낸다.
                                 .with(user("user1")) // user1(샘플 회원)로 로그인한 상태
+                                .param("category", "qna")
                                 .param("subject", "   ") // 공백만
                                 .param("content", "내용은 입력함")
                 )
@@ -208,6 +210,7 @@ public class QuestionControllerTest {
         ResultActions resultActions = mvc
                 .perform(
                         post("/questions/write") // .with(csrf()) 없음 = 다른 사이트에서 몰래 보낸 요청과 같다.
+                                .param("category", "qna")
                                 .param("subject", "토큰 없는 질문")
                                 .param("content", "토큰 없는 내용")
                 )
@@ -237,6 +240,7 @@ public class QuestionControllerTest {
                         post("/questions/write")
                                 .with(csrf())
                                 .with(user("user2"))
+                                .param("category", "qna")
                                 .param("subject", "user2 의 질문")
                                 .param("content", "글쓴이 확인")
                 )
@@ -269,6 +273,7 @@ public class QuestionControllerTest {
                         put("/questions/1/modify")
                                 .with(csrf())
                                 .with(user("user2"))
+                                .param("category", "qna")
                                 .param("subject", "남이 바꾼 제목")
                                 .param("content", "남이 바꾼 내용")
                 )
@@ -280,6 +285,7 @@ public class QuestionControllerTest {
                                 .param("_method", "PUT")
                                 .with(csrf())
                                 .with(user("user1"))
+                                .param("category", "qna")
                                 .param("subject", "수정된 제목")
                                 .param("content", "수정된 내용")
                 )
@@ -467,5 +473,28 @@ public class QuestionControllerTest {
                 .perform(get("/questions")) // 전체
                 .andExpect(content().string(containsString("자유게시판 첫 글")))
                 .andExpect(content().string(containsString("sbb가 무엇인가요?")));
+    }
+
+    @Test
+    @DisplayName("카테고리 선택 : 등록 화면은 보던 카테고리가 기본 선택이고, 고른 카테고리로 저장·수정된다.")
+    void t25() throws Exception {
+        mvc
+                .perform(get("/questions/write").param("category", "lecture").with(user("user1")))
+                .andExpect(content().string(containsString("<option value=\"lecture\" selected=\"selected\">강좌</option>")))
+                .andExpect(content().string(containsString("action=\"/questions/write\""))); // 폼 주소에 ?category= 가 붙지 않음
+
+        mvc
+                .perform(post("/questions/write").with(csrf()).with(user("user1"))
+                        .param("category", "free").param("subject", "카테고리 글").param("content", "내용"))
+                .andExpect(status().is3xxRedirection());
+        Question question = questionRepository.findBySubject("카테고리 글").get();
+        assertThat(question.getCategory().getCode()).isEqualTo("free");
+
+        mvc
+                .perform(post("/questions/%d/modify".formatted(question.getId())).param("_method", "PUT")
+                        .with(csrf()).with(user("user1"))
+                        .param("category", "lecture").param("subject", "카테고리 글").param("content", "내용"))
+                .andExpect(status().is3xxRedirection());
+        assertThat(questionRepository.findBySubject("카테고리 글").get().getCategory().getCode()).isEqualTo("lecture");
     }
 }

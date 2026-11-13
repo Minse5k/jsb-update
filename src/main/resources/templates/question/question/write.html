@@ -6,11 +6,20 @@
 <div layout:fragment="content" class="container">
     <h5 class="my-3 border-bottom pb-2">질문 등록</h5>
     <!-- th:object : 이 폼 안에서 *{...} 는 form.... 을 뜻한다. -->
-    <!-- th:action (값 없음) : action 은 현재 주소(/questions/write) 그대로 + 타임리프가 CSRF 토큰 숨은 칸(_csrf)을 자동으로 넣어 준다. -->
-    <form method="post" th:action th:object="${form}">
+    <!-- th:action 으로 CSRF 토큰 숨은 칸(_csrf)을 자동으로 넣는다. -->
+    <!-- 주소를 /questions/write 로 적어 둔다 : 값을 비우면 현재 주소의 ?category=… 까지 그대로 붙어서, -->
+    <!-- 선택 상자의 category 와 겹쳐 "free,free" 처럼 두 값이 합쳐진다. -->
+    <form method="post" th:action="@{/questions/write}" th:object="${form}">
         <!-- 검증 실패 메시지 (templates/form_errors.html 의 formErrorsFragment 로 교체된다) -->
         <div th:replace="~{form_errors :: formErrorsFragment}"></div>
 
+        <div class="mb-3">
+            <label for="category" class="form-label">카테고리</label>
+            <!-- th:field 는 select 에서도 form.category 와 같은 값의 option 에 selected 를 붙여 준다. -->
+            <select th:field="*{category}" class="form-select">
+                <option th:each="c : ${categories}" th:value="${c.code}" th:text="${c.name}"></option>
+            </select>
+        </div>
         <div class="mb-3">
             <label for="subject" class="form-label">제목</label>
             <!-- th:field="*{subject}" → id="subject" name="subject" value="(form.subject 값)" 을 만들어 준다. -->

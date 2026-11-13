@@ -78,7 +78,7 @@ public class QuestionService {
         questionRepository.delete(question); // cascade REMOVE 로 답변들도 함께 삭제 (005-06)
     }
 
-    public void modify(Question question, String subject, String content) {
-        question.modify(subject, content); // 트랜잭션이 끝날 때 더티체킹으로 UPDATE (005-05), modifyDate 는 Auditing 이 갱신
+    public void modify(Question question, Category category, String subject, String content) {
+        question.modify(category, subject, content); // 트랜잭션이 끝날 때 더티체킹으로 UPDATE (005-05), modifyDate 는 Auditing 이 갱신
     }
 }

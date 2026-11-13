@@ -80,7 +80,7 @@ public class QuestionRepositoryTest {
     void t6() {
         Question question = questionRepository.findById(1).get();
 
-        question.modify("수정된 제목", "수정된 내용");
+        question.modify(question.getCategory(), "수정된 제목", "수정된 내용");
         // questionRepository.save(question) 를 호출하지 않아도 된다.
         // JPA가 조회 시점의 값과 지금 값을 비교해서 바뀐 것이 있으면 UPDATE 한다.
 
@@ -141,7 +141,7 @@ public class QuestionRepositoryTest {
         assertThat(question.getModifyDate()).isEqualTo(question.getCreateDate());
 
         Thread.sleep(10); // 시간이 조금 흐른 뒤에 수정
-        question.modify("날짜 확인 (수정)", "내용");
+        question.modify(null, "날짜 확인 (수정)", "내용");
         questionRepository.flush(); // UPDATE 직전에 @LastModifiedDate 가 갱신된다.
 
         assertThat(question.getModifyDate()).isAfter(question.getCreateDate());
