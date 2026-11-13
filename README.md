@@ -317,3 +317,12 @@
   - 불러오는 방법: 교재는 bootstrap.min.css 파일을 내려받아 `static`에 복사. 강의(14163 39강 "cdnjs.com를 통해서 프론트엔드 라이브러리를 다운로드 하지 않고 사용")는 cdnjs 주소를 `<link>`로 연결 → 강의 방식 채택. 프로젝트에 큰 라이브러리 파일을 커밋하지 않아도 되고 버전 변경이 주소 한 줄로 끝남
   - 아직 두 템플릿에 `<head>`가 똑같이 반복됨 → 다음 커밋(012-03)에서 공통 레이아웃으로 정리
 - 결과: 테스트 통과, 브라우저에서 목록 표(검은 헤더)와 상세 카드 화면 확인
+
+### 012-03 디자인, 공통 레이아웃(layout.html)과 페이지별 제목
+- [링크](https://github.com/Minse5k/jsb-update/tree/012-03)
+- 작업: 공통 레이아웃 — `thymeleaf-layout-dialect` 의존성, `templates/layout.html`(doctype, 메타, 부트스트랩 CSS·JS, style.css), 목록·상세는 `layout:decorate="~{layout}"` + `layout:fragment="content"`만 작성, 페이지 제목은 `layout:title-pattern`
+- 이유:
+  - 교재(2-15 "표준 HTML 구조로 변경하기")·강의(14168 44강 레이아웃)와 같은 layout dialect 방식. 012-02에서 템플릿마다 반복되던 `<head>`가 layout.html 한 곳으로 모임
+  - 페이지 제목: 교재는 layout.html에 `Hello, sbb!` 고정. 강의(14168 45강 "title 엘리먼트의 layout:title-pattern 속성을 통해서 각 페이지 별 고유의 title")는 페이지마다 `<title>`을 쓰면 `질문 목록 | SBB`처럼 합쳐 줌 → 강의 방식 채택. 브라우저 탭만 봐도 어느 화면인지 구분됨
+  - 부트스트랩 JS도 layout에서 한 번 불러옴(다음 기능의 내비게이션 바 접기 버튼에 필요). `bootstrap.bundle.min.js`는 드롭다운 등에 필요한 Popper까지 포함한 파일
+- 결과: 테스트 통과, 브라우저 탭 제목이 `질문 목록 | SBB`, `질문 상세 | SBB`로 표시, `<!doctype html>`과 CSS 2개 로드 확인

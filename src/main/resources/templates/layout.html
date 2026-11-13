@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- 각 페이지의 <title> 이 $CONTENT_TITLE, 여기의 SBB 가 $LAYOUT_TITLE -->
+    <title layout:title-pattern="$CONTENT_TITLE | $LAYOUT_TITLE">SBB</title>
+
+    <!-- 부트스트랩 (cdnjs) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.8/css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.8/js/bootstrap.bundle.min.js" defer></script>
+
+    <link rel="stylesheet" th:href="@{/resource/style.css}">
+</head>
+<body>
+
+<!-- 각 페이지의 layout:fragment="content" 가 이 자리에 들어온다. -->
+<th:block layout:fragment="content"></th:block>
+
+</body>
+</html>
