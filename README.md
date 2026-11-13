@@ -6,12 +6,87 @@
 - Spring Boot 4.1.2
 - Java 25
 - Gradle (Kotlin DSL)
-- 의존성: Spring Web MVC, Thymeleaf, Spring Data JPA, H2, Lombok, DevTools, Validation
+- 의존성: Spring Web MVC, Thymeleaf(+ layout dialect, springsecurity6), Spring Data JPA, H2, Spring Security, Validation, Lombok, DevTools, commonmark
 
 ## 참고 자료
-- [점프 투 스프링부트 교재](https://wikidocs.net/book/7601)
-- [14163 강의 — 점프 투 스프링부트 개선](https://www.slog.gg/p/14163/raw)
-- [14168 강의 — JPA, 타임리프 개선](https://www.slog.gg/p/14168/raw)
+- [점프 투 스프링부트 교재](https://wikidocs.net/book/7601) / 교재 코드 [pahkey/sbb3](https://github.com/pahkey/sbb3) (절별 태그 `v2.03` ~ `v3.13`)
+- [14163 강의 — 점프 투 스프링부트 개선](https://www.slog.gg/p/14163/raw) / [jhs512/p-14163-2](https://github.com/jhs512/p-14163-2)
+- [14168 강의 — JPA, 타임리프 개선](https://www.slog.gg/p/14168/raw) / [jhs512/p-14168-2](https://github.com/jhs512/p-14168-2)
+
+## 실행 방법
+```bash
+./gradlew bootRun
+```
+- `http://localhost:8080` → 질문 목록
+- 샘플 회원: `admin`, `user1`, `user2` (비밀번호 모두 `1234`, 개발·테스트용)
+- 개발 실행(dev 프로필)에서는 페이징 확인용 질문 300개가 추가로 만들어짐
+- H2 콘솔: `http://localhost:8080/h2-console` (JDBC URL `jdbc:h2:./db_dev;MODE=MySQL`, 사용자 `sa`)
+
+## 커밋을 하나씩 따라가는 방법
+- 커밋 번호는 `기능번호-단계번호`입니다. 예) `020-02` = 20번째 기능(수정·삭제)의 2단계(질문 삭제)
+- 각 커밋에는 같은 이름의 태그가 있습니다. 아래 작업내역의 `[링크]`를 누르면 그 시점의 코드 전체를 볼 수 있습니다.
+- 그 단계에서 바뀐 코드만 보려면:
+  ```bash
+  git show 020-02
+  ```
+- 그 시점으로 코드를 되돌려 직접 실행해 보려면(돌아올 때는 `git switch main`):
+  ```bash
+  git switch --detach 020-02
+  ```
+- 작업내역의 각 항목은 **작업 / 이유(교재와 강의 중 무엇을 왜 골랐는지) / 결과(테스트·브라우저 확인)** 순서입니다.
+- 일부러 실패 상태로 남긴 커밋이 두 개 있습니다. 실패를 직접 보는 것이 목적이고, 바로 다음 커밋에서 해결합니다.
+  - `016-01` 시큐리티 의존성만 추가 → 모든 요청이 막힘
+  - `016-02` 모든 요청 허용 → CSRF 토큰 없는 POST는 아직 403
+- 문제를 발견한 상태를 그대로 남긴 커밋: `023-01` 마크다운 적용(XSS 취약점 발견) → `023-02`에서 해결
+
+## 기능 목차
+
+| 기능 | 내용 | 교재 |
+|---|---|---|
+| 001 | 프로젝트 세팅 | 1-03 |
+| 002 | Hello 페이지 | 1-03, 2-02 |
+| 003 | DB 설정 (yaml, dev/test 프로필, SQL 로그) | 2-03 |
+| 004 | 질문·답변 엔티티 (BaseEntity, 연관관계) | 2-04 |
+| 005 | 리포지터리와 샘플 데이터 | 2-05, 2-06 |
+| 006 | 질문 목록 | 2-07 |
+| 007 | 루트 URL | 2-08 |
+| 008 | 서비스 | 2-09 |
+| 009 | 상세 페이지 | 2-10 |
+| 010 | URL 프리픽스 (`/questions`) | 2-11 |
+| 011 | 답변 기능 | 2-12 |
+| 012 | 디자인 (CSS, 부트스트랩, 레이아웃) | 2-13 ~ 2-15 |
+| 013 | 질문 등록과 입력값 검증 | 2-16 |
+| 014 | 내비게이션 바 | 3-01 |
+| 015 | 페이징, 게시물 번호, 답변 개수 | 3-02 ~ 3-04 |
+| 016 | 스프링 시큐리티 | 3-05 |
+| 017 | 회원가입 | 3-06 |
+| 018 | 로그인·로그아웃 | 3-07 |
+| 019 | 글쓴이 | 3-08 |
+| 020 | 수정·삭제 | 3-09 |
+| 021 | 추천 | 3-10 |
+| 022 | 앵커 | 3-11 |
+| 023 | 마크다운 | 3-12 |
+| 024 | 검색 | 3-13 |
+
+교재 3-14(추가 기능 도전과제)는 별도 과제로 남겨 두었습니다.
+
+## URL 정리 (교재와 비교)
+
+| 기능 | 교재 | 이 프로젝트 |
+|---|---|---|
+| 질문 목록 | `GET /question/list` | `GET /questions` |
+| 질문 상세 | `GET /question/detail/{id}` | `GET /questions/{id}` |
+| 질문 등록 | `GET·POST /question/create` | `GET·POST /questions/write` |
+| 질문 수정 | `GET·POST /question/modify/{id}` | `GET /questions/{id}/modify`, `PUT /questions/{id}/modify` |
+| 질문 삭제 | `GET /question/delete/{id}` | `DELETE /questions/{id}` |
+| 질문 추천 | `GET /question/vote/{id}` | `POST /questions/{id}/vote` |
+| 답변 등록 | `POST /answer/create/{id}` | `POST /questions/{id}/answers` |
+| 답변 수정 | `GET·POST /answer/modify/{id}` | `GET /questions/{qid}/answers/{id}/modify`, `PUT …/modify` |
+| 답변 삭제 | `GET /answer/delete/{id}` | `DELETE /questions/{qid}/answers/{id}` |
+| 답변 추천 | `GET /answer/vote/{id}` | `POST /questions/{qid}/answers/{id}/vote` |
+| 회원가입 | `GET·POST /user/signup` | `GET·POST /users/join` |
+| 로그인 | `GET·POST /user/login` | `GET·POST /users/login` |
+| 로그아웃 | `GET /user/logout` | `POST /users/logout` |
 
 ## 작업내역
 
@@ -727,3 +802,11 @@
   - 새로 검색하면 폼에 `page`가 없어서 자동으로 첫 페이지(교재의 "검색 시 page=0" 처리와 같은 효과)
   - 한글 검색어는 타임리프가 링크에서 URL 인코딩해 줌(테스트에서 확인)
 - 결과: 테스트 51개 통과(검색창 값 유지, 페이지 링크에 kw). 브라우저에서 "테스트 데이터입니다:[2" 검색 → 결과 100건 중 첫 페이지 10개(`[299]`~`[290]`, 번호 100~91), 검색창에 검색어 유지, "다음" 링크가 `/questions?page=1&kw=테스트 데이터입니다:[2`
+
+### 025-01 문서, README에 따라가는 방법과 기능 목차
+- [링크](https://github.com/Minse5k/jsb-update/tree/025-01)
+- 작업: README 앞부분에 실행 방법(샘플 회원, H2 콘솔), 커밋을 하나씩 따라가는 방법(`git show 태그`, 일부러 실패 상태로 남긴 커밋 안내), 기능 목차(기능 번호 ↔ 교재 절), 교재와 이 프로젝트의 URL 비교표 추가
+- 이유:
+  - 미션 목표 중 하나가 "누군가 커밋 내용을 보면서 천천히 따라할 수 있는 저장소". 작업내역이 길어져서 처음 보는 사람이 어디서부터 어떻게 보면 되는지 입구가 필요함
+  - URL 비교표: 010-02 이후 URL이 교재와 달라졌으므로 교재와 나란히 볼 때 한눈에 대응되도록
+- 결과: 문서만 변경. 전체 테스트 51개 통과 상태 유지
