@@ -484,3 +484,14 @@
   - 016-02에서 답변 폼이 이미 동작했던 이유가 바로 이것: 답변 폼은 처음부터 `th:action`을 썼음
   - `th:action`에 값이 없으면 action은 현재 주소 그대로(013-01의 "action 생략"과 같은 효과)
 - 결과: 테스트 23개 모두 통과로 복구(토큰 없는 POST → 403 테스트 포함). 브라우저에서 질문 등록 폼에 `_csrf` 칸이 생겼고, 등록 → `/questions/304` 상세로 이동 확인
+
+### 017-01 회원가입, SiteUser 엔티티와 UserRepository
+- [링크](https://github.com/Minse5k/jsb-update/tree/017-01)
+- 작업: 회원 엔티티 `SiteUser`(username·email 유니크, password)와 `UserRepository`(`findByUsername`, `findByEmail`)
+- 이유:
+  - 엔티티 구성과 이름 `SiteUser`는 교재(3-06)와 같음. `User`라고 하지 않는 이유는 스프링 시큐리티에 이미 `User` 클래스가 있기 때문
+  - 강의(14168)처럼 `BaseEntity` 상속(가입일시가 자동 기록됨), `@Setter` 대신 생성자. 교재는 id가 `Long`이고 공통 부모가 없음
+  - 패키지는 지금까지와 같은 `domain.{도메인}.{세부도메인}` 구조로 `domain.user.user`
+  - 메서드 이름: 교재 코드는 `findByusername`(소문자 u). 메서드 이름 규칙상 `findByUsername`이 정확한 표기라 고쳐서 씀
+  - `findByEmail`은 다음 커밋의 이메일 중복 확인에 사용
+- 결과: 테스트 통과, 로그에서 `create table site_user`와 `unique (email)`, `unique (username)` 제약 생성 확인
