@@ -35,4 +35,18 @@ public class HomeControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string("Hello World"));
     }
+
+    @Test
+    @DisplayName("GET / 요청 시 질문 목록(/question/list)으로 리다이렉트한다.")
+    void t2() throws Exception {
+        ResultActions resultActions = mvc
+                .perform(get("/"))
+                .andDo(print());
+
+        resultActions
+                .andExpect(handler().handlerType(HomeController.class))
+                .andExpect(handler().methodName("root"))
+                .andExpect(status().is3xxRedirection()) // 302
+                .andExpect(redirectedUrl("/question/list"));
+    }
 }

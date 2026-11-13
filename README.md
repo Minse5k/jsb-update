@@ -203,3 +203,11 @@
   - `loop.count`: `th:each`의 반복 상태 변수로 1부터 세는 순번(14163 레포 `question_list.html`과 같음). 진짜 게시물 번호 계산은 3-03(페이징 후)에서
   - 작성일시는 004-01의 JPA Auditing이 자동으로 채운 값 → 교재처럼 서비스에서 `setCreateDate` 하지 않았는데도 날짜가 나옴
 - 결과: 테스트 통과. 서버 재시작 없이 템플릿 저장 후 새로고침만으로 반영됨(006-02의 `prefix` 설정 효과), 작성일시 `2026-11-13 12:23` 표시 확인
+
+### 007-01 루트 URL, / 접속 시 질문 목록으로 리다이렉트
+- [링크](https://github.com/Minse5k/jsb-update/tree/007-01)
+- 작업: `HomeController`에 `GET /` → `redirect:/question/list` 추가, 리다이렉트 테스트
+- 이유:
+  - 교재(2-08)는 `MainController`를 새로 만들어 `/`를 처리함. 002-01에서 정한 대로 사이트 홈 역할인 `HomeController`에 넣음(강의 14163 레포도 `MainController` 하나에 `/` 처리)
+  - `redirect:`는 서버가 직접 목록 화면을 그리는 게 아니라, 브라우저에게 "`/question/list`로 다시 요청해"라고 302 응답을 보내는 것. 그래서 주소창도 `/question/list`로 바뀜(14168 28강 "액션메서드에서 바로 302로 응답")
+- 결과: 테스트 13개 통과(302, redirectedUrl 확인), 브라우저에서 `localhost:8080/` 접속 시 주소가 `/question/list`로 바뀌는 것 확인
