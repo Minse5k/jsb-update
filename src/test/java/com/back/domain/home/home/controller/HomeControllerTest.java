@@ -37,7 +37,7 @@ public class HomeControllerTest {
     }
 
     @Test
-    @DisplayName("GET / 요청 시 질문 목록(/question/list)으로 리다이렉트한다.")
+    @DisplayName("GET / 요청 시 질문 목록(/questions)으로 리다이렉트한다.")
     void t2() throws Exception {
         ResultActions resultActions = mvc
                 .perform(get("/"))
@@ -47,6 +47,6 @@ public class HomeControllerTest {
                 .andExpect(handler().handlerType(HomeController.class))
                 .andExpect(handler().methodName("root"))
                 .andExpect(status().is3xxRedirection()) // 302
-                .andExpect(redirectedUrl("/question/list"));
+                .andExpect(redirectedUrl("/questions"));
     }
 }

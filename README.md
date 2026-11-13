@@ -267,3 +267,13 @@
   - 교재(2-11)·강의(14163 036)와 같음. 클래스에 붙인 주소가 모든 메서드 주소 앞에 붙음 → 중복 제거
   - 실제 URL은 바뀌지 않았으므로 기존 테스트가 그대로 통과해야 함(리팩터링 확인)
 - 결과: 테스트 15개 모두 그대로 통과
+
+### 010-02 URL 프리픽스, 질문 URL을 /questions, /questions/{id}로
+- [링크](https://github.com/Minse5k/jsb-update/tree/010-02)
+- 작업: 질문 URL 변경 — 목록 `GET /question/list` → `GET /questions`, 상세 `GET /question/detail/{id}` → `GET /questions/{id}`. 링크·리다이렉트·테스트도 함께 수정
+- 이유:
+  - 교재(2-11)와 강의 14163 코드는 `/question/list`, `/question/detail/5`를 그대로 씀
+  - 그런데 강의(14163 37강 "HTTP URL의 좋은 예와 나쁜 예시")는 `GET /questions`(목록은 복수형 명사), 상세는 `detail` 같은 동사 없이 `/명사/번호`가 좋은 예라고 설명함. 14168 강의 코드도 `/posts`, `/posts/{id}` 방식 → 강의가 "좋은 예"로 든 방식 채택
+  - 더 좋은 이유: URL은 "무엇(자원)"만 나타내고 "무엇을 할지"는 HTTP 메서드(GET/POST/PUT/DELETE)로 구분하는 규칙이 앞으로 등록·수정·삭제 URL에도 일관되게 적용됨
+  - 이 변경 때문에 앞으로의 URL은 교재와 다름: 교재 `/question/create` → 이 프로젝트 `/questions/write` 처럼(각 커밋에서 대응 관계를 적음)
+- 결과: 테스트 15개 통과, 브라우저에서 `/` → `/questions`, 제목 링크가 `/questions/2`로 바뀐 것 확인

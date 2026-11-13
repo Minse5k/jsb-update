@@ -16,6 +16,6 @@ public class HomeController {
     @GetMapping("/")
     public String root() {
         // "redirect:주소" 를 리턴하면 브라우저에게 "그 주소로 다시 요청하라"(302)고 응답한다.
-        return "redirect:/question/list";
+        return "redirect:/questions";
     }
 }

@@ -26,10 +26,10 @@ public class QuestionControllerTest {
     private MockMvc mvc;
 
     @Test
-    @DisplayName("GET /question/list : 질문 목록에 샘플 질문 제목들이 보인다.")
+    @DisplayName("GET /questions : 질문 목록에 샘플 질문 제목들이 보인다.")
     void t1() throws Exception {
         ResultActions resultActions = mvc
-                .perform(get("/question/list"))
+                .perform(get("/questions"))
                 .andDo(print());
 
         resultActions
@@ -39,14 +39,14 @@ public class QuestionControllerTest {
                 .andExpect(view().name("question/question/list")) // 어떤 템플릿으로 그렸는지
                 .andExpect(content().string(containsString("sbb가 무엇인가요?")))
                 .andExpect(content().string(containsString("스프링부트 모델 질문입니다.")))
-                .andExpect(content().string(containsString("href=\"/question/detail/1\""))); // 제목이 상세 페이지 링크인지
+                .andExpect(content().string(containsString("href=\"/questions/1\""))); // 제목이 상세 페이지 링크인지
     }
 
     @Test
-    @DisplayName("GET /question/detail/1 : 1번 질문의 제목과 내용이 보인다.")
+    @DisplayName("GET /questions/1 : 1번 질문의 제목과 내용이 보인다.")
     void t2() throws Exception {
         ResultActions resultActions = mvc
-                .perform(get("/question/detail/1"))
+                .perform(get("/questions/1"))
                 .andDo(print());
 
         resultActions
@@ -59,10 +59,10 @@ public class QuestionControllerTest {
     }
 
     @Test
-    @DisplayName("GET /question/detail/999 : 없는 질문이면 404 로 응답한다.")
+    @DisplayName("GET /questions/999 : 없는 질문이면 404 로 응답한다.")
     void t3() throws Exception {
         ResultActions resultActions = mvc
-                .perform(get("/question/detail/999"))
+                .perform(get("/questions/999"))
                 .andDo(print());
 
         resultActions
