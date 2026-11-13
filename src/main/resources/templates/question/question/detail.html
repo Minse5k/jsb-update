@@ -48,6 +48,12 @@
                    sec:authorize="isAuthenticated()"
                    th:if="${question.author != null and #authentication.name == question.author.username}">삭제</a>
             </div>
+            <!-- 질문 댓글 -->
+            <div th:replace="~{question/comment/comments :: commentsFragment(
+                    ${question.comments},
+                    @{|/questions/${question.id}/comments|},
+                    @{|/questions/${question.id}/comments|},
+                    'question_comments')}"></div>
         </div>
     </div>
 

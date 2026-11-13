@@ -1,0 +1,23 @@
+<!-- 댓글 목록 + 작성 폼 공통 조각 (질문 아래, 답변 아래에서 같이 쓴다) -->
+<!--   comments  : 댓글 목록 -->
+<!--   writeUrl  : 등록 주소 (POST) -->
+<!--   deleteUrl : 삭제 주소 앞부분 (뒤에 /{댓글번호} 를 붙여 DELETE) -->
+<!--   anchor    : 이 영역의 id (등록·삭제 후 이 위치로 돌아온다) -->
+<div th:fragment="commentsFragment(comments, writeUrl, deleteUrl, anchor)" th:id="${anchor}" class="mt-3 pt-2 border-top">
+    <div th:each="comment : ${comments}" class="small py-1 border-bottom d-flex gap-2 align-items-baseline">
+        <span th:text="${comment.content}" class="flex-grow-1" style="white-space: pre-line;"></span>
+        <span class="text-secondary" th:text="${comment.author?.username}"></span>
+        <span class="text-secondary" th:text="${#temporals.format(comment.createDate, 'MM-dd HH:mm')}"></span>
+        <a th:href="${deleteUrl + '/' + comment.id}" method="DELETE"
+           onclick="return confirm('댓글을 삭제하시겠습니까?');"
+           class="text-danger text-decoration-none"
+           sec:authorize="isAuthenticated()"
+           th:if="${comment.author != null and #authentication.name == comment.author.username}">삭제</a>
+    </div>
+    <!-- 로그인한 회원만 댓글 입력칸이 보인다. th:action 으로 CSRF 토큰 포함 -->
+    <form th:action="${writeUrl}" method="post" class="d-flex gap-2 mt-2" sec:authorize="isAuthenticated()">
+        <input type="text" name="content" class="form-control form-control-sm" placeholder="댓글 달기"
+               required maxlength="500">
+        <button type="submit" class="btn btn-sm btn-outline-secondary text-nowrap">등록</button>
+    </form>
+</div>

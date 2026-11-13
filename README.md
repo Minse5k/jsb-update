@@ -935,3 +935,13 @@
   - `Comment.ofQuestion`/`ofAnswer` 정적 메서드: 둘 중 하나만 채워진다는 규칙을 생성 단계에서 지킴
   - `getTargetQuestion()`: 답변 댓글이 결국 어느 질문 화면에 보이는지 — 링크·리다이렉트에 사용
 - 결과: 테스트 60개 통과(질문·답변 댓글 저장, 답변 댓글의 질문, 목록에서 빼면 삭제), 로그에서 `create table comment (..., answer_id, author_id, question_id)` 확인
+
+### 029-02 댓글, 질문 댓글 등록·삭제
+- [링크](https://github.com/Minse5k/jsb-update/tree/029-02)
+- 작업: 질문 댓글 등록·삭제 — `CommentController`의 `POST /questions/{id}/comments`, `DELETE /questions/{id}/comments/{commentId}`(글쓴이만, 아니면 403), 댓글 목록·입력칸 공통 조각 `templates/question/comment/comments.html`, 질문 카드 아래에 표시
+- 이유:
+  - 주소는 "질문의 댓글들"이라는 하위 자원(011-02 답변과 같은 규칙), 삭제는 DELETE + global.js(020-02와 같은 방식)
+  - 댓글 영역을 매개변수가 있는 조각(`th:fragment="commentsFragment(comments, writeUrl, deleteUrl, anchor)"`)으로: 다음 커밋의 답변 댓글에서 주소만 바꿔 그대로 재사용(013-04 공통 에러 조각과 같은 생각)
+  - 검증 실패 처리: 한 줄짜리 입력이라 질문·답변처럼 에러 메시지 화면을 다시 그리지 않고, 저장하지 않은 채 돌아감. 대신 입력칸에 `required`, `maxlength="500"`을 걸어 브라우저가 먼저 막음(서버의 `@NotBlank`·`@Size`는 그대로 둬서 우회 요청도 막힘 — 14168 35~36강의 "서버 검증은 무조건")
+  - 등록·삭제 후 `#question_comments` 앵커로 돌아옴(022 앵커 방식)
+- 결과: 테스트 62개 통과(등록·상세에 표시, 공백 댓글 저장 안 됨, 다른 회원 삭제 403, 글쓴이 삭제). 브라우저에서 2번 질문에 댓글 등록 → 질문 카드 아래에 글쓴이·시각·삭제 버튼과 함께 표시
