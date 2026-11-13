@@ -134,3 +134,12 @@
   - 메서드 이름 규칙(findBy + 칼럼명 + And + 칼럼명)으로 JPA가 WHERE 조건을 만들어 줌 — 교재(2-05)와 같은 원리
   - 리턴 타입: 교재는 `Question`(없으면 null), 강의(14163 레포 `QuestionRepository`)는 `Optional<Question>` → 강의 방식 채택. 결과가 없을 수 있다는 사실이 타입에 드러나서 null 확인을 깜빡하는 실수를 막음
 - 결과: 테스트 6개 통과
+
+### 005-04 리포지터리, findBySubjectLike
+- [링크](https://github.com/Minse5k/jsb-update/tree/005-04)
+- 작업: `findBySubjectLike` 추가와 테스트(t5)
+- 이유:
+  - 교재(2-05)·강의(14163 16·17강)와 같음. `%`의 위치로 "시작/끝/포함"을 구분
+  - 결과가 여러 개일 수 있어서 리턴 타입은 `List`
+  - 이 메서드는 3-13 검색 기능의 기초 개념(LIKE)이 됨
+- 결과: 테스트 7개 통과

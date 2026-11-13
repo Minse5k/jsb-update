@@ -58,4 +58,15 @@ public class QuestionRepositoryTest {
 
         assertThat(question.getId()).isEqualTo(1);
     }
+
+    @Test
+    @DisplayName("findBySubjectLike : 제목이 sbb 로 시작하는 질문들을 조회한다.")
+    void t5() {
+        List<Question> questions = questionRepository.findBySubjectLike("sbb%");
+        // SELECT * FROM question WHERE subject LIKE 'sbb%'
+        // sbb% : sbb 로 시작 / %sbb : sbb 로 끝남 / %sbb% : sbb 를 포함
+
+        assertThat(questions).hasSize(1);
+        assertThat(questions.get(0).getSubject()).isEqualTo("sbb가 무엇인가요?");
+    }
 }
