@@ -126,4 +126,28 @@ public class QuestionControllerTest {
         assertThat(question.getContent()).isEqualTo("새 질문 내용");
         resultActions.andExpect(redirectedUrl("/questions/" + question.getId())); // 그 질문의 상세 페이지로 갔는지
     }
+
+    @Test
+    @DisplayName("POST /questions/write : 제목이 비어 있으면 저장하지 않고 폼을 다시 보여 주며, 입력한 내용은 유지된다.")
+    void t7() throws Exception {
+        long beforeCount = questionRepository.count();
+
+        ResultActions resultActions = mvc
+                .perform(
+                        post("/questions/write")
+                                .param("subject", "   ") // 공백만
+                                .param("content", "내용은 입력함")
+                )
+                .andDo(print());
+
+        resultActions
+                .andExpect(handler().methodName("write"))
+                .andExpect(status().isOk()) // 리다이렉트가 아니라 폼을 다시 그림
+                .andExpect(view().name("question/question/write"))
+                .andExpect(model().attributeHasFieldErrors("form", "subject"))
+                .andExpect(content().string(containsString("제목을 입력해주세요.")))
+                .andExpect(content().string(containsString("내용은 입력함"))); // 입력값 유지
+
+        assertThat(questionRepository.count()).isEqualTo(beforeCount); // 저장되지 않음
+    }
 }
