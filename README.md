@@ -462,3 +462,15 @@
   - `./gradlew test` → 컨트롤러 테스트 12개 실패. 메시지가 `No handler` / `401` — 요청이 필터에서 막혀 컨트롤러(handler)까지 가지 못했다는 뜻. 리포지터리 테스트(컨트롤러를 거치지 않음)는 통과
   - 브라우저에서 `/questions` 접속 → 시큐리티 기본 로그인 화면(`/login`, "Please sign in")으로 이동
   - 다음 커밋에서 설정으로 해결
+
+### 016-02 시큐리티, SecurityConfig로 모든 요청 허용(POST는 CSRF로 막힘)
+- [링크](https://github.com/Minse5k/jsb-update/tree/016-02)
+- 작업: `global.security.SecurityConfig` — 일단 모든 요청 허용(`/**` permitAll), 정적 파일(`/resource/**`)·H2 콘솔 허용, H2 콘솔용 frame 허용과 CSRF 제외 — **POST 테스트 4개는 아직 실패(CSRF, 다음 커밋에서 해결)**
+- 이유:
+  - 강의(14168 046-2 "모든 요청 허용, 나중을 위해 정적 콘텐츠 폴더에 담기", 레포 `SecurityConfig`)를 그대로 따름. 위치도 강의처럼 `global.security`(교재는 루트 패키지)
+  - 교재(3-05)도 `/**` permitAll, H2 콘솔 CSRF 제외, frame SAMEORIGIN 설정. 다만 교재 코드의 `AntPathRequestMatcher`는 지금 버전(Spring Security 7)에서 사라져서 강의처럼 문자열 경로(`requestMatchers("/h2-console/**")`)를 씀
+  - `/resource/**`를 따로 허용해 두는 이유: 나중에 `/**` 허용을 좁혀도 CSS·JS는 항상 열려 있어야 함(14168 46강, 012-01에서 정적 파일을 한 폴더로 모은 이유)
+  - 시큐리티 기본값 ②(POST·PUT·DELETE는 CSRF 토큰 검사)는 여전히 켜져 있음
+- 결과:
+  - 테스트: GET 테스트는 모두 통과로 돌아옴. POST 테스트 4개는 실패 — CSRF 토큰이 없어서 필터에서 403으로 막힘(의도한 상태)
+  - 브라우저: 목록·상세 정상. 질문 등록 폼 제출 → **403**. 반면 답변 폼에는 `_csrf` 숨은 칸이 이미 들어 있음 — 답변 폼은 `th:action`을 썼고, 질문 등록 폼은 action을 생략했기 때문(다음 커밋의 핵심)
