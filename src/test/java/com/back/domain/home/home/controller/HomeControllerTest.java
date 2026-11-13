@@ -9,6 +9,9 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
+import com.back.domain.question.answer.entity.Answer;
+import com.back.domain.question.question.entity.Question;
+import com.back.domain.question.question.repository.QuestionRepository;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -22,6 +25,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class HomeControllerTest {
     @Autowired
     private MockMvc mvc;
+    @Autowired
+    private QuestionRepository questionRepository;
 
     @Test
     @DisplayName("GET /hello 요청 시 HomeController.hello()가 Hello World를 응답한다.")
@@ -64,5 +69,22 @@ public class HomeControllerTest {
                 .andExpect(content().string(containsString("최근 답변")))
                 .andExpect(content().string(containsString("맞습니다!")))
                 .andExpect(content().string(containsString("href=\"/questions/2/answers/")));
+    }
+
+    @Test
+    @DisplayName("GET /recent : 최근 댓글이 보이고, 질문 댓글·답변 댓글이 각각 알맞은 주소로 연결된다.")
+    void t4() throws Exception {
+        Question question = questionRepository.findById(2).get();
+        Answer answer = question.getAnswers().getFirst();
+        question.addComment(question.getAuthor(), "최근 질문 댓글");
+        answer.addComment(question.getAuthor(), "최근 답변 댓글");
+        questionRepository.flush();
+
+        mvc
+                .perform(get("/recent"))
+                .andExpect(content().string(containsString("최근 질문 댓글")))
+                .andExpect(content().string(containsString("href=\"/questions/2#question_comments\"")))
+                .andExpect(content().string(containsString("최근 답변 댓글")))
+                .andExpect(content().string(containsString("href=\"/questions/2/answers/%d\"".formatted(answer.getId()))));
     }
 }

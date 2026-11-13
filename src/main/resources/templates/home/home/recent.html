@@ -22,6 +22,22 @@
                 <li class="list-group-item text-secondary" th:if="${#lists.isEmpty(recentAnswers)}">아직 답변이 없습니다.</li>
             </ul>
         </div>
+        <div class="col-lg-6">
+            <h5>최근 댓글</h5>
+            <ul class="list-group">
+                <a th:each="comment : ${recentComments}" class="list-group-item list-group-item-action"
+                   th:href="@{${comment.link}}">
+                    <div class="text-truncate" th:text="${comment.content}"></div>
+                    <div class="small text-secondary">
+                        <span th:text="${comment.author?.username}"></span> ·
+                        <span th:text="${comment.answer != null ? '답변 댓글' : '질문 댓글'}"></span> ·
+                        <span th:text="${comment.targetQuestion.subject}"></span> ·
+                        <span th:text="${#temporals.format(comment.createDate, 'MM-dd HH:mm')}"></span>
+                    </div>
+                </a>
+                <li class="list-group-item text-secondary" th:if="${#lists.isEmpty(recentComments)}">아직 댓글이 없습니다.</li>
+            </ul>
+        </div>
     </div>
 </div>
 </html>

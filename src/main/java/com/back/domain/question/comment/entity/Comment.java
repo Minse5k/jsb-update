@@ -49,6 +49,12 @@ public class Comment extends BaseEntity {
         return question != null ? question : answer.getQuestion();
     }
 
+    // 이 댓글을 화면에서 볼 수 있는 주소 : 질문 댓글이면 질문의 댓글 영역, 답변 댓글이면 답변 하나의 주소(030-01)
+    public String getLink() {
+        if (question != null) return "/questions/%d#question_comments".formatted(question.getId());
+        return "/questions/%d/answers/%d".formatted(answer.getQuestion().getId(), answer.getId());
+    }
+
     public void modify(String content) {
         this.content = content;
     }

@@ -1,6 +1,7 @@
 package com.back.domain.home.home.controller;
 
 import com.back.domain.question.answer.service.AnswerService;
+import com.back.domain.question.comment.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @RequiredArgsConstructor
 public class HomeController {
     private final AnswerService answerService;
+    private final CommentService commentService;
 
     @GetMapping("/hello") // GET /hello 요청이 오면 이 메서드가 실행된다.
     @ResponseBody // 리턴값을 템플릿 이름이 아니라 응답 본문(body) 그대로 보낸다.
@@ -25,10 +27,11 @@ public class HomeController {
         return "redirect:/questions";
     }
 
-    @GetMapping("/recent") // GET /recent : 사이트 전체의 최근 답변 (게시판을 가리지 않는 사이트 단위 화면이라 홈에 둔다)
+    @GetMapping("/recent") // GET /recent : 사이트 전체의 최근 답변·댓글 (게시판을 가리지 않는 사이트 단위 화면이라 홈에 둔다)
     @Transactional(readOnly = true)
     public String recent(Model model) {
         model.addAttribute("recentAnswers", answerService.findRecent());
+        model.addAttribute("recentComments", commentService.findRecent());
 
         return "home/home/recent";
     }
