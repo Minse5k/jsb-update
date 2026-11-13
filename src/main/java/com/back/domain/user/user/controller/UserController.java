@@ -119,4 +119,30 @@ public class UserController {
 
         return "redirect:/users/password?changed"; // 새로고침해도 다시 전송되지 않게 (PRG)
     }
+
+    public record ResetForm(
+            @NotBlank(message = "01-email-가입할 때 쓴 이메일을 입력해주세요.")
+            @Email(message = "02-email-이메일 형식이 올바르지 않습니다.")
+            String email
+    ) {
+    }
+
+    @GetMapping("/password/reset") // GET /users/password/reset : 비밀번호 찾기 화면 (로그인하지 않은 사람)
+    public String showResetPassword(@ModelAttribute("form") ResetForm form) {
+        return "user/user/passwordReset";
+    }
+
+    @PostMapping("/password/reset") // POST /users/password/reset : 임시 비밀번호 발송
+    @Transactional
+    public String resetPassword(
+            @ModelAttribute("form") @Valid ResetForm form,
+            BindingResult bindingResult
+    ) {
+        if (bindingResult.hasErrors()) return "user/user/passwordReset";
+
+        userService.resetPassword(form.email());
+
+        // 가입된 이메일이든 아니든 같은 안내 (가입 여부를 알려 주지 않는다)
+        return "redirect:/users/password/reset?sent";
+    }
 }

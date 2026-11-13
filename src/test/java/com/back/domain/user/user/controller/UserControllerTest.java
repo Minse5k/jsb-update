@@ -10,6 +10,10 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
+import com.back.global.mail.DevMailService;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -34,6 +38,8 @@ public class UserControllerTest {
     private MockMvc mvc;
     @Autowired
     private UserService userService;
+    @Autowired
+    private DevMailService devMailService;
 
     @Test
     @DisplayName("GET /users/join : 회원가입 폼이 보인다.")
@@ -193,5 +199,39 @@ public class UserControllerTest {
         mvc
                 .perform(get("/users/password"))
                 .andExpect(redirectedUrl("/users/login"));
+    }
+
+    @Test
+    @DisplayName("POST /users/password/reset : 가입된 이메일이면 임시 비밀번호가 메일로 가고, 그 비밀번호로 로그인된다.")
+    void t11() throws Exception {
+        userService.join("resetUser", "1234", "resetUser@test.com");
+
+        mvc
+                .perform(post("/users/password/reset").with(csrf()).param("email", "resetUser@test.com"))
+                .andExpect(handler().methodName("resetPassword"))
+                .andExpect(redirectedUrl("/users/password/reset?sent"));
+
+        DevMailService.SentMail mail = devMailService.findAll().getFirst(); // 가장 최근 메일
+        assertThat(mail.to()).isEqualTo("resetUser@test.com");
+        Matcher m = Pattern.compile("임시 비밀번호 : (\\S+)").matcher(mail.body());
+        assertThat(m.find()).isTrue();
+        String tempPassword = m.group(1);
+
+        assertThat(userService.matchesPassword(userService.findByUsername("resetUser").get(), "1234")).isFalse();
+        mvc
+                .perform(formLogin("/users/login").user("resetUser").password(tempPassword))
+                .andExpect(authenticated().withUsername("resetUser"));
+    }
+
+    @Test
+    @DisplayName("POST /users/password/reset : 없는 이메일이어도 같은 안내를 하고 메일은 보내지 않는다.")
+    void t12() throws Exception {
+        int before = devMailService.findAll().size();
+
+        mvc
+                .perform(post("/users/password/reset").with(csrf()).param("email", "nobody@test.com"))
+                .andExpect(redirectedUrl("/users/password/reset?sent"));
+
+        assertThat(devMailService.findAll()).hasSize(before);
     }
 }
