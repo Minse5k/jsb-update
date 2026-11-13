@@ -191,8 +191,8 @@ public class QuestionControllerTest {
                 .andExpect(content().string(containsString("페이징 질문 06")))
                 .andExpect(content().string(not(containsString("페이징 질문 16"))))
                 .andExpect(content().string(not(containsString("페이징 질문 05"))))
-                .andExpect(content().string(containsString("href=\"/questions?page=0\""))) // 이전 버튼(0페이지)
-                .andExpect(content().string(containsString("href=\"/questions?page=2\""))); // 다음 버튼(2페이지)
+                .andExpect(content().string(containsString("href=\"/questions?page=0&amp;kw=\""))) // 이전 버튼(0페이지, & 는 HTML 에서 &amp;)
+                .andExpect(content().string(containsString("href=\"/questions?page=2&amp;kw=\""))); // 다음 버튼(2페이지)
     }
 
     @Test
@@ -357,5 +357,19 @@ public class QuestionControllerTest {
                 .andExpect(model().attribute("paging", hasProperty("totalElements", is(1L))))
                 .andExpect(content().string(containsString("스프링부트 모델 질문입니다.")))
                 .andExpect(content().string(not(containsString("sbb가 무엇인가요?"))));
+    }
+
+    @Test
+    @DisplayName("검색 화면 : 검색창에 검색어가 남아 있고, 페이지 링크에도 검색어가 붙는다.")
+    void t19() throws Exception {
+        for (int i = 1; i <= 15; i++) {
+            questionService.write(null, "검색용 질문 %02d".formatted(i), "내용");
+        }
+
+        mvc
+                .perform(get("/questions").param("kw", "검색용"))
+                .andExpect(model().attribute("paging", hasProperty("totalElements", is(15L))))
+                .andExpect(content().string(containsString("name=\"kw\" value=\"검색용\"")))
+                .andExpect(content().string(containsString("href=\"/questions?page=1&amp;kw=%EA%B2%80%EC%83%89%EC%9A%A9\""))); // 한글은 URL 인코딩
     }
 }
