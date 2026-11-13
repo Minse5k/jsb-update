@@ -532,3 +532,14 @@
   - 권한: 교재처럼 `admin`이면 `ROLE_ADMIN`, 나머지는 `ROLE_USER`. 교재는 `UserRole` enum을 따로 만들지만 지금은 두 문자열만 쓰여서 enum 없이 둠(이 프로젝트의 판단)
   - 없는 아이디는 `findByUsername(...).orElseThrow`로 `UsernameNotFoundException`(교재의 `isEmpty` 검사와 같은 동작을 한 줄로)
 - 결과: 테스트 29개 통과(UserDetails 내용, 권한, 없는 회원 예외)
+
+### 018-02 로그인, 로그인 화면과 formLogin 설정
+- [링크](https://github.com/Minse5k/jsb-update/tree/018-02)
+- 작업: 로그인 — `SecurityConfig`에 `formLogin`(화면·처리 주소 `/users/login`, 성공 시 `/`), `GET /users/login` 로그인 화면, 실패 시 안내 문구(`param.error`), 내비게이션 바 "로그인" 링크, 테스트
+- 이유:
+  - 교재(3-07)와 같은 구조: 화면(GET)만 컨트롤러가 그리고, 폼 전송(POST)은 시큐리티 필터가 가로채서 018-01의 `UserSecurityService`로 회원을 찾고 비밀번호를 비교함 → 그래서 POST 처리 메서드가 컨트롤러에 없음
+  - URL: 교재 `/user/login` → 이 프로젝트 규칙대로 `/users/login`. 화면과 처리 주소를 같게 둠(013-01과 같은 GET/POST 규칙)
+  - 폼은 `th:action="@{/users/login}"`으로 CSRF 토큰 자동 포함(016-03)
+  - 실패하면 시큐리티가 `/users/login?error`로 돌려보냄 → 템플릿이 `${param.error}`로 안내 문구 표시(교재와 같음)
+  - 테스트는 시큐리티 테스트 도구 `formLogin()`으로 로그인 폼 전송을 흉내 내고 `authenticated()`/`unauthenticated()`로 로그인 여부까지 확인
+- 결과: 테스트 30개 통과. 브라우저에서 틀린 비밀번호 → `/users/login?error`와 안내 문구, 맞는 비밀번호 → 메인(`/questions`)으로 이동

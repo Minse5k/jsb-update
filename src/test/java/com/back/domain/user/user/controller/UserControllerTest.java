@@ -13,7 +13,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
+import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -102,5 +105,24 @@ public class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(model().attributeHasFieldErrors("form", "username"))
                 .andExpect(content().string(containsString("이미 사용 중인 아이디입니다.")));
+    }
+
+    @Test
+    @DisplayName("POST /users/login : 맞는 아이디·비밀번호면 로그인되어 메인으로, 틀리면 /users/login?error 로 간다.")
+    void t5() throws Exception {
+        userService.join("loginUser", "1234", "loginUser@test.com");
+
+        // formLogin : 로그인 폼 전송(username, password, CSRF 토큰)을 흉내 낸다.
+        mvc
+                .perform(formLogin("/users/login").user("loginUser").password("1234"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"))
+                .andExpect(authenticated().withUsername("loginUser"));
+
+        mvc
+                .perform(formLogin("/users/login").user("loginUser").password("틀린비밀번호"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/users/login?error"))
+                .andExpect(unauthenticated());
     }
 }

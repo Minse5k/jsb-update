@@ -63,4 +63,9 @@ public class UserController {
 
         return "redirect:/";
     }
+
+    @GetMapping("/login") // GET /users/login : 로그인 화면만 보여 준다. 처리(POST)는 시큐리티가 한다.
+    public String showLogin() {
+        return "user/user/login";
+    }
 }
