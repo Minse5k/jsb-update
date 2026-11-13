@@ -22,5 +22,10 @@
         <button type="submit" class="btn btn-primary">로그인</button>
         <a th:href="@{/users/password/reset}" class="ms-2">비밀번호를 잊으셨나요?</a>
     </form>
+    <!-- 카카오 키가 설정되어 있을 때만 -->
+    <div class="mt-4" th:if="${kakaoLoginEnabled}">
+        <!-- 시큐리티가 만들어 둔 주소 : 카카오 로그인 화면으로 보내 준다. -->
+        <a th:href="@{/oauth2/authorization/kakao}" class="btn btn-warning">카카오로 로그인</a>
+    </div>
 </div>
 </html>

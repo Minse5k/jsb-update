@@ -10,6 +10,27 @@ spring:
     hiddenmethod:
       filter:
         enabled: true # 폼의 숨은 칸 _method=PUT/DELETE 를 보고 요청 메서드를 바꿔 준다. (HTML 폼은 GET/POST 만 보낼 수 있으므로)
+  security:
+    oauth2:
+      client:
+        # 카카오 로그인 (OAuth2) : 시큐리티가 카카오 로그인 화면으로 보내고, 돌아온 코드로 토큰·회원 정보를 받아 온다.
+        registration:
+          kakao:
+            # 키는 파일에 적지 않고 환경 변수로 받는다. (공개 저장소에 올라가면 안 되는 값)
+            # 환경 변수가 없으면 not-set → 로그인 화면에 카카오 버튼을 보이지 않는다.
+            client-id: ${KAKAO_CLIENT_ID:not-set}
+            client-secret: ${KAKAO_CLIENT_SECRET:}
+            client-authentication-method: client_secret_post # 카카오는 토큰 요청 본문에 키를 담아 보낸다.
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}" # → http://localhost:8080/login/oauth2/code/kakao
+            client-name: Kakao
+        # 구글·깃허브와 달리 카카오는 시큐리티에 주소가 들어 있지 않아서 직접 적는다.
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id # 회원 정보 응답에서 회원을 구분하는 값
   datasource:
     hikari:
       auto-commit: false # 트랜잭션 경계(@Transactional)에서만 커밋되도록

@@ -40,6 +40,13 @@ public class SecurityConfig {
                                 .loginProcessingUrl("/users/login") // 로그인 처리 : POST /users/login (시큐리티가 처리, 컨트롤러 메서드 없음)
                                 .defaultSuccessUrl("/") // 성공하면 메인으로
                 )
+                .oauth2Login(
+                        oauth2Login -> oauth2Login
+                                .loginPage("/users/login") // 카카오 로그인 버튼도 우리 로그인 화면에 둔다.
+                                .defaultSuccessUrl("/")
+                                // 카카오 버튼 : GET /oauth2/authorization/kakao → 카카오 로그인 화면으로 리다이렉트
+                                // 카카오가 돌려보내는 주소 : GET /login/oauth2/code/kakao (시큐리티가 처리)
+                )
                 .logout(
                         logout -> logout
                                 .logoutUrl("/users/logout") // 로그아웃 처리 : POST /users/logout (CSRF 때문에 GET 으로는 안 된다)

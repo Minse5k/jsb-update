@@ -1042,3 +1042,15 @@
   - 034-01 편집기: 포커스 → 편집기 초기화 순서가 보장돼야 `markdown-editor.js`가 포커스를 편집기로 넘길 수 있음. `DOMContentLoaded`는 화면 끝까지 읽은 뒤 한 번 실행되고, 이 조각의 리스너가 편집기 스크립트보다 먼저 등록되므로 순서가 보장됨
   - 스크립트를 블록 `{ }`으로 감쌈: 한 화면에 이 조각이 두 번 들어가도 `const` 이름이 겹치지 않게
 - 결과: 테스트 76개 통과, 브라우저에서 회원가입 에러 시 아이디 칸, 질문 등록 에러 시 편집기에 포커스(콘솔 오류 없음)
+
+### 035-01 카카오 로그인 설정
+- [링크](https://github.com/Minse5k/jsb-update/tree/035-01)
+- 작업: 카카오 로그인 설정 — `spring-boot-starter-security-oauth2-client`, application.yaml에 카카오 등록 정보(registration)와 주소(provider), `SecurityConfig`에 `oauth2Login`, 로그인 화면에 "카카오로 로그인" 버튼(`/oauth2/authorization/kakao`)
+- 이유:
+  - 교재(3-14) 도전과제: 소셜 로그인. 사용자 결정: 카카오
+  - 직접 카카오 API를 부르는 코드를 쓰지 않고 시큐리티 OAuth2 클라이언트에 맡김: 카카오로 보내기 → 돌아온 코드로 토큰 받기 → 회원 정보 받기를 시큐리티가 처리하고, 우리는 설정만 적음(이 프로젝트의 판단)
+  - 카카오는 구글·깃허브와 달리 시큐리티에 주소가 들어 있지 않아 provider를 직접 적음. 토큰 요청에 키를 본문으로 보내야 해서 `client_secret_post`
+  - 키는 파일에 적지 않고 환경 변수(`KAKAO_CLIENT_ID`, `KAKAO_CLIENT_SECRET`)로 받음: 공개 저장소에 올라가면 안 되는 값. 환경 변수가 없으면 `not-set`이 되고 버튼을 숨김(키 없이 누르면 카카오 오류 화면이 나오므로)
+  - Spring Boot 4에서는 스타터 이름이 `spring-boot-starter-security-oauth2-client`(Maven Central에서 확인)
+  - 테스트 프로필은 가짜 키로 실제 카카오 요청 없이 확인
+- 결과: 테스트 77개 통과(버튼을 누르면 카카오 인증 주소로, 우리 앱 키와 돌아올 주소 `/login/oauth2/code/kakao`를 붙여 리다이렉트)

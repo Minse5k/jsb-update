@@ -1,4 +1,10 @@
 spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-id: test-kakao-client-id # 테스트에서는 가짜 키 (카카오로 실제 요청은 보내지 않는다)
   datasource:
     url: jdbc:h2:mem:db_test;MODE=MySQL # 메모리 DB (테스트가 끝나면 사라짐)
     username: sa

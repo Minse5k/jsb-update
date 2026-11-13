@@ -10,6 +10,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import com.back.domain.user.user.entity.SiteUser;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -78,8 +79,15 @@ public class UserController {
         return "redirect:/";
     }
 
+    // application.yaml 의 카카오 client-id (환경 변수 KAKAO_CLIENT_ID 가 없으면 not-set)
+    @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
+    private String kakaoClientId;
+
     @GetMapping("/login") // GET /users/login : 로그인 화면만 보여 준다. 처리(POST)는 시큐리티가 한다.
-    public String showLogin() {
+    public String showLogin(Model model) {
+        // 키가 없는데 버튼을 누르면 카카오에서 오류 화면이 나오므로, 키가 있을 때만 버튼을 보인다.
+        model.addAttribute("kakaoLoginEnabled", !"not-set".equals(kakaoClientId));
+
         return "user/user/login";
     }
 

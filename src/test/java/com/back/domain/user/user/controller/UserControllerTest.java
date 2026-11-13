@@ -21,6 +21,7 @@ import com.back.domain.user.user.entity.SiteUser;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.startsWith;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -287,5 +288,22 @@ public class UserControllerTest {
                 .perform(get("/users/me"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/users/login"));
+    }
+
+    @Test
+    @DisplayName("카카오 로그인 : 로그인 화면에 카카오 버튼이 있고, 누르면 카카오 로그인 화면으로 리다이렉트된다.")
+    void t16() throws Exception {
+        mvc
+                .perform(get("/users/login"))
+                .andExpect(model().attribute("kakaoLoginEnabled", true))
+                .andExpect(content().string(containsString("href=\"/oauth2/authorization/kakao\"")));
+
+        // 시큐리티가 만들어 둔 주소 : 카카오 인증 주소 + 우리 앱 키 + 돌아올 주소
+        mvc
+                .perform(get("/oauth2/authorization/kakao"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(header().string("Location", startsWith("https://kauth.kakao.com/oauth/authorize?")))
+                .andExpect(header().string("Location", containsString("client_id=test-kakao-client-id")))
+                .andExpect(header().string("Location", containsString("redirect_uri=http://localhost/login/oauth2/code/kakao")));
     }
 }
