@@ -128,4 +128,19 @@ public class QuestionRepositoryTest {
         assertThat(answers).hasSize(2);
         assertThat(answers.get(0).getContent()).isEqualTo("네 자동으로 생성됩니다.");
     }
+
+    @Test
+    @DisplayName("수정일시 : 처음 저장할 때는 작성일시와 같고, 수정하면 작성일시보다 뒤가 된다.(JPA Auditing)")
+    void t10() throws Exception {
+        Question question = questionRepository.save(new Question(null, "날짜 확인", "내용"));
+        questionRepository.flush();
+
+        assertThat(question.getModifyDate()).isEqualTo(question.getCreateDate());
+
+        Thread.sleep(10); // 시간이 조금 흐른 뒤에 수정
+        question.modify("날짜 확인 (수정)", "내용");
+        questionRepository.flush(); // UPDATE 직전에 @LastModifiedDate 가 갱신된다.
+
+        assertThat(question.getModifyDate()).isAfter(question.getCreateDate());
+    }
 }

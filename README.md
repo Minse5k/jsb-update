@@ -639,3 +639,12 @@
   - 삭제 방법: 강의(14168 37강 "@OneToMany 옵션에 orphanRemoval 설정하지 않아서 실패 → orphanRemoval 설정하여 성공", `post.getComments().remove(comment)`)처럼 질문의 `answers`에서 빼기만 하면 004-04에서 걸어 둔 `orphanRemoval = true`가 DELETE를 실행 → 강의 방식 채택. 답변은 처음부터 끝까지(생성 011-02, 조회, 수정 020-03, 삭제) 질문을 통해서만 다룸
   - `remove(answer)`가 정확한 답변을 지우는 이유: `findAnswerById`가 돌려준 것이 리스트 안의 바로 그 객체라서. 강의(14168 37강)는 다른 객체로도 지울 수 있게 `BaseEntity`에 `equals/hashCode`를 추가하지만, 이 프로젝트는 항상 같은 객체로 지워서 아직 필요 없음
 - 결과: 테스트 42개 통과(다른 회원 403, 글쓴이 삭제 후 답변 1개 남음, answer 테이블에서도 사라짐). 브라우저에서 1번 질문의 내 답변 "삭제" → "0개의 답변이 있습니다."
+
+### 020-05 수정·삭제, 수정일시 표시
+- [링크](https://github.com/Minse5k/jsb-update/tree/020-05)
+- 작업: 상세 화면에 수정일시 배지("modified at") — 질문·답변 모두, 수정한 적이 있을 때만(`modifyDate.isAfter(createDate)`). Auditing 동작을 확인하는 리포지터리 테스트(t10)
+- 이유:
+  - 교재(3-09)는 엔티티에 `modifyDate`를 새로 추가하고 서비스에서 `setModifyDate(LocalDateTime.now())`로 넣은 뒤, `modifyDate != null`이면 배지를 보여 줌
+  - 이 프로젝트는 004-01의 `BaseEntity`(강의 14168)에 이미 `@LastModifiedDate modifyDate`가 있어서 엔티티·서비스 변경이 필요 없음 — 공통 부모를 미리 만든 효과
+  - 다만 Auditing은 처음 저장할 때도 수정일시를 작성일시와 같은 값으로 채움(null이 아님). 그래서 교재의 `!= null` 조건 대신 "작성일시보다 뒤인가"로 판단. 이 동작은 테스트로 확인(저장 직후 같음 → 수정 후 뒤)
+- 결과: 테스트 43개 통과. 브라우저에서 020-01에서 수정한 1번 질문에는 "modified at 12:57", 수정하지 않은 2번 질문에는 배지 없음
