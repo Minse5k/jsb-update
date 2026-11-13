@@ -153,18 +153,18 @@ public class QuestionRepositoryTest {
         Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Order.desc("id")));
 
         // 질문 제목
-        assertThat(questionRepository.findAllByKeyword("sbb가", pageable).getContent())
+        assertThat(questionRepository.findAllByKeyword("", "sbb가", pageable).getContent())
                 .extracting("subject").containsExactly("sbb가 무엇인가요?");
         // 답변 내용 ("맞습니다!" 는 2번 질문의 답변)
-        assertThat(questionRepository.findAllByKeyword("맞습니다", pageable).getContent())
+        assertThat(questionRepository.findAllByKeyword("", "맞습니다", pageable).getContent())
                 .extracting("id").containsExactly(2);
         // 답변 글쓴이 (user2 는 2번 질문에만 답변) - 답변 2개가 걸려도 distinct 로 한 번만
-        assertThat(questionRepository.findAllByKeyword("user2", pageable).getContent())
+        assertThat(questionRepository.findAllByKeyword("", "user2", pageable).getContent())
                 .extracting("id").containsExactly(2);
         // 질문 글쓴이 (user1 은 두 질문 모두)
-        assertThat(questionRepository.findAllByKeyword("user1", pageable).getTotalElements()).isEqualTo(2);
+        assertThat(questionRepository.findAllByKeyword("", "user1", pageable).getTotalElements()).isEqualTo(2);
         // 빈 검색어 = 전체
-        assertThat(questionRepository.findAllByKeyword("", pageable).getTotalElements()).isEqualTo(2);
+        assertThat(questionRepository.findAllByKeyword("", "", pageable).getTotalElements()).isEqualTo(2);
     }
 
     @Test

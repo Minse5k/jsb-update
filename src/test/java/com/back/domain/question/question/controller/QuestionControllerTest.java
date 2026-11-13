@@ -15,6 +15,7 @@ import com.back.domain.question.question.repository.QuestionRepository;
 import com.back.domain.question.question.service.QuestionService;
 import com.back.domain.user.user.entity.SiteUser;
 import com.back.domain.user.user.service.UserService;
+import com.back.domain.question.category.service.CategoryService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -40,6 +41,8 @@ public class QuestionControllerTest {
     private QuestionService questionService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private CategoryService categoryService;
 
     @Test
     @DisplayName("GET /questions : 질문 목록에 샘플 질문 제목들이 보인다.")
@@ -195,8 +198,8 @@ public class QuestionControllerTest {
                 .andExpect(content().string(containsString("페이징 질문 06")))
                 .andExpect(content().string(not(containsString("페이징 질문 16"))))
                 .andExpect(content().string(not(containsString("페이징 질문 05"))))
-                .andExpect(content().string(containsString("href=\"/questions?page=0&amp;kw=\""))) // 이전 버튼(0페이지, & 는 HTML 에서 &amp;)
-                .andExpect(content().string(containsString("href=\"/questions?page=2&amp;kw=\""))); // 다음 버튼(2페이지)
+                .andExpect(content().string(containsString("href=\"/questions?page=0&amp;kw=&amp;category=\""))) // 이전 버튼(0페이지, & 는 HTML 에서 &amp;)
+                .andExpect(content().string(containsString("href=\"/questions?page=2&amp;kw=&amp;category=\""))); // 다음 버튼(2페이지)
     }
 
     @Test
@@ -374,7 +377,7 @@ public class QuestionControllerTest {
                 .perform(get("/questions").param("kw", "검색용"))
                 .andExpect(model().attribute("paging", hasProperty("totalElements", is(15L))))
                 .andExpect(content().string(containsString("name=\"kw\" value=\"검색용\"")))
-                .andExpect(content().string(containsString("href=\"/questions?page=1&amp;kw=%EA%B2%80%EC%83%89%EC%9A%A9\""))); // 한글은 URL 인코딩
+                .andExpect(content().string(containsString("href=\"/questions?page=1&amp;kw=%EA%B2%80%EC%83%89%EC%9A%A9&amp;category=\""))); // 한글은 URL 인코딩
     }
 
     @Test
@@ -445,5 +448,24 @@ public class QuestionControllerTest {
         mvc
                 .perform(get("/questions/1"))
                 .andExpect(model().attribute("question", hasProperty("viewCount", is(2))));
+    }
+
+    @Test
+    @DisplayName("GET /questions?category=free : 자유게시판 질문만 보이고, 탭이 강조된다.")
+    void t24() throws Exception {
+        questionService.write(null, categoryService.getByCode("free"), "자유게시판 첫 글", "내용");
+
+        mvc
+                .perform(get("/questions").param("category", "free"))
+                .andExpect(status().isOk())
+                .andExpect(model().attribute("paging", hasProperty("totalElements", is(1L))))
+                .andExpect(content().string(containsString("자유게시판 첫 글")))
+                .andExpect(content().string(not(containsString("sbb가 무엇인가요?"))))
+                .andExpect(content().string(containsString("class=\"nav-link active\" href=\"/questions?category=free\"")));
+
+        mvc
+                .perform(get("/questions")) // 전체
+                .andExpect(content().string(containsString("자유게시판 첫 글")))
+                .andExpect(content().string(containsString("sbb가 무엇인가요?")));
     }
 }

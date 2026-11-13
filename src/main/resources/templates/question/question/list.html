@@ -5,6 +5,17 @@
 </head>
 
 <div layout:fragment="content" class="container my-3">
+    <!-- 카테고리 탭 : 바꾸면 검색어·페이지는 처음부터 -->
+    <ul class="nav nav-pills my-3">
+        <li class="nav-item">
+            <a class="nav-link" th:href="@{/questions}" th:classappend="${category == ''} ? 'active'">전체</a>
+        </li>
+        <li class="nav-item" th:each="c : ${categories}">
+            <a class="nav-link" th:href="@{/questions(category=${c.code})}" th:text="${c.name}"
+               th:classappend="${category == c.code} ? 'active'"></a>
+        </li>
+    </ul>
+
     <div class="row my-3">
         <div class="col-6">
             <a th:href="@{/questions/write}" class="btn btn-primary">질문 등록하기</a>
@@ -12,6 +23,7 @@
         <div class="col-6">
             <!-- 검색 폼 : 전송하면 GET /questions?kw=검색어 (폼은 URL 생성기). page 가 없으므로 첫 페이지부터 -->
             <form th:action="@{/questions}" method="get" class="input-group">
+                <input type="hidden" name="category" th:value="${category}"> <!-- 지금 카테고리 안에서 검색 -->
                 <input type="text" name="kw" th:value="${kw}" class="form-control" placeholder="검색어">
                 <button type="submit" class="btn btn-outline-secondary">찾기</button>
             </form>
@@ -51,22 +63,22 @@
     </table>
 
     <!-- 페이지 이동 -->
-    <!-- @{/questions(page=${...}, kw=${kw})} : /questions?page=값&kw=검색어 → 페이지를 옮겨도 검색어가 유지된다. -->
+    <!-- @{/questions(page=${...}, kw=${kw}, category=${category})} : /questions?page=값&kw=검색어 → 페이지를 옮겨도 검색어가 유지된다. -->
     <nav th:if="${!paging.isEmpty()}">
         <ul class="pagination justify-content-center">
             <!-- 이전 : 첫 페이지면 비활성화 -->
             <li class="page-item" th:classappend="${!paging.hasPrevious} ? 'disabled'">
-                <a class="page-link" th:href="@{/questions(page=${paging.number - 1}, kw=${kw})}">이전</a>
+                <a class="page-link" th:href="@{/questions(page=${paging.number - 1}, kw=${kw}, category=${category})}">이전</a>
             </li>
             <!-- 현재 페이지 앞뒤 5개까지만 번호를 보여 준다. 화면에는 1부터 보이도록 +1 -->
             <li th:each="page : ${#numbers.sequence(0, paging.totalPages - 1)}"
                 th:if="${page >= paging.number - 5 and page <= paging.number + 5}"
                 th:classappend="${page == paging.number} ? 'active'" class="page-item">
-                <a class="page-link" th:href="@{/questions(page=${page}, kw=${kw})}" th:text="${page + 1}"></a>
+                <a class="page-link" th:href="@{/questions(page=${page}, kw=${kw}, category=${category})}" th:text="${page + 1}"></a>
             </li>
             <!-- 다음 : 마지막 페이지면 비활성화 -->
             <li class="page-item" th:classappend="${!paging.hasNext} ? 'disabled'">
-                <a class="page-link" th:href="@{/questions(page=${paging.number + 1}, kw=${kw})}">다음</a>
+                <a class="page-link" th:href="@{/questions(page=${paging.number + 1}, kw=${kw}, category=${category})}">다음</a>
             </li>
         </ul>
     </nav>

@@ -28,16 +28,20 @@ public interface QuestionRepository extends JpaRepository<Question, Integer> {
     @Query("""
             select distinct q
             from Question q
+            left join q.category c
             left join q.author u1
             left join q.answers a
             left join a.author u2
-            where q.subject like %:kw%
-               or q.content like %:kw%
-               or u1.username like %:kw%
-               or a.content like %:kw%
-               or u2.username like %:kw%
+            where (:categoryCode = '' or c.code = :categoryCode)
+              and (
+                   q.subject like %:kw%
+                or q.content like %:kw%
+                or u1.username like %:kw%
+                or a.content like %:kw%
+                or u2.username like %:kw%
+              )
             """)
-    Page<Question> findAllByKeyword(@Param("kw") String kw, Pageable pageable);
+    Page<Question> findAllByKeyword(@Param("categoryCode") String categoryCode, @Param("kw") String kw, Pageable pageable);
 
     // 조회 수 +1 을 DB 에서 한 번에 : UPDATE question SET view_count = view_count + 1 WHERE id = ?
     // 읽고(10) → 더하고(11) → 저장하는 방식은 두 사람이 동시에 열면 둘 다 11 을 저장해 하나가 사라진다.

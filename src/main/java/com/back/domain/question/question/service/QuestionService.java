@@ -27,11 +27,16 @@ public class QuestionService {
     }
 
     public Page<Question> findPage(int page, String kw) {
+        return findPage(page, "", kw);
+    }
+
+    // categoryCode 가 빈 문자열이면 전체 카테고리
+    public Page<Question> findPage(int page, String categoryCode, String kw) {
         // page 번째 페이지(0부터 시작), 한 페이지에 10개, 최신 글(번호가 큰 글)부터
         Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Order.desc("id")));
 
         // kw 가 빈 문자열이면 like '%%' 라서 모든 질문이 나온다. (= 검색하지 않은 목록)
-        return questionRepository.findAllByKeyword(kw, pageable);
+        return questionRepository.findAllByKeyword(categoryCode, kw, pageable);
         // + 전체 페이지 수를 알기 위한 count 쿼리도 함께 실행된다.
     }
 

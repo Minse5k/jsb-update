@@ -3,6 +3,7 @@ package com.back.domain.question.question.controller;
 import com.back.domain.question.answer.controller.AnswerController;
 import com.back.domain.question.answer.entity.Answer;
 import com.back.domain.question.answer.service.AnswerService;
+import com.back.domain.question.category.service.CategoryService;
 import com.back.domain.question.question.entity.Question;
 import com.back.domain.question.question.service.QuestionService;
 import com.back.domain.user.user.entity.SiteUser;
@@ -38,15 +39,19 @@ public class QuestionController {
     private final QuestionService questionService; // 컨트롤러는 리포지터리를 직접 쓰지 않고 서비스를 통한다.
     private final UserService userService;
     private final AnswerService answerService;
+    private final CategoryService categoryService;
 
     @GetMapping // → GET /questions (질문 "목록" = 질문들)
     @Transactional(readOnly = true) // 조회만 하는 요청: 이 메서드가 끝날 때까지 하나의 트랜잭션(DB 연결) 안에서 처리
     public String list(
             @RequestParam(defaultValue = "0") int page, // /questions?page=2 → page = 2, 없으면 0 (첫 페이지)
             @RequestParam(defaultValue = "") String kw, // /questions?kw=스프링 → 검색어, 없으면 "" (전체)
+            @RequestParam(defaultValue = "") String category, // /questions?category=free → 자유게시판만, 없으면 "" (전체)
             Model model // 스프링이 Model 객체를 만들어서 넣어 준다.
     ) {
-        Page<Question> paging = questionService.findPage(page, kw); // 질문 10개 + 전체 개수·페이지 정보
+        Page<Question> paging = questionService.findPage(page, category, kw); // 질문 10개 + 전체 개수·페이지 정보
+        model.addAttribute("categories", categoryService.findAll()); // 위쪽 카테고리 탭
+        model.addAttribute("category", category);
 
         model.addAttribute("paging", paging); // 템플릿에서 ${paging} 으로 꺼내 쓸 수 있게 등록
         model.addAttribute("kw", kw); // 검색창과 페이지 링크에 검색어를 유지하기 위해
