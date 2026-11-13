@@ -1,0 +1,6 @@
+spring:
+  datasource:
+    url: jdbc:h2:./db_dev;MODE=MySQL # 프로젝트 폴더의 db_dev.mv.db 파일에 저장 (재시작해도 데이터 유지)
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver

@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: back
+  profiles:
+    active: dev # 별도 지정이 없으면 dev 프로필로 실행
+  output:
+    ansi:
+      enabled: always # 콘솔 로그에 색상 표시
