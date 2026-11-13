@@ -3,6 +3,7 @@ package com.back.domain.question.answer.service;
 import com.back.domain.question.answer.entity.Answer;
 import com.back.domain.question.answer.repository.AnswerRepository;
 import com.back.domain.question.question.entity.Question;
+import com.back.domain.user.user.entity.SiteUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,6 +27,14 @@ public class AnswerService {
 
     public List<Answer> findRecent() {
         return answerRepository.findTop10ByOrderByIdDesc();
+    }
+
+    public List<Answer> findRecentByAuthor(SiteUser author) {
+        return answerRepository.findTop10ByAuthorOrderByIdDesc(author);
+    }
+
+    public long countByAuthor(SiteUser author) {
+        return answerRepository.countByAuthor(author);
     }
 
     // 이 답변이 최신순 몇 번째 페이지에 있는지 (앞에 더 최신 답변이 몇 개 있는지로 계산)

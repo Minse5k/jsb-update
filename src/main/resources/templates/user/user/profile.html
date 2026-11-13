@@ -1,0 +1,65 @@
+<html layout:decorate="~{layout}">
+<head>
+    <title th:text="|${profileUser.username}님의 프로필|"></title>
+</head>
+
+<div layout:fragment="content" class="container my-3">
+    <div class="card my-3">
+        <div class="card-body">
+            <h4 class="card-title" th:text="${profileUser.username}"></h4>
+            <!-- 이메일은 본인만 -->
+            <div class="text-secondary" th:if="${isMe}" th:text="${profileUser.email}"></div>
+            <div class="small text-secondary">
+                가입일 <span th:text="${#temporals.format(profileUser.createDate, 'yyyy-MM-dd')}"></span>
+            </div>
+            <div class="mt-2">
+                <span class="badge text-bg-primary">질문 <span th:text="${questionCount}"></span></span>
+                <span class="badge text-bg-success">답변 <span th:text="${answerCount}"></span></span>
+                <span class="badge text-bg-secondary">댓글 <span th:text="${commentCount}"></span></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <h5>최근 질문</h5>
+            <ul class="list-group">
+                <a th:each="question : ${questions}" class="list-group-item list-group-item-action"
+                   th:href="@{|/questions/${question.id}|}">
+                    <div class="text-truncate" th:text="${question.subject}"></div>
+                    <div class="small text-secondary" th:text="${#temporals.format(question.createDate, 'yyyy-MM-dd HH:mm')}"></div>
+                </a>
+                <li class="list-group-item text-secondary" th:if="${#lists.isEmpty(questions)}">아직 질문이 없습니다.</li>
+            </ul>
+        </div>
+        <div class="col-lg-4">
+            <h5>최근 답변</h5>
+            <ul class="list-group">
+                <a th:each="answer : ${answers}" class="list-group-item list-group-item-action"
+                   th:href="@{|/questions/${answer.question.id}/answers/${answer.id}|}">
+                    <div class="text-truncate" th:text="${answer.content}"></div>
+                    <div class="small text-secondary">
+                        <span th:text="${answer.question.subject}"></span> ·
+                        <span th:text="${#temporals.format(answer.createDate, 'MM-dd HH:mm')}"></span>
+                    </div>
+                </a>
+                <li class="list-group-item text-secondary" th:if="${#lists.isEmpty(answers)}">아직 답변이 없습니다.</li>
+            </ul>
+        </div>
+        <div class="col-lg-4">
+            <h5>최근 댓글</h5>
+            <ul class="list-group">
+                <a th:each="comment : ${comments}" class="list-group-item list-group-item-action"
+                   th:href="@{${comment.link}}">
+                    <div class="text-truncate" th:text="${comment.content}"></div>
+                    <div class="small text-secondary">
+                        <span th:text="${comment.targetQuestion.subject}"></span> ·
+                        <span th:text="${#temporals.format(comment.createDate, 'MM-dd HH:mm')}"></span>
+                    </div>
+                </a>
+                <li class="list-group-item text-secondary" th:if="${#lists.isEmpty(comments)}">아직 댓글이 없습니다.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+</html>

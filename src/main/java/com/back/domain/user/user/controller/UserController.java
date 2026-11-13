@@ -1,6 +1,10 @@
 package com.back.domain.user.user.controller;
 
+import com.back.domain.question.answer.service.AnswerService;
+import com.back.domain.question.comment.service.CommentService;
+import com.back.domain.question.question.service.QuestionService;
 import com.back.domain.user.user.service.UserService;
+import com.back.global.exception.DataNotFoundException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -10,9 +14,11 @@ import com.back.domain.user.user.entity.SiteUser;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,6 +30,9 @@ import java.security.Principal;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final QuestionService questionService;
+    private final AnswerService answerService;
+    private final CommentService commentService;
 
     public record JoinForm(
             @NotBlank(message = "01-username-아이디를 입력해주세요.")
@@ -144,5 +153,34 @@ public class UserController {
 
         // 가입된 이메일이든 아니든 같은 안내 (가입 여부를 알려 주지 않는다)
         return "redirect:/users/password/reset?sent";
+    }
+
+    @GetMapping("/me") // GET /users/me : 내 프로필로 안내 (내비게이션 바의 "아이디님" 링크)
+    @PreAuthorize("isAuthenticated()")
+    public String myProfile(Principal principal) {
+        return "redirect:/users/%s/profile".formatted(principal.getName());
+    }
+
+    // GET /users/{username}/profile : 회원 정보와 그 회원이 쓴 최근 질문·답변·댓글 (누구나 볼 수 있다)
+    // /users/{username} 이 아닌 이유 : /users/join, /users/login 같은 주소와 겹치는 아이디(join 등)가 생길 수 있어서
+    @GetMapping("/{username}/profile")
+    @Transactional(readOnly = true)
+    public String profile(@PathVariable String username, Model model, Principal principal) {
+        SiteUser user = userService.findByUsername(username)
+                .orElseThrow(() -> new DataNotFoundException("user not found")); // 없는 회원이면 404
+
+        model.addAttribute("profileUser", user);
+        // 이메일은 본인에게만 보여 준다.
+        model.addAttribute("isMe", principal != null && principal.getName().equals(username));
+
+        model.addAttribute("questionCount", questionService.countByAuthor(user));
+        model.addAttribute("answerCount", answerService.countByAuthor(user));
+        model.addAttribute("commentCount", commentService.countByAuthor(user));
+
+        model.addAttribute("questions", questionService.findRecentByAuthor(user));
+        model.addAttribute("answers", answerService.findRecentByAuthor(user));
+        model.addAttribute("comments", commentService.findRecentByAuthor(user));
+
+        return "user/user/profile";
     }
 }

@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -38,6 +39,14 @@ public class QuestionService {
         // kw 가 빈 문자열이면 like '%%' 라서 모든 질문이 나온다. (= 검색하지 않은 목록)
         return questionRepository.findAllByKeyword(categoryCode, kw, pageable);
         // + 전체 페이지 수를 알기 위한 count 쿼리도 함께 실행된다.
+    }
+
+    public List<Question> findRecentByAuthor(SiteUser author) {
+        return questionRepository.findTop10ByAuthorOrderByIdDesc(author);
+    }
+
+    public long countByAuthor(SiteUser author) {
+        return questionRepository.countByAuthor(author);
     }
 
     public Optional<Question> findBySubject(String subject) {

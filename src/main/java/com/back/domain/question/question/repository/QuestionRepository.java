@@ -2,6 +2,7 @@ package com.back.domain.question.question.repository;
 
 import com.back.domain.question.category.entity.Category;
 import com.back.domain.question.question.entity.Question;
+import com.back.domain.user.user.entity.SiteUser;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,6 +21,11 @@ public interface QuestionRepository extends JpaRepository<Question, Integer> {
     Optional<Question> findBySubjectAndContent(String subject, String content); // WHERE subject = ? AND content = ?
 
     List<Question> findBySubjectLike(String subjectLike); // WHERE subject LIKE ?  (결과가 여러 개일 수 있어서 List)
+
+    // 프로필 : 이 회원이 쓴 최근 질문 10개, 쓴 질문 수
+    List<Question> findTop10ByAuthorOrderByIdDesc(SiteUser author); // WHERE author_id = ? ORDER BY id DESC LIMIT 10
+
+    long countByAuthor(SiteUser author); // SELECT COUNT(*) ... WHERE author_id = ?
 
     // 검색 : 질문 제목·내용·글쓴이, 답변 내용·글쓴이 중 하나라도 kw 를 포함하면 결과에 넣는다.
     // 메서드 이름 규칙으로는 표현하기 어려워서 JPQL(엔티티 기준 SQL)을 직접 쓴다.

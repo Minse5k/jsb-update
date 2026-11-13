@@ -2,6 +2,7 @@ package com.back.domain.question.answer.repository;
 
 import com.back.domain.question.answer.entity.Answer;
 import com.back.domain.question.question.entity.Question;
+import com.back.domain.user.user.entity.SiteUser;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,6 +18,11 @@ public interface AnswerRepository extends JpaRepository<Answer, Integer> {
 
     // 사이트 전체에서 최근 답변 10개 : ORDER BY id DESC LIMIT 10
     List<Answer> findTop10ByOrderByIdDesc();
+
+    // 프로필 : 이 회원이 쓴 최근 답변 10개, 쓴 답변 수
+    List<Answer> findTop10ByAuthorOrderByIdDesc(SiteUser author);
+
+    long countByAuthor(SiteUser author);
 
     // 이 질문에서 id 보다 최신인(큰) 답변 수 : WHERE question_id = ? AND id > ?
     long countByQuestionAndIdGreaterThan(Question question, int id);

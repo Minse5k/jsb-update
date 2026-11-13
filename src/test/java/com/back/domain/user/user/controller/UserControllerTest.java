@@ -14,6 +14,9 @@ import com.back.global.mail.DevMailService;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.back.domain.question.question.entity.Question;
+import com.back.domain.question.question.service.QuestionService;
+import com.back.domain.user.user.entity.SiteUser;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -40,6 +43,8 @@ public class UserControllerTest {
     private UserService userService;
     @Autowired
     private DevMailService devMailService;
+    @Autowired
+    private QuestionService questionService;
 
     @Test
     @DisplayName("GET /users/join : 회원가입 폼이 보인다.")
@@ -233,5 +238,54 @@ public class UserControllerTest {
                 .andExpect(redirectedUrl("/users/password/reset?sent"));
 
         assertThat(devMailService.findAll()).hasSize(before);
+    }
+
+    @Test
+    @DisplayName("GET /users/{username}/profile : 그 회원이 쓴 질문·답변·댓글과 개수가 보이고, 이메일은 본인에게만 보인다.")
+    void t13() throws Exception {
+        SiteUser author = userService.join("profileUser", "1234", "profileUser@test.com");
+        Question question = questionService.write(author, "프로필 질문 제목", "내용");
+        question.addAnswer(author, "프로필 답변 내용");
+        question.addComment(author, "프로필 댓글 내용");
+        questionService.flush();
+
+        // 다른 사람이 볼 때
+        mvc
+                .perform(get("/users/profileUser/profile"))
+                .andExpect(handler().methodName("profile"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("프로필 질문 제목")))
+                .andExpect(content().string(containsString("프로필 답변 내용")))
+                .andExpect(content().string(containsString("프로필 댓글 내용")))
+                .andExpect(model().attribute("questionCount", 1L))
+                .andExpect(model().attribute("answerCount", 1L))
+                .andExpect(model().attribute("commentCount", 1L))
+                .andExpect(content().string(not(containsString("profileUser@test.com"))));
+
+        // 본인이 볼 때
+        mvc
+                .perform(get("/users/profileUser/profile").with(user("profileUser")))
+                .andExpect(content().string(containsString("profileUser@test.com")));
+    }
+
+    @Test
+    @DisplayName("GET /users/{username}/profile : 없는 회원이면 404")
+    void t14() throws Exception {
+        mvc
+                .perform(get("/users/nobody/profile"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("GET /users/me : 로그인한 회원의 프로필로 리다이렉트, 로그인 안 했으면 로그인 화면으로")
+    void t15() throws Exception {
+        mvc
+                .perform(get("/users/me").with(user("user1")))
+                .andExpect(redirectedUrl("/users/user1/profile"));
+
+        mvc
+                .perform(get("/users/me"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/users/login"));
     }
 }
