@@ -12,7 +12,11 @@ public class CommonUtil {
         Parser parser = Parser.builder().build();
         Node document = parser.parse(markdown); // 마크다운 → 문서 구조(트리)
 
-        HtmlRenderer renderer = HtmlRenderer.builder().build();
+        HtmlRenderer renderer = HtmlRenderer
+                .builder()
+                .escapeHtml(true) // 글에 직접 쓴 HTML 태그(<script> 등)는 실행되지 않게 &lt;script&gt; 글자로 바꾼다.
+                .sanitizeUrls(true) // [링크](javascript:...) 같은 위험한 주소를 막는다.
+                .build();
         return renderer.render(document); // 문서 구조 → HTML 문자열
     }
 }
