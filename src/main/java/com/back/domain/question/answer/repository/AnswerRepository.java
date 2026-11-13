@@ -8,10 +8,15 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 // 답변을 "페이지 단위로 읽을 때"만 쓴다. 생성·수정·삭제는 지금처럼 질문(Question)을 통해서 한다.
 public interface AnswerRepository extends JpaRepository<Answer, Integer> {
     // WHERE question_id = ? + 정렬·LIMIT·OFFSET 은 pageable 이 붙인다.
     Page<Answer> findByQuestion(Question question, Pageable pageable);
+
+    // 사이트 전체에서 최근 답변 10개 : ORDER BY id DESC LIMIT 10
+    List<Answer> findTop10ByOrderByIdDesc();
 
     // 이 질문에서 id 보다 최신인(큰) 답변 수 : WHERE question_id = ? AND id > ?
     long countByQuestionAndIdGreaterThan(Question question, int id);

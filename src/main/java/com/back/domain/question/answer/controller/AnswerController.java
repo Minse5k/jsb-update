@@ -95,6 +95,15 @@ public class AnswerController {
     ) {
     }
 
+    @GetMapping("/{id}") // GET /questions/{questionId}/answers/{id} : 답변 하나의 주소 → 그 답변이 있는 답변 페이지의 그 위치로
+    @Transactional(readOnly = true)
+    public String show(@PathVariable int questionId, @PathVariable int id) {
+        Question question = questionService.getQuestion(questionId);
+        Answer answer = getAnswer(question, id);
+
+        return "redirect:/questions/%d?ap=%d#answer_%d".formatted(questionId, answerService.latestPageOf(answer), id);
+    }
+
     @GetMapping("/{id}/modify") // GET /questions/{questionId}/answers/{id}/modify : 답변 수정 화면
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)

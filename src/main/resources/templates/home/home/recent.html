@@ -1,0 +1,27 @@
+<html layout:decorate="~{layout}">
+<head>
+    <title>최근 활동</title>
+</head>
+
+<div layout:fragment="content" class="container my-3">
+    <h4 class="my-3 border-bottom pb-2">최근 활동</h4>
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <h5>최근 답변</h5>
+            <ul class="list-group">
+                <!-- 답변 하나의 주소(/questions/{q}/answers/{a})가 그 답변이 있는 페이지·위치로 안내한다. -->
+                <a th:each="answer : ${recentAnswers}" class="list-group-item list-group-item-action"
+                   th:href="@{|/questions/${answer.question.id}/answers/${answer.id}|}">
+                    <div class="text-truncate" th:text="${answer.content}"></div>
+                    <div class="small text-secondary">
+                        <span th:text="${answer.author?.username}"></span> ·
+                        <span th:text="${answer.question.subject}"></span> ·
+                        <span th:text="${#temporals.format(answer.createDate, 'MM-dd HH:mm')}"></span>
+                    </div>
+                </a>
+                <li class="list-group-item text-secondary" th:if="${#lists.isEmpty(recentAnswers)}">아직 답변이 없습니다.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+</html>

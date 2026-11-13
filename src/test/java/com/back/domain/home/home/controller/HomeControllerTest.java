@@ -8,13 +8,16 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.transaction.annotation.Transactional;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ActiveProfiles("test") // application-test.yaml(메모리 DB) 사용
 @SpringBootTest // 실제 앱과 똑같이 스프링 전체를 띄운다.
+@Transactional
 @AutoConfigureMockMvc // 진짜 서버(톰캣) 없이 요청을 흉내 내는 MockMvc를 준비한다.
 public class HomeControllerTest {
     @Autowired
@@ -48,5 +51,18 @@ public class HomeControllerTest {
                 .andExpect(handler().methodName("root"))
                 .andExpect(status().is3xxRedirection()) // 302
                 .andExpect(redirectedUrl("/questions"));
+    }
+
+    @Test
+    @DisplayName("GET /recent : 최근 답변이 최신순으로 보이고, 답변 링크는 그 답변 주소다.")
+    void t3() throws Exception {
+        mvc
+                .perform(get("/recent"))
+                .andDo(print())
+                .andExpect(handler().methodName("recent"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("최근 답변")))
+                .andExpect(content().string(containsString("맞습니다!")))
+                .andExpect(content().string(containsString("href=\"/questions/2/answers/")));
     }
 }

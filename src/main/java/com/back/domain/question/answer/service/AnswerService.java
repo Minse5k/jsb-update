@@ -9,6 +9,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class AnswerService {
@@ -20,6 +22,10 @@ public class AnswerService {
     public enum SortCode {
         latest, // 최신순 (기본)
         vote    // 추천순
+    }
+
+    public List<Answer> findRecent() {
+        return answerRepository.findTop10ByOrderByIdDesc();
     }
 
     // 이 답변이 최신순 몇 번째 페이지에 있는지 (앞에 더 최신 답변이 몇 개 있는지로 계산)

@@ -191,4 +191,15 @@ public class AnswerControllerTest {
                 .perform(post("/questions/1/answers/%d/vote".formatted(oldestId)).with(csrf()).with(user("user2")))
                 .andExpect(redirectedUrl("/questions/1?ap=1#answer_%d".formatted(oldestId)));
     }
+
+    @Test
+    @DisplayName("GET /questions/2/answers/{id} : 답변 하나의 주소는 그 답변이 있는 페이지의 그 위치로 보낸다.")
+    void t8() throws Exception {
+        int answerId = questionRepository.findById(2).get().getAnswers().getFirst().getId();
+
+        mvc
+                .perform(get("/questions/2/answers/%d".formatted(answerId)))
+                .andExpect(handler().methodName("show"))
+                .andExpect(redirectedUrl("/questions/2?ap=0#answer_%d".formatted(answerId)));
+    }
 }
