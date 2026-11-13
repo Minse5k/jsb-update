@@ -30,4 +30,14 @@ public class QuestionRepositoryTest {
         Question question = questions.get(0);
         assertThat(question.getSubject()).isEqualTo("sbb가 무엇인가요?");
     }
+
+    @Test
+    @DisplayName("findById : id 로 질문 1개를 조회한다.")
+    void t2() {
+        Question question = questionRepository.findById(1).get();
+        // SELECT * FROM question WHERE id = 1
+        // findById 는 Optional 을 리턴한다. 없을 수도 있기 때문. 여기서는 있다고 확신하므로 get()
+
+        assertThat(question.getSubject()).isEqualTo("sbb가 무엇인가요?");
+    }
 }
