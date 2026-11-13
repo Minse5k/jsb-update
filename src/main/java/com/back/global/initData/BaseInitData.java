@@ -8,6 +8,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.core.annotation.Order;
 import org.springframework.transaction.annotation.Transactional;
 
 @Configuration
@@ -21,6 +22,7 @@ public class BaseInitData {
     private final QuestionService questionService; // 컨트롤러와 같이 서비스를 통해서 데이터를 만든다.
 
     @Bean
+    @Order(1) // 여러 ApplicationRunner 중 가장 먼저 실행
     ApplicationRunner baseInitDataApplicationRunner() {
         // 스프링부트가 시작을 마치면 자동으로 실행된다.
         return args -> {
