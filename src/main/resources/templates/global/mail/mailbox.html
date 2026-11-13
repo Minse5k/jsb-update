@@ -1,0 +1,18 @@
+<html layout:decorate="~{layout}">
+<head>
+    <title>개발용 메일함</title>
+</head>
+
+<div layout:fragment="content" class="container my-3">
+    <h4 class="my-3 border-bottom pb-2">개발용 메일함</h4>
+    <p class="text-secondary">개발·테스트 환경에서 앱이 보낸 메일입니다. 실제로 발송되지 않으며, 서버를 다시 켜면 비워집니다.</p>
+    <div class="card my-3" th:each="mail : ${mails}">
+        <div class="card-header d-flex justify-content-between">
+            <span><b th:text="${mail.subject}"></b> → <span th:text="${mail.to}"></span></span>
+            <span class="text-secondary" th:text="${#temporals.format(mail.sentAt, 'MM-dd HH:mm:ss')}"></span>
+        </div>
+        <div class="card-body" style="white-space: pre-line;" th:text="${mail.body}"></div>
+    </div>
+    <p th:if="${#lists.isEmpty(mails)}" class="text-secondary">아직 보낸 메일이 없습니다.</p>
+</div>
+</html>
