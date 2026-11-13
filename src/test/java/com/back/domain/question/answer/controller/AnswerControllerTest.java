@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -55,5 +56,27 @@ public class AnswerControllerTest {
         Question question = questionRepository.findById(1).get();
         assertThat(question.getAnswers()).hasSize(1);
         assertThat(question.getAnswers().getLast().getContent()).isEqualTo("답변 내용입니다.");
+    }
+
+    @Test
+    @DisplayName("POST /questions/1/answers : 내용이 비어 있으면 등록하지 않고 상세 페이지를 에러와 함께 다시 보여 준다.")
+    void t2() throws Exception {
+        ResultActions resultActions = mvc
+                .perform(
+                        post("/questions/1/answers")
+                                .param("content", "")
+                )
+                .andDo(print());
+
+        resultActions
+                .andExpect(handler().methodName("write"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("question/question/detail"))
+                .andExpect(model().attributeHasFieldErrors("answerForm", "content"))
+                .andExpect(content().string(containsString("답변 내용을 입력해주세요.")));
+
+        em.flush();
+        em.clear();
+        assertThat(questionRepository.findById(1).get().getAnswers()).isEmpty();
     }
 }

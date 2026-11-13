@@ -35,8 +35,9 @@
     </div>
 
     <!-- 답변 작성 폼 : 전송하면 POST /questions/{id}/answers 요청이 발생한다. -->
-    <form th:action="@{|/questions/${question.id}/answers|}" method="post" class="my-3">
-        <textarea name="content" rows="10" class="form-control"></textarea>
+    <form th:action="@{|/questions/${question.id}/answers|}" method="post" class="my-3" th:object="${answerForm}">
+        <div th:replace="~{form_errors :: formErrorsFragment}"></div>
+        <textarea th:field="*{content}" rows="10" class="form-control"></textarea>
         <input type="submit" value="답변등록" class="btn btn-primary my-2">
     </form>
 </div>

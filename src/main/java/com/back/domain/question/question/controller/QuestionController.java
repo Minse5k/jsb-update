@@ -1,5 +1,6 @@
 package com.back.domain.question.question.controller;
 
+import com.back.domain.question.answer.controller.AnswerController;
 import com.back.domain.question.question.entity.Question;
 import com.back.domain.question.question.service.QuestionService;
 import jakarta.validation.Valid;
@@ -36,7 +37,11 @@ public class QuestionController {
 
     @GetMapping("/{id}") // → GET /questions/{id} (질문들 중 id 번), {id} 자리에 오는 값을 아래 @PathVariable int id 로 받는다.
     @Transactional(readOnly = true)
-    public String detail(@PathVariable int id, Model model) {
+    public String detail(
+            @PathVariable int id,
+            @ModelAttribute("answerForm") AnswerController.WriteForm answerForm, // 상세 화면 아래 답변 폼(th:object="${answerForm}")용 빈 폼
+            Model model
+    ) {
         Question question = questionService.getQuestion(id);
 
         model.addAttribute("question", question);
