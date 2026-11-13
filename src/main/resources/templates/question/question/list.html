@@ -55,7 +55,8 @@
                       th:text="${#lists.size(question.answers)}"></span>
             </td>
             <!-- ?. : author 가 null 이면 오류 없이 빈칸 (14168 16강) -->
-            <td th:text="${question.author?.username}"></td>
+            <!-- 글쓴이를 누르면 그 회원의 프로필 -->
+            <td><a th:if="${question.author != null}" th:href="@{|/users/${question.author.username}/profile|}" th:text="${question.author.username}"></a></td>
             <td th:text="${question.viewCount}"></td>
             <td th:text="${#temporals.format(question.createDate, 'yyyy-MM-dd HH:mm')}"></td>
         </tr>

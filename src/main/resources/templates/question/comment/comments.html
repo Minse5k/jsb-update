@@ -6,7 +6,7 @@
 <div th:fragment="commentsFragment(comments, writeUrl, deleteUrl, anchor)" th:id="${anchor}" class="mt-3 pt-2 border-top">
     <div th:each="comment : ${comments}" class="small py-1 border-bottom d-flex gap-2 align-items-baseline">
         <span th:text="${comment.content}" class="flex-grow-1" style="white-space: pre-line;"></span>
-        <span class="text-secondary" th:text="${comment.author?.username}"></span>
+        <a class="text-secondary" th:if="${comment.author != null}" th:href="@{|/users/${comment.author.username}/profile|}" th:text="${comment.author.username}"></a>
         <span class="text-secondary" th:text="${#temporals.format(comment.createDate, 'MM-dd HH:mm')}"></span>
         <a th:href="${deleteUrl + '/' + comment.id}" method="DELETE"
            onclick="return confirm('댓글을 삭제하시겠습니까?');"

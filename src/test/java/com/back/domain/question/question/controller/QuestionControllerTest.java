@@ -104,8 +104,8 @@ public class QuestionControllerTest {
         resultActions
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("2개의 답변이 있습니다.")))
-                .andExpect(content().string(containsString("<div class=\"mb-2\">user1</div>"))) // 질문 글쓴이
-                .andExpect(content().string(containsString("<div class=\"mb-2\">user2</div>"))) // 답변 글쓴이
+                .andExpect(content().string(containsString("href=\"/users/user1/profile\">user1</a>"))) // 질문 글쓴이
+                .andExpect(content().string(containsString("href=\"/users/user2/profile\">user2</a>"))) // 답변 글쓴이
                 .andExpect(content().string(containsString("<a id=\"answer_1\"></a>"))) // 답변 앵커
                 .andExpect(content().string(containsString("네 자동으로 생성됩니다.")))
                 .andExpect(content().string(containsString("맞습니다!")));
@@ -496,5 +496,25 @@ public class QuestionControllerTest {
                         .param("category", "lecture").param("subject", "카테고리 글").param("content", "내용"))
                 .andExpect(status().is3xxRedirection());
         assertThat(questionRepository.findBySubject("카테고리 글").get().getCategory().getCode()).isEqualTo("lecture");
+    }
+
+    @Test
+    @DisplayName("글쓴이 이름은 그 회원의 프로필 링크다. (목록·상세의 질문·답변·댓글)")
+    void t26() throws Exception {
+        SiteUser author = userService.findByUsername("user1").get();
+        Question question = questionService.write(author, "프로필 링크 질문", "내용");
+        question.addAnswer(author, "답변");
+        question.addComment(author, "댓글");
+        questionService.flush();
+
+        String link = "href=\"/users/user1/profile\"";
+        mvc
+                .perform(get("/questions").param("kw", "프로필 링크 질문"))
+                .andExpect(content().string(containsString(link)));
+
+        String html = mvc
+                .perform(get("/questions/%d".formatted(question.getId())))
+                .andReturn().getResponse().getContentAsString();
+        assertThat(html.split(link, -1).length - 1).isEqualTo(3); // 질문 글쓴이, 답변 글쓴이, 댓글 글쓴이
     }
 }

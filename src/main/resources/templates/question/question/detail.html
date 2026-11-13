@@ -24,7 +24,7 @@
                     <div th:text="${question.viewCount}"></div>
                 </div>
                 <div class="badge bg-light text-dark p-2 text-start">
-                    <div class="mb-2" th:text="${question.author?.username}"></div>
+                    <div class="mb-2"><a th:if="${question.author != null}" th:href="@{|/users/${question.author.username}/profile|}" th:text="${question.author.username}"></a></div> <!-- 글쓴이 → 프로필 -->
                     <div th:text="${#temporals.format(question.createDate, 'yyyy-MM-dd HH:mm')}"></div>
                 </div>
             </div>
@@ -81,7 +81,7 @@
                     <div th:text="${#temporals.format(answer.modifyDate, 'yyyy-MM-dd HH:mm')}"></div>
                 </div>
                 <div class="badge bg-light text-dark p-2 text-start">
-                    <div class="mb-2" th:text="${answer.author?.username}"></div>
+                    <div class="mb-2"><a th:if="${answer.author != null}" th:href="@{|/users/${answer.author.username}/profile|}" th:text="${answer.author.username}"></a></div>
                     <div th:text="${#temporals.format(answer.createDate, 'yyyy-MM-dd HH:mm')}"></div>
                 </div>
             </div>
