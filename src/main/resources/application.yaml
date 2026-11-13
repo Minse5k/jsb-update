@@ -6,3 +6,20 @@ spring:
   output:
     ansi:
       enabled: always # 콘솔 로그에 색상 표시
+  datasource:
+    hikari:
+      auto-commit: false # 트랜잭션 경계(@Transactional)에서만 커밋되도록
+  jpa:
+    show-sql: true # 실행되는 SQL을 콘솔에 출력
+    hibernate:
+      ddl-auto: update # 엔티티를 보고 테이블을 자동으로 만들거나 고침 (개발용)
+    properties:
+      hibernate:
+        format_sql: true # SQL 줄바꿈 정리
+        highlight_sql: true # SQL 색상
+        use_sql_comments: true # 어떤 JPQL에서 나온 SQL인지 주석으로 표시
+logging:
+  level:
+    org.hibernate.orm.jdbc.bind: TRACE # SQL의 ? 자리에 들어간 실제 값 출력
+    org.hibernate.orm.jdbc.extract: TRACE # 조회 결과 값 출력
+    org.springframework.transaction.interceptor: TRACE # 트랜잭션 시작/종료 로그
