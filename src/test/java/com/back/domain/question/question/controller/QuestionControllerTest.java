@@ -433,4 +433,17 @@ public class QuestionControllerTest {
 
         assertThat(questionRepository.findById(1).get().getViewCount()).isEqualTo(before + 2);
     }
+
+    @Test
+    @DisplayName("조회 수 표시 : 목록에 조회 칸이 있고, 상세에는 방금 연 것까지 센 조회 수가 보인다.")
+    void t23() throws Exception {
+        mvc
+                .perform(get("/questions"))
+                .andExpect(content().string(containsString("<th>조회</th>")));
+
+        mvc.perform(get("/questions/1"));
+        mvc
+                .perform(get("/questions/1"))
+                .andExpect(model().attribute("question", hasProperty("viewCount", is(2))));
+    }
 }
