@@ -65,4 +65,8 @@ public class Question extends BaseEntity { // id, createDate, modifyDate 는 Bas
                 .filter(answer -> answer.getId() == id)
                 .findFirst();
     }
+
+    public void deleteAnswer(Answer answer) {
+        answers.remove(answer); // 리스트에서 빼기만 하면 orphanRemoval 에 의해 DELETE 된다.
+    }
 }

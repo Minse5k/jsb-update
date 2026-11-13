@@ -630,3 +630,12 @@
   - 답변 찾기: 교재는 `AnswerRepository.findById`. 강의(14168 `Post.findCommentById`)처럼 질문의 `answers`에서 찾음 → 강의 방식. `AnswerRepository` 없이 동작하고, 주소의 질문 번호와 답변이 맞지 않으면(다른 질문의 답변) 404가 됨
   - 권한·폼·검증은 020-01과 같은 방식(403, 별도 `ModifyForm`, 순번 메시지)
 - 결과: 테스트 41개 통과(글쓴이 수정, 다른 회원 403, 다른 질문의 답변 번호 404). 브라우저 user1로 1번 질문에 답변 작성 → 그 답변의 "수정" → 내용 변경 → 상세에 "(수정됨)" 반영
+
+### 020-04 수정·삭제, 답변 삭제(orphanRemoval)
+- [링크](https://github.com/Minse5k/jsb-update/tree/020-04)
+- 작업: 답변 삭제 — `DELETE /questions/{questionId}/answers/{id}`, `Question.deleteAnswer(answer)`(리스트에서 빼기만 함), 답변 글쓴이에게만 "삭제" 버튼(`a[method="DELETE"]` + 확인 창)
+- 이유:
+  - 교재(3-09)는 `GET /answer/delete/{id}` + `answerRepository.delete`. GET 삭제의 문제는 020-02와 같아서 DELETE + global.js로 개선
+  - 삭제 방법: 강의(14168 37강 "@OneToMany 옵션에 orphanRemoval 설정하지 않아서 실패 → orphanRemoval 설정하여 성공", `post.getComments().remove(comment)`)처럼 질문의 `answers`에서 빼기만 하면 004-04에서 걸어 둔 `orphanRemoval = true`가 DELETE를 실행 → 강의 방식 채택. 답변은 처음부터 끝까지(생성 011-02, 조회, 수정 020-03, 삭제) 질문을 통해서만 다룸
+  - `remove(answer)`가 정확한 답변을 지우는 이유: `findAnswerById`가 돌려준 것이 리스트 안의 바로 그 객체라서. 강의(14168 37강)는 다른 객체로도 지울 수 있게 `BaseEntity`에 `equals/hashCode`를 추가하지만, 이 프로젝트는 항상 같은 객체로 지워서 아직 필요 없음
+- 결과: 테스트 42개 통과(다른 회원 403, 글쓴이 삭제 후 답변 1개 남음, answer 테이블에서도 사라짐). 브라우저에서 1번 질문의 내 답변 "삭제" → "0개의 답변이 있습니다."

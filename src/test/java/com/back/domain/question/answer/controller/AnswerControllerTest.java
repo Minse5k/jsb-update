@@ -12,11 +12,13 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
+import com.back.domain.question.answer.entity.Answer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -128,5 +130,31 @@ public class AnswerControllerTest {
         mvc
                 .perform(get("/questions/1/answers/%d/modify".formatted(answerIdOfQuestion2)).with(user("user2")))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("답변 삭제 : 다른 회원은 403, 글쓴이가 삭제하면 질문의 답변 목록에서 빠지고(orphanRemoval) DB 에서도 삭제된다.")
+    void t5() throws Exception {
+        int answerId = questionRepository.findById(2).get().getAnswers().getFirst().getId();
+
+        mvc
+                .perform(delete("/questions/2/answers/%d".formatted(answerId)).with(csrf()).with(user("user1")))
+                .andExpect(status().isForbidden());
+
+        mvc
+                .perform(
+                        post("/questions/2/answers/%d".formatted(answerId))
+                                .param("_method", "DELETE")
+                                .with(csrf())
+                                .with(user("user2"))
+                )
+                .andExpect(handler().methodName("delete"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/questions/2"));
+
+        em.flush();
+        em.clear();
+        assertThat(questionRepository.findById(2).get().getAnswers()).hasSize(1);
+        assertThat(em.find(Answer.class, answerId)).isNull(); // answer 테이블에서도 사라짐
     }
 }
