@@ -117,7 +117,7 @@ public class AnswerControllerTest {
                 )
                 .andExpect(handler().methodName("modify"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/questions/2#answer_%d".formatted(answerId))); // 수정한 답변 위치로
+                .andExpect(redirectedUrl("/questions/2?ap=0#answer_%d".formatted(answerId))); // 수정한 답변 위치로
 
         em.flush();
         em.clear();
@@ -169,11 +169,26 @@ public class AnswerControllerTest {
             mvc
                     .perform(post("/questions/2/answers/%d/vote".formatted(answerId)).with(csrf()).with(user(username)))
                     .andExpect(handler().methodName("vote"))
-                    .andExpect(redirectedUrl("/questions/2#answer_%d".formatted(answerId)));
+                    .andExpect(redirectedUrl("/questions/2?ap=0#answer_%d".formatted(answerId)));
         }
 
         em.flush();
         em.clear();
         assertThat(em.find(Answer.class, answerId).getVoters()).hasSize(2); // user1, admin
+    }
+
+    @Test
+    @DisplayName("답변 추천 후 : 그 답변이 있는 답변 페이지로 돌아간다.")
+    void t7() throws Exception {
+        Question question = questionRepository.findById(1).get();
+        for (int i = 1; i <= 15; i++) {
+            question.addAnswer(null, "답변 %02d".formatted(i));
+        }
+        questionRepository.flush();
+        int oldestId = question.getAnswers().getFirst().getId(); // 가장 오래된 답변 → 최신순 15번째 → 2페이지(ap=1)
+
+        mvc
+                .perform(post("/questions/1/answers/%d/vote".formatted(oldestId)).with(csrf()).with(user("user2")))
+                .andExpect(redirectedUrl("/questions/1?ap=1#answer_%d".formatted(oldestId)));
     }
 }

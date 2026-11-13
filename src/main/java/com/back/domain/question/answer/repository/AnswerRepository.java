@@ -13,6 +13,9 @@ public interface AnswerRepository extends JpaRepository<Answer, Integer> {
     // WHERE question_id = ? + 정렬·LIMIT·OFFSET 은 pageable 이 붙인다.
     Page<Answer> findByQuestion(Question question, Pageable pageable);
 
+    // 이 질문에서 id 보다 최신인(큰) 답변 수 : WHERE question_id = ? AND id > ?
+    long countByQuestionAndIdGreaterThan(Question question, int id);
+
     // 추천순 : 추천한 회원 수(중간 테이블 answer_voters 의 행 수)가 많은 답변부터, 같으면 최신순
     @Query(
             value = """

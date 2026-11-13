@@ -131,7 +131,7 @@ public class AnswerController {
 
         answer.modify(form.content()); // 더티체킹으로 UPDATE
 
-        return "redirect:/questions/%d#answer_%d".formatted(questionId, id); // 수정한 답변 위치로
+        return "redirect:/questions/%d?ap=%d#answer_%d".formatted(questionId, answerService.latestPageOf(answer), id); // 수정한 답변 위치로
     }
 
     @DeleteMapping("/{id}") // DELETE /questions/{questionId}/answers/{id} : 답변 삭제
@@ -157,6 +157,6 @@ public class AnswerController {
 
         answer.vote(voter);
 
-        return "redirect:/questions/%d#answer_%d".formatted(questionId, id); // 추천한 답변 위치로
+        return "redirect:/questions/%d?ap=%d#answer_%d".formatted(questionId, answerService.latestPageOf(answer), id); // 추천한 답변 위치로
     }
 }

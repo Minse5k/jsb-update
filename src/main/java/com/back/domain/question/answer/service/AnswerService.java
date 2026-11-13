@@ -22,6 +22,12 @@ public class AnswerService {
         vote    // 추천순
     }
 
+    // 이 답변이 최신순 몇 번째 페이지에 있는지 (앞에 더 최신 답변이 몇 개 있는지로 계산)
+    public int latestPageOf(Answer answer) {
+        long newer = answerRepository.countByQuestionAndIdGreaterThan(answer.getQuestion(), answer.getId());
+        return (int) (newer / PAGE_SIZE);
+    }
+
     // 질문 하나의 답변 중 page 번째 페이지
     public Page<Answer> findPage(Question question, int page, SortCode sortCode) {
         if (sortCode == SortCode.vote) {
