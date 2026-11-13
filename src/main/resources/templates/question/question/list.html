@@ -16,9 +16,11 @@
         </tr>
         </thead>
         <tbody>
-        <!-- loop : 반복 상태 변수. loop.count 는 1부터 세는 순번 -->
+        <!-- loop : 반복 상태 변수. loop.index 는 0부터 세는 순번 -->
         <tr th:each="question, loop : ${paging}"> <!-- Page 도 반복할 수 있다 (이번 페이지의 질문들) -->
-            <td th:text="${loop.count}"></td>
+            <!-- 게시물 번호 = 전체 개수 - (현재 페이지 × 페이지 크기) - 이 페이지 안에서의 순번 -->
+            <!-- 예) 전체 303개, 1페이지(두 번째 페이지), 첫 줄 → 303 - 10 - 0 = 293 -->
+            <td th:text="${paging.totalElements - (paging.number * paging.size) - loop.index}"></td>
             <td>
                 <!-- @{...} : URL 을 만드는 문법, |...| : 문자열 안에 변수를 끼워 넣는 문법 -->
                 <a th:href="@{|/questions/${question.id}|}" th:text="${question.subject}"></a>
