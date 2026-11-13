@@ -8,10 +8,8 @@
     <!-- th:object : 이 폼 안에서 *{...} 는 form.... 을 뜻한다. -->
     <!-- action 을 생략하면 현재 주소(/questions/write)로 전송된다. method 가 post 이므로 POST /questions/write -->
     <form method="post" th:object="${form}">
-        <!-- 검증 실패 메시지 -->
-        <div class="alert alert-danger" th:if="${#fields.hasAnyErrors()}">
-            <div th:each="err : ${#fields.allErrors()}" th:text="${err}"></div>
-        </div>
+        <!-- 검증 실패 메시지 (templates/form_errors.html 의 formErrorsFragment 로 교체된다) -->
+        <div th:replace="~{form_errors :: formErrorsFragment}"></div>
 
         <div class="mb-3">
             <label for="subject" class="form-label">제목</label>

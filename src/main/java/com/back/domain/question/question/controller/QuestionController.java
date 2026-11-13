@@ -45,12 +45,13 @@ public class QuestionController {
     }
 
     // 폼 입력값을 담는 객체(DTO). record 는 생성자·getter 를 자동으로 만들어 준다.
+    // 메시지 형식 "순번-필드명-메시지" : form_errors.html 이 순번으로 정렬하고, 필드명으로 포커스할 칸을 찾는다.
     public record WriteForm(
-            @NotBlank(message = "제목을 입력해주세요.") // null, "", "   " 모두 실패
-            @Size(min = 2, max = 200, message = "제목은 2자 이상, 200자 이하로 입력해주세요.")
+            @NotBlank(message = "01-subject-제목을 입력해주세요.") // null, "", "   " 모두 실패
+            @Size(min = 2, max = 200, message = "02-subject-제목은 2자 이상, 200자 이하로 입력해주세요.")
             String subject,
-            @NotBlank(message = "내용을 입력해주세요.")
-            @Size(min = 2, message = "내용은 2자 이상 입력해주세요.")
+            @NotBlank(message = "03-content-내용을 입력해주세요.")
+            @Size(min = 2, message = "04-content-내용은 2자 이상 입력해주세요.")
             String content
     ) {
     }

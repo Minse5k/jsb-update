@@ -1,0 +1,29 @@
+<!-- 폼 검증 에러 공통 조각. th:object 가 걸린 <form> 안에서 사용한다. -->
+<th:block th:fragment="formErrorsFragment">
+    <!-- 메시지 형식 : "01-subject-제목을 입력해주세요." -->
+    <!-- sorted() : 앞의 순번 기준으로 정렬 → 항상 같은 순서로 보인다. -->
+    <!-- split('-', 3) : ["01", "subject", "제목을 입력해주세요."] 로 나눈다. -->
+    <ul class="alert alert-danger ps-4" th:if="${#fields.hasAnyErrors()}">
+        <li
+                th:each="err : ${#fields.allErrors().stream().sorted()}"
+                th:with="errStrs = ${err.split('-', 3)},
+                    errFieldName = ${errStrs[1]},
+                    errMsg = ${errStrs[2]}"
+                th:data-error-field-name="${errFieldName}"
+                th:text="${errMsg}"
+        ></li>
+    </ul>
+    <script>
+        // 이 조각이 들어간 폼 = 지금까지 나온 폼 중 가장 마지막 폼
+        const forms = document.querySelectorAll('form');
+        const lastForm = forms[forms.length - 1];
+
+        // 첫 번째 에러의 필드명(data-error-field-name)
+        const errorFieldName = lastForm.querySelector('ul > li')?.dataset?.errorFieldName || '';
+
+        if (errorFieldName.length > 0) {
+            // 이 스크립트가 실행되는 시점에는 아래쪽 입력칸이 아직 그려지지 않았으므로 한 박자 늦춰서 포커스
+            setTimeout(() => lastForm[errorFieldName].focus());
+        }
+    </script>
+</th:block>

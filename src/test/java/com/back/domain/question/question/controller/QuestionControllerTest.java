@@ -146,6 +146,7 @@ public class QuestionControllerTest {
                 .andExpect(view().name("question/question/write"))
                 .andExpect(model().attributeHasFieldErrors("form", "subject"))
                 .andExpect(content().string(containsString("제목을 입력해주세요.")))
+                .andExpect(content().string(containsString("data-error-field-name=\"subject\""))) // 포커스할 필드 정보
                 .andExpect(content().string(containsString("내용은 입력함"))); // 입력값 유지
 
         assertThat(questionRepository.count()).isEqualTo(beforeCount); // 저장되지 않음
