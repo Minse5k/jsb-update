@@ -16,6 +16,7 @@ import com.back.domain.question.question.service.QuestionService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -280,5 +281,40 @@ public class QuestionControllerTest {
 
         Question question = questionRepository.findById(1).get();
         assertThat(question.getSubject()).isEqualTo("수정된 제목");
+    }
+
+    @Test
+    @DisplayName("DELETE /questions/2 : 다른 회원은 403, 글쓴이가 삭제하면 답변까지 함께 삭제되고 목록으로 간다.")
+    void t14() throws Exception {
+        mvc
+                .perform(delete("/questions/2").with(csrf()).with(user("user2")))
+                .andExpect(status().isForbidden());
+
+        mvc
+                .perform(
+                        post("/questions/2") // 브라우저(global.js)처럼 POST + _method=DELETE
+                                .param("_method", "DELETE")
+                                .with(csrf())
+                                .with(user("user1"))
+                )
+                .andExpect(handler().methodName("delete"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/questions"));
+
+        assertThat(questionRepository.findById(2)).isEmpty();
+    }
+
+    @Test
+    @DisplayName("상세 화면의 수정·삭제 버튼은 글쓴이에게만 보인다.")
+    void t15() throws Exception {
+        mvc
+                .perform(get("/questions/1").with(user("user1")))
+                .andExpect(content().string(containsString("href=\"/questions/1/modify\"")))
+                .andExpect(content().string(containsString("href=\"/questions/1\" method=\"DELETE\""))); // 주석 속 글자와 구분되게 href 까지
+
+        mvc
+                .perform(get("/questions/1").with(user("user2")))
+                .andExpect(content().string(not(containsString("href=\"/questions/1/modify\""))))
+                .andExpect(content().string(not(containsString("href=\"/questions/1\" method=\"DELETE\""))));
     }
 }

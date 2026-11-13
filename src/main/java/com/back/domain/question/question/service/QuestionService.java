@@ -42,6 +42,10 @@ public class QuestionService {
         return questionRepository.save(question); // INSERT 후 id 가 채워진 질문을 돌려준다.
     }
 
+    public void delete(Question question) {
+        questionRepository.delete(question); // cascade REMOVE 로 답변들도 함께 삭제 (005-06)
+    }
+
     public void modify(Question question, String subject, String content) {
         question.modify(subject, content); // 트랜잭션이 끝날 때 더티체킹으로 UPDATE (005-05), modifyDate 는 Auditing 이 갱신
     }

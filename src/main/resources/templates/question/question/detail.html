@@ -22,6 +22,13 @@
                 <a th:href="@{|/questions/${question.id}/modify|}" class="btn btn-sm btn-outline-secondary"
                    sec:authorize="isAuthenticated()"
                    th:if="${question.author != null and #authentication.name == question.author.username}">수정</a>
+                <!-- method="DELETE" : global.js 가 클릭을 가로채 DELETE 요청(+CSRF 토큰)으로 보낸다. -->
+                <!-- onclick 이 false 를 돌려주면(확인 창에서 취소) 보내지 않는다. -->
+                <a th:href="@{|/questions/${question.id}|}" method="DELETE"
+                   onclick="return confirm('정말로 삭제하시겠습니까?');"
+                   class="btn btn-sm btn-outline-secondary"
+                   sec:authorize="isAuthenticated()"
+                   th:if="${question.author != null and #authentication.name == question.author.username}">삭제</a>
             </div>
         </div>
     </div>

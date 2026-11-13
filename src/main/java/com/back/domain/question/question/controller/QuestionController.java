@@ -16,6 +16,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -148,5 +149,17 @@ public class QuestionController {
         questionService.modify(question, form.subject(), form.content());
 
         return "redirect:/questions/" + id;
+    }
+
+    @DeleteMapping("/{id}") // DELETE /questions/{id} : 질문 삭제 (a[method="DELETE"] → global.js 가 _method=DELETE 로 전송)
+    @PreAuthorize("isAuthenticated()")
+    @Transactional
+    public String delete(@PathVariable int id, Principal principal) {
+        Question question = questionService.getQuestion(id);
+        checkAuthor(question.getAuthor(), principal);
+
+        questionService.delete(question);
+
+        return "redirect:/questions";
     }
 }

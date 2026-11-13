@@ -607,3 +607,16 @@
   - 수정 버튼은 교재와 같은 조건(로그인 + 글쓴이 본인), `#authentication.name`으로 로그인 아이디 비교
   - 서비스의 `modify`는 저장(`save`) 없이 더티체킹(005-05), 수정일시는 BaseEntity Auditing이 자동 갱신(004-01)
 - 결과: 테스트 37개 통과(글쓴이 200/수정 반영, 다른 회원 403). 브라우저 user1 로그인 → 1번 질문 "수정" → 제목 변경 → 상세에 "(수정됨)" 반영
+
+### 020-02 수정·삭제, 질문 삭제(DELETE + global.js)
+- [링크](https://github.com/Minse5k/jsb-update/tree/020-02)
+- 작업: 질문 삭제 — `DELETE /questions/{id}`(글쓴이만, 아니면 403), 상세 화면에 글쓴이에게만 `<a method="DELETE" onclick="return confirm(...)">삭제</a>`, 삭제 후 목록으로
+- 이유:
+  - 교재(3-09)는 `GET /question/delete/{id}` + 자바스크립트로 `location.href` 이동. **GET으로 삭제하면** 링크 미리보기·크롤러·다른 사이트의 `<img src>` 한 줄로도 삭제가 일어날 수 있고, CSRF 토큰 검사도 받지 않음 — 이 미션에서 가장 크게 개선하려던 부분(1~3장 정리 때 짚은 항목)
+  - 강의(14168 37강 확인 창 `confirm`, 43·44강 `a[method="DELETE"]` + global.js, 46강 "삭제는 DELETE MAPPING으로 나가도록 한 작업이 CSRF 때문에 실패하는데 이거 개선하는 방법")를 그대로 적용: 링크에 `method="DELETE"`만 붙이면 018-04에서 넣은 `global.js`가 숨은 폼(`_method=DELETE` + CSRF 토큰)을 만들어 POST로 보냄 → hiddenmethod 필터가 DELETE로 바꿈 → `@DeleteMapping`
+  - URL은 14163 37강 표의 좋은 예 `DELETE /questions/5`
+  - `onclick="return confirm(...)"`: global.js가 이 코드를 먼저 실행하고 `false`(취소)면 전송하지 않음
+  - 답변은 cascade REMOVE로 함께 삭제(005-06에서 확인한 동작)
+- 결과: 테스트 39개 통과(다른 회원 403, 글쓴이 삭제 시 질문 없어짐, 버튼은 글쓴이에게만). 브라우저에서 질문을 새로 쓰고 "삭제" → 확인 → 목록으로 이동, 그 질문 주소는 404
+  - 참고: 테스트 중 템플릿의 HTML 주석 안 `method="DELETE"` 글자가 검사에 걸려 실패 → 타임리프는 주석도 그대로 출력하므로 검사 문자열을 `href=... method="DELETE"`로 구체화
+  - 브라우저 확인 창은 자동화 도구에서 막히므로 `window.confirm`을 "확인"을 누른 것처럼 바꾼 뒤 클릭함
