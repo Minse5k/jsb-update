@@ -6,6 +6,10 @@ spring:
   output:
     ansi:
       enabled: always # 콘솔 로그에 색상 표시
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled: true # 폼의 숨은 칸 _method=PUT/DELETE 를 보고 요청 메서드를 바꿔 준다. (HTML 폼은 GET/POST 만 보낼 수 있으므로)
   datasource:
     hikari:
       auto-commit: false # 트랜잭션 경계(@Transactional)에서만 커밋되도록

@@ -10,6 +10,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,8 +19,10 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Principal;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -92,5 +95,58 @@ public class QuestionController {
         Question question = questionService.write(author, form.subject(), form.content());
 
         return "redirect:/questions/" + question.getId(); // 방금 등록한 질문의 상세 페이지로 이동
+    }
+
+    // 글쓴이 본인인지 확인. 아니면 403(권한 없음)
+    private void checkAuthor(SiteUser author, Principal principal) {
+        if (author == null || !author.getUsername().equals(principal.getName())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "수정/삭제 권한이 없습니다.");
+        }
+    }
+
+    public record ModifyForm(
+            @NotBlank(message = "01-subject-제목을 입력해주세요.")
+            @Size(min = 2, max = 200, message = "02-subject-제목은 2자 이상, 200자 이하로 입력해주세요.")
+            String subject,
+            @NotBlank(message = "03-content-내용을 입력해주세요.")
+            @Size(min = 2, message = "04-content-내용은 2자 이상 입력해주세요.")
+            String content
+    ) {
+    }
+
+    @GetMapping("/{id}/modify") // GET /questions/{id}/modify : 수정 화면
+    @PreAuthorize("isAuthenticated()")
+    @Transactional(readOnly = true)
+    public String showModify(@PathVariable int id, Principal principal, Model model) {
+        Question question = questionService.getQuestion(id);
+        checkAuthor(question.getAuthor(), principal);
+
+        model.addAttribute("question", question);
+        model.addAttribute("form", new ModifyForm(question.getSubject(), question.getContent())); // 기존 값을 채운 폼
+
+        return "question/question/modify";
+    }
+
+    @PutMapping("/{id}/modify") // PUT /questions/{id}/modify : 수정 처리 (폼의 _method=PUT 으로 들어온다)
+    @PreAuthorize("isAuthenticated()")
+    @Transactional
+    public String modify(
+            @PathVariable int id,
+            @ModelAttribute("form") @Valid ModifyForm form,
+            BindingResult bindingResult,
+            Principal principal,
+            Model model
+    ) {
+        Question question = questionService.getQuestion(id);
+        checkAuthor(question.getAuthor(), principal);
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("question", question);
+            return "question/question/modify";
+        }
+
+        questionService.modify(question, form.subject(), form.content());
+
+        return "redirect:/questions/" + id;
     }
 }

@@ -17,6 +17,12 @@
                     <div th:text="${#temporals.format(question.createDate, 'yyyy-MM-dd HH:mm')}"></div>
                 </div>
             </div>
+            <div class="my-3">
+                <!-- 로그인했고, 내가 쓴 질문일 때만 수정 버튼 (#authentication.name = 로그인한 아이디) -->
+                <a th:href="@{|/questions/${question.id}/modify|}" class="btn btn-sm btn-outline-secondary"
+                   sec:authorize="isAuthenticated()"
+                   th:if="${question.author != null and #authentication.name == question.author.username}">수정</a>
+            </div>
         </div>
     </div>
 

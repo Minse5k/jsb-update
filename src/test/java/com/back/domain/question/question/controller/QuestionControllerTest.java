@@ -20,6 +20,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -234,5 +235,50 @@ public class QuestionControllerTest {
 
         Question question = questionRepository.findBySubject("user2 의 질문").get();
         assertThat(question.getAuthor().getUsername()).isEqualTo("user2");
+    }
+
+    @Test
+    @DisplayName("GET /questions/1/modify : 글쓴이(user1)는 기존 값이 채워진 수정 폼을, 다른 회원(user2)은 403 을 받는다.")
+    void t12() throws Exception {
+        mvc
+                .perform(get("/questions/1/modify").with(user("user1")))
+                .andExpect(status().isOk())
+                .andExpect(view().name("question/question/modify"))
+                .andExpect(content().string(containsString("value=\"sbb가 무엇인가요?\"")))
+                .andExpect(content().string(containsString("name=\"_method\" value=\"PUT\"")));
+
+        mvc
+                .perform(get("/questions/1/modify").with(user("user2")))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("PUT /questions/1/modify : 글쓴이가 수정하면 바뀌고 상세로 리다이렉트, 다른 회원은 403")
+    void t13() throws Exception {
+        mvc
+                .perform(
+                        put("/questions/1/modify")
+                                .with(csrf())
+                                .with(user("user2"))
+                                .param("subject", "남이 바꾼 제목")
+                                .param("content", "남이 바꾼 내용")
+                )
+                .andExpect(status().isForbidden());
+
+        mvc
+                .perform(
+                        post("/questions/1/modify") // 브라우저처럼 POST + _method=PUT 으로 보낸다.
+                                .param("_method", "PUT")
+                                .with(csrf())
+                                .with(user("user1"))
+                                .param("subject", "수정된 제목")
+                                .param("content", "수정된 내용")
+                )
+                .andExpect(handler().methodName("modify"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/questions/1"));
+
+        Question question = questionRepository.findById(1).get();
+        assertThat(question.getSubject()).isEqualTo("수정된 제목");
     }
 }

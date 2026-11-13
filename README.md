@@ -594,3 +594,16 @@
   - 교재는 `th:if="${question.author != null}"`로 감싸서 출력. 여기서는 강의(14168 16강 표 "`?.` 안전한 접근 연산자")의 `${question.author?.username}` 한 줄로 같은 효과(글쓴이가 없는 예전 데이터여도 오류 없이 빈칸)
   - 질문·답변의 `author`는 LAZY라서 화면에서 읽을 때 회원 조회 SQL이 실행됨(019-01)
 - 결과: 테스트 35개 통과(상세에 질문 글쓴이 user1, 답변 글쓴이 user2). 브라우저 목록에 글쓴이 칸, 상세 배지에 user1·user2 표시
+
+### 020-01 수정·삭제, 질문 수정(PUT)
+- [링크](https://github.com/Minse5k/jsb-update/tree/020-01)
+- 작업: 질문 수정 — `GET /questions/{id}/modify`(기존 값이 채워진 수정 화면), `PUT /questions/{id}/modify`(폼의 숨은 칸 `_method=PUT`), 글쓴이가 아니면 403, 상세 화면에 글쓴이에게만 "수정" 버튼. `spring.mvc.hiddenmethod.filter.enabled: true`
+- 이유:
+  - 흐름(수정 화면에 기존 값 채우기 → 검증 → 수정 → 상세로)은 교재(3-09)와 같음
+  - URL·메서드: 교재는 `GET/POST /question/modify/{id}`. 강의(14168 32강 수정, 41강 "_method 파라미터를 통해서 PutMapping, DeleteMapping도 사용")는 `GET /posts/{id}/modify` + `PUT`(숨은 칸 `_method`) → 강의 방식 채택. "수정"이라는 행위가 HTTP 메서드(PUT)에 드러남(14163 37강 URL 표의 "수정엔 PUT")
+  - HTML 폼은 GET/POST만 보낼 수 있어서, POST로 보내되 `_method=PUT`을 붙이면 hiddenmethod 필터가 서버 안에서 PUT으로 바꿔 줌(14168 41강 설정 그대로)
+  - 권한이 없을 때: 교재는 `400 BAD_REQUEST`, 여기서는 `403 FORBIDDEN`. 강의(14163 3강 응답코드 표 "403 Forbidden: 권한이 없는 요청")의 의미에 맞는 코드를 씀
+  - 수정 폼은 등록 폼을 같이 쓰는 교재 방식 대신, 강의(14168 `modify.html`, `ModifyForm`)처럼 별도 템플릿·폼 → 수정 화면에만 필요한 것(`_method` 칸, 취소 버튼, 제목)을 등록 화면과 섞지 않음
+  - 수정 버튼은 교재와 같은 조건(로그인 + 글쓴이 본인), `#authentication.name`으로 로그인 아이디 비교
+  - 서비스의 `modify`는 저장(`save`) 없이 더티체킹(005-05), 수정일시는 BaseEntity Auditing이 자동 갱신(004-01)
+- 결과: 테스트 37개 통과(글쓴이 200/수정 반영, 다른 회원 403). 브라우저 user1 로그인 → 1번 질문 "수정" → 제목 변경 → 상세에 "(수정됨)" 반영
