@@ -21,6 +21,7 @@ import static org.springframework.security.test.web.servlet.response.SecurityMoc
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -159,5 +160,38 @@ public class UserControllerTest {
                 .perform(get("/users/join").with(user("navUser")))
                 .andExpect(content().string(containsString("method=\"POST\" href=\"/users/logout\"")))
                 .andExpect(content().string(containsString("<meta name=\"_csrf\"")));
+    }
+
+    @Test
+    @DisplayName("PUT /users/password : 현재 비밀번호가 맞으면 바뀌고, 틀리면 바뀌지 않는다.")
+    void t9() throws Exception {
+        userService.join("pwUser", "1234", "pwUser@test.com");
+
+        mvc
+                .perform(put("/users/password").with(csrf()).with(user("pwUser"))
+                        .param("currentPassword", "틀림").param("newPassword1", "5678").param("newPassword2", "5678"))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeHasFieldErrors("form", "currentPassword"));
+        assertThat(userService.matchesPassword(userService.findByUsername("pwUser").get(), "1234")).isTrue();
+
+        mvc
+                .perform(put("/users/password").with(csrf()).with(user("pwUser"))
+                        .param("currentPassword", "1234").param("newPassword1", "5678").param("newPassword2", "5678"))
+                .andExpect(handler().methodName("changePassword"))
+                .andExpect(redirectedUrl("/users/password?changed"));
+        assertThat(userService.matchesPassword(userService.findByUsername("pwUser").get(), "5678")).isTrue();
+
+        // 바뀐 비밀번호로 로그인된다.
+        mvc
+                .perform(formLogin("/users/login").user("pwUser").password("5678"))
+                .andExpect(authenticated().withUsername("pwUser"));
+    }
+
+    @Test
+    @DisplayName("GET /users/password : 로그인하지 않으면 로그인 화면으로 보낸다.")
+    void t10() throws Exception {
+        mvc
+                .perform(get("/users/password"))
+                .andExpect(redirectedUrl("/users/login"));
     }
 }

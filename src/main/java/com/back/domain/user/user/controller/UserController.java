@@ -6,13 +6,18 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
+import com.back.domain.user.user.entity.SiteUser;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.security.Principal;
 
 @Controller
 @RequestMapping("/users")
@@ -67,5 +72,51 @@ public class UserController {
     @GetMapping("/login") // GET /users/login : 로그인 화면만 보여 준다. 처리(POST)는 시큐리티가 한다.
     public String showLogin() {
         return "user/user/login";
+    }
+
+    public record PasswordForm(
+            @NotBlank(message = "01-currentPassword-현재 비밀번호를 입력해주세요.")
+            String currentPassword,
+            @NotBlank(message = "03-newPassword1-새 비밀번호를 입력해주세요.")
+            @Size(min = 4, message = "04-newPassword1-새 비밀번호는 4자 이상 입력해주세요.")
+            String newPassword1,
+            @NotBlank(message = "06-newPassword2-새 비밀번호 확인을 입력해주세요.")
+            String newPassword2
+    ) {
+    }
+
+    @GetMapping("/password") // GET /users/password : 비밀번호 변경 화면 (로그인한 회원)
+    @PreAuthorize("isAuthenticated()")
+    public String showChangePassword(@ModelAttribute("form") PasswordForm form) {
+        return "user/user/password";
+    }
+
+    @PutMapping("/password") // PUT /users/password : 비밀번호 변경 처리 (_method=PUT)
+    @PreAuthorize("isAuthenticated()")
+    @Transactional
+    public String changePassword(
+            @ModelAttribute("form") @Valid PasswordForm form,
+            BindingResult bindingResult,
+            Principal principal
+    ) {
+        if (bindingResult.hasErrors()) return "user/user/password";
+
+        SiteUser user = userService.findByUsername(principal.getName()).get();
+
+        // 지금 비밀번호를 아는 사람만 바꿀 수 있다. (로그인한 채 자리를 비운 사이 남이 바꾸는 것 방지)
+        if (!userService.matchesPassword(user, form.currentPassword())) {
+            bindingResult.rejectValue("currentPassword", "wrong", "02-currentPassword-현재 비밀번호가 맞지 않습니다.");
+        }
+        if (!form.newPassword1().equals(form.newPassword2())) {
+            bindingResult.rejectValue("newPassword2", "notSame", "07-newPassword2-새 비밀번호 2개가 일치하지 않습니다.");
+        }
+        if (form.newPassword1().equals(form.currentPassword())) {
+            bindingResult.rejectValue("newPassword1", "same", "05-newPassword1-지금과 다른 비밀번호를 입력해주세요.");
+        }
+        if (bindingResult.hasErrors()) return "user/user/password";
+
+        userService.changePassword(user, form.newPassword1());
+
+        return "redirect:/users/password?changed"; // 새로고침해도 다시 전송되지 않게 (PRG)
     }
 }

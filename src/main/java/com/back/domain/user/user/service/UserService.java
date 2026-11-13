@@ -22,6 +22,15 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    // 입력한 비밀번호가 저장된 (암호화된) 비밀번호와 맞는지
+    public boolean matchesPassword(SiteUser user, String rawPassword) {
+        return passwordEncoder.matches(rawPassword, user.getPassword());
+    }
+
+    public void changePassword(SiteUser user, String newRawPassword) {
+        user.changePassword(passwordEncoder.encode(newRawPassword)); // 더티체킹으로 UPDATE
+    }
+
     public Optional<SiteUser> findByUsername(String username) {
         return userRepository.findByUsername(username);
     }

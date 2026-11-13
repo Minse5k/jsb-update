@@ -25,4 +25,8 @@ public class SiteUser extends BaseEntity {
         this.password = password;
         this.email = email;
     }
+
+    public void changePassword(String encodedPassword) {
+        this.password = encodedPassword; // 암호화된 값만 받는다.
+    }
 }
