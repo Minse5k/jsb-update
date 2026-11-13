@@ -259,3 +259,11 @@
   - 예외 위치: 교재·강의(14163)는 `com.mysite.sbb` 루트에 둠. 질문뿐 아니라 답변·회원에서도 쓸 공통 예외라 `global.exception`에 둠(14168의 `global` 패키지 구분 기준 적용)
   - 코드 모양: 강의(14163)는 `if (isPresent()) ... else throw`, 여기서는 같은 동작을 한 줄로 하는 `Optional.orElseThrow`
 - 결과: 테스트 15개 통과(404, 발생한 예외 타입 확인), 브라우저에서 `/question/detail/999` 접속 시 404 확인
+
+### 010-01 URL 프리픽스, @RequestMapping("/question")
+- [링크](https://github.com/Minse5k/jsb-update/tree/010-01)
+- 작업: `QuestionController`에 `@RequestMapping("/question")`, 메서드 매핑을 `/list`, `/detail/{id}`로 줄임
+- 이유:
+  - 교재(2-11)·강의(14163 036)와 같음. 클래스에 붙인 주소가 모든 메서드 주소 앞에 붙음 → 중복 제거
+  - 실제 URL은 바뀌지 않았으므로 기존 테스트가 그대로 통과해야 함(리팩터링 확인)
+- 결과: 테스트 15개 모두 그대로 통과
