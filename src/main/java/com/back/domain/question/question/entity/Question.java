@@ -2,6 +2,7 @@ package com.back.domain.question.question.entity;
 
 import com.back.domain.question.answer.entity.Answer;
 import com.back.domain.question.category.entity.Category;
+import com.back.domain.question.comment.entity.Comment;
 import com.back.domain.user.user.entity.SiteUser;
 import com.back.global.jpa.entity.BaseEntity;
 import jakarta.persistence.Column;
@@ -9,6 +10,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -57,6 +59,11 @@ public class Question extends BaseEntity { // id, createDate, modifyDate 는 Bas
     @ManyToMany
     private final Set<SiteUser> voters = new HashSet<>();
 
+    // 이 질문에 달린 댓글들. 넣으면 저장, 빼면 삭제 (004-04 의 답변과 같은 방식)
+    @OneToMany(mappedBy = "question", cascade = {PERSIST, REMOVE}, orphanRemoval = true)
+    @OrderBy("id asc") // 댓글은 오래된 것부터
+    private final List<Comment> comments = new ArrayList<>();
+
     public Question(SiteUser author, Category category, String subject, String content) {
         this.author = author;
         this.category = category;
@@ -91,5 +98,19 @@ public class Question extends BaseEntity { // id, createDate, modifyDate 는 Bas
 
     public void vote(SiteUser voter) {
         voters.add(voter); // 중간 테이블에 INSERT (이미 있으면 아무 일도 일어나지 않음)
+    }
+
+    public Comment addComment(SiteUser author, String content) {
+        Comment comment = Comment.ofQuestion(this, author, content);
+        comments.add(comment);
+        return comment;
+    }
+
+    public Optional<Comment> findCommentById(int id) {
+        return comments.stream().filter(c -> c.getId() == id).findFirst();
+    }
+
+    public void deleteComment(Comment comment) {
+        comments.remove(comment); // orphanRemoval → DELETE
     }
 }

@@ -924,3 +924,14 @@
   - 선택 상자의 기본값: `th:field`가 폼 값과 같은 `option`에 `selected`를 붙여 줌. 등록 화면은 `@ModelAttribute("form")`이 주소의 `?category=`를 폼에 담아 주므로 별도 코드 없이 "보던 카테고리"가 선택됨
   - **발견한 버그**: 016-03처럼 `th:action`을 값 없이 쓰면 현재 주소가 쿼리까지 그대로 action이 됨 → `?category=free`가 붙은 화면에서 저장하면 선택 상자 값과 주소 값이 함께 전송되어 `free,free`로 합쳐지고 404. 폼 주소를 `th:action="@{/questions/write}"`로 명시해 해결, 테스트에 action 확인 추가
 - 결과: 테스트 59개 통과(기본 선택·고른 카테고리로 저장·수정 시 변경·폼 action). 브라우저에서 자유게시판 탭 → 질문 등록하기 → 자유게시판이 선택된 채로 저장 → 상세 배지 "자유게시판", 자유게시판 탭 목록에 표시
+
+### 029-01 댓글, Comment 엔티티와 질문·답변 연결
+- [링크](https://github.com/Minse5k/jsb-update/tree/029-01)
+- 작업: 댓글 엔티티 `Comment`(질문 댓글이면 `question`, 답변 댓글이면 `answer` 중 하나만, 글쓴이, 500자) — `Question.comments`, `Answer.comments`(`@OneToMany` + PERSIST·REMOVE·orphanRemoval, 오래된 순), `addComment`, `findCommentById`, `deleteComment`
+- 이유:
+  - 교재(3-14): `Comment` 엔티티를 만들고 `Question`, `Answer`와 연결하라고 안내 → 엔티티 하나로 두 곳에 다는 구조
+  - 질문 댓글·답변 댓글을 엔티티 두 개로 나누지 않은 이유: 내용·글쓴이·작성일시가 똑같고, "최근 댓글"(030)·프로필(033)에서 한 번에 모아 보여 줘야 함
+  - 질문·답변이 댓글을 다루는 방식은 004-04·020-04의 답변과 같게(강의 14168 `Post.comments`·`addComment`·`findCommentById`와 같은 모양): 목록에 넣으면 저장, 빼면 삭제
+  - `Comment.ofQuestion`/`ofAnswer` 정적 메서드: 둘 중 하나만 채워진다는 규칙을 생성 단계에서 지킴
+  - `getTargetQuestion()`: 답변 댓글이 결국 어느 질문 화면에 보이는지 — 링크·리다이렉트에 사용
+- 결과: 테스트 60개 통과(질문·답변 댓글 저장, 답변 댓글의 질문, 목록에서 빼면 삭제), 로그에서 `create table comment (..., answer_id, author_id, question_id)` 확인

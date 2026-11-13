@@ -13,6 +13,7 @@ import com.back.domain.question.answer.entity.Answer;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import com.back.domain.question.comment.entity.Comment;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -174,5 +175,24 @@ public class QuestionRepositoryTest {
 
         assertThat(question.getCategory().getCode()).isEqualTo("qna");
         assertThat(question.getCategory().getName()).isEqualTo("질문답변");
+    }
+
+    @Test
+    @DisplayName("댓글 : 질문과 답변에 각각 댓글을 달고, 목록에서 빼면 삭제된다.")
+    void t13() {
+        Question question = questionRepository.findById(2).get();
+        Answer answer = question.getAnswers().getFirst();
+
+        question.addComment(question.getAuthor(), "질문에 단 댓글");
+        Comment answerComment = answer.addComment(question.getAuthor(), "답변에 단 댓글");
+        questionRepository.flush();
+
+        assertThat(question.getComments()).extracting("content").containsExactly("질문에 단 댓글");
+        assertThat(answer.getComments()).extracting("content").containsExactly("답변에 단 댓글");
+        assertThat(answerComment.getTargetQuestion().getId()).isEqualTo(2); // 답변 댓글도 2번 질문 화면에 보인다.
+
+        answer.deleteComment(answerComment);
+        questionRepository.flush();
+        assertThat(answer.getComments()).isEmpty();
     }
 }
