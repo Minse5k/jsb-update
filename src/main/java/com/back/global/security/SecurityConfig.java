@@ -2,6 +2,7 @@ package com.back.global.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -9,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
+@EnableMethodSecurity // 컨트롤러 메서드에 @PreAuthorize 를 붙여 메서드 단위로 권한을 검사할 수 있게 한다.
 public class SecurityConfig {
     @Bean // 이 빈이 있으면 시큐리티 기본 설정 대신 아래 규칙을 쓴다.
     public SecurityFilterChain filterChain(HttpSecurity http) {

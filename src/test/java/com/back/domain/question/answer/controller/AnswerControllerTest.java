@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -39,6 +40,7 @@ public class AnswerControllerTest {
                 .perform(
                         post("/questions/1/answers")
                                 .with(csrf()) // 시큐리티 테스트 도구 : 진짜 폼처럼 CSRF 토큰을 붙여서 보낸다.
+                                .with(user("user1")) // user1(샘플 회원)로 로그인한 상태
                                 .param("content", "답변 내용입니다.") // 폼에서 content 를 보낸 것과 같다.
                 )
                 .andDo(print());
@@ -67,6 +69,7 @@ public class AnswerControllerTest {
                 .perform(
                         post("/questions/1/answers")
                                 .with(csrf()) // 시큐리티 테스트 도구 : 진짜 폼처럼 CSRF 토큰을 붙여서 보낸다.
+                                .with(user("user1")) // user1(샘플 회원)로 로그인한 상태
                                 .param("content", "")
                 )
                 .andDo(print());

@@ -3,11 +3,14 @@ package com.back.domain.question.question.controller;
 import com.back.domain.question.answer.controller.AnswerController;
 import com.back.domain.question.question.entity.Question;
 import com.back.domain.question.question.service.QuestionService;
+import com.back.domain.user.user.entity.SiteUser;
+import com.back.domain.user.user.service.UserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -17,6 +20,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import java.security.Principal;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
 
@@ -25,6 +30,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 @RequiredArgsConstructor // final 필드를 받는 생성자를 만들어 준다 → 스프링이 그 생성자로 QuestionService 를 넣어 준다.
 public class QuestionController {
     private final QuestionService questionService; // 컨트롤러는 리포지터리를 직접 쓰지 않고 서비스를 통한다.
+    private final UserService userService;
 
     @GetMapping // → GET /questions (질문 "목록" = 질문들)
     @Transactional(readOnly = true) // 조회만 하는 요청: 이 메서드가 끝날 때까지 하나의 트랜잭션(DB 연결) 안에서 처리
@@ -66,20 +72,24 @@ public class QuestionController {
     }
 
     @GetMapping("/write") // GET /questions/write : 질문 등록 "화면"
+    @PreAuthorize("isAuthenticated()") // 로그인하지 않았으면 이 메서드를 실행하지 않고 로그인 화면으로 보낸다.
     public String showWrite(@ModelAttribute("form") WriteForm form) { // 빈 form 을 모델에 "form" 으로 넣는다 → 템플릿의 th:object="${form}"
         return "question/question/write";
     }
 
     @PostMapping("/write") // POST /questions/write : 질문 등록 "처리" (URL 은 화면과 같고 메서드가 다르다)
+    @PreAuthorize("isAuthenticated()")
     @Transactional
     public String write(
             @ModelAttribute("form") @Valid WriteForm form, // 요청 파라미터(subject, content)를 WriteForm 에 담고 검증한다.
-            BindingResult bindingResult // 검증 결과. 반드시 @Valid 바로 다음 매개변수여야 한다.
+            BindingResult bindingResult, // 검증 결과. 반드시 @Valid 바로 다음 매개변수여야 한다.
+            Principal principal // 로그인한 사용자 정보. principal.getName() = 아이디
     ) {
         // 검증 실패 → 저장하지 않고 폼을 다시 보여 준다. (form 은 모델에 남아 있어서 입력값이 유지된다.)
         if (bindingResult.hasErrors()) return "question/question/write";
 
-        Question question = questionService.write(null, form.subject(), form.content()); // 글쓴이는 다음 단계(로그인 필수)에서 채운다.
+        SiteUser author = userService.findByUsername(principal.getName()).get(); // 로그인한 회원 = 글쓴이
+        Question question = questionService.write(author, form.subject(), form.content());
 
         return "redirect:/questions/" + question.getId(); // 방금 등록한 질문의 상세 페이지로 이동
     }

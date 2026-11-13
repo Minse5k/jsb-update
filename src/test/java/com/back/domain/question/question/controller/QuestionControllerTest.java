@@ -18,6 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -102,7 +103,7 @@ public class QuestionControllerTest {
     @DisplayName("GET /questions/write : 질문 등록 폼이 보인다.")
     void t5() throws Exception {
         ResultActions resultActions = mvc
-                .perform(get("/questions/write"))
+                .perform(get("/questions/write").with(user("user1")))
                 .andDo(print());
 
         resultActions
@@ -120,6 +121,7 @@ public class QuestionControllerTest {
                 .perform(
                         post("/questions/write")
                                 .with(csrf()) // 시큐리티 테스트 도구 : 진짜 폼처럼 CSRF 토큰을 붙여서 보낸다.
+                                .with(user("user1")) // user1(샘플 회원)로 로그인한 상태
                                 .param("subject", "새 질문 제목")
                                 .param("content", "새 질문 내용")
                 )
@@ -145,6 +147,7 @@ public class QuestionControllerTest {
                 .perform(
                         post("/questions/write")
                                 .with(csrf()) // 시큐리티 테스트 도구 : 진짜 폼처럼 CSRF 토큰을 붙여서 보낸다.
+                                .with(user("user1")) // user1(샘플 회원)로 로그인한 상태
                                 .param("subject", "   ") // 공백만
                                 .param("content", "내용은 입력함")
                 )
@@ -202,5 +205,32 @@ public class QuestionControllerTest {
                 .andExpect(status().isForbidden()); // 컨트롤러까지 가지 못하고 필터에서 거절
 
         assertThat(questionRepository.findBySubject("토큰 없는 질문")).isEmpty();
+    }
+
+    @Test
+    @DisplayName("GET /questions/write : 로그인하지 않으면 로그인 화면으로 보낸다.")
+    void t10() throws Exception {
+        mvc
+                .perform(get("/questions/write")) // user(...) 없음 = 비로그인
+                .andDo(print())
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/users/login"));
+    }
+
+    @Test
+    @DisplayName("POST /questions/write : 로그인한 회원이 글쓴이로 저장된다.")
+    void t11() throws Exception {
+        mvc
+                .perform(
+                        post("/questions/write")
+                                .with(csrf())
+                                .with(user("user2"))
+                                .param("subject", "user2 의 질문")
+                                .param("content", "글쓴이 확인")
+                )
+                .andExpect(status().is3xxRedirection());
+
+        Question question = questionRepository.findBySubject("user2 의 질문").get();
+        assertThat(question.getAuthor().getUsername()).isEqualTo("user2");
     }
 }

@@ -37,7 +37,10 @@
     <!-- 답변 작성 폼 : 전송하면 POST /questions/{id}/answers 요청이 발생한다. -->
     <form th:action="@{|/questions/${question.id}/answers|}" method="post" class="my-3" th:object="${answerForm}">
         <div th:replace="~{form_errors :: formErrorsFragment}"></div>
-        <textarea th:field="*{content}" rows="10" class="form-control"></textarea>
+        <!-- 로그인하지 않았으면 입력칸을 비활성화하고 안내 문구 -->
+        <textarea sec:authorize="isAnonymous()" disabled rows="10" class="form-control"
+                  placeholder="로그인 후 답변을 등록할 수 있습니다."></textarea>
+        <textarea sec:authorize="isAuthenticated()" th:field="*{content}" rows="10" class="form-control"></textarea>
         <input type="submit" value="답변등록" class="btn btn-primary my-2">
     </form>
 </div>
