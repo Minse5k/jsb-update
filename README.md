@@ -620,3 +620,13 @@
 - 결과: 테스트 39개 통과(다른 회원 403, 글쓴이 삭제 시 질문 없어짐, 버튼은 글쓴이에게만). 브라우저에서 질문을 새로 쓰고 "삭제" → 확인 → 목록으로 이동, 그 질문 주소는 404
   - 참고: 테스트 중 템플릿의 HTML 주석 안 `method="DELETE"` 글자가 검사에 걸려 실패 → 타임리프는 주석도 그대로 출력하므로 검사 문자열을 `href=... method="DELETE"`로 구체화
   - 브라우저 확인 창은 자동화 도구에서 막히므로 `window.confirm`을 "확인"을 누른 것처럼 바꾼 뒤 클릭함
+
+### 020-03 수정·삭제, 답변 수정(PUT)
+- [링크](https://github.com/Minse5k/jsb-update/tree/020-03)
+- 작업: 답변 수정 — `GET/PUT /questions/{questionId}/answers/{id}/modify`, `Question.findAnswerById(id)`(그 질문의 답변 중에서만 찾음, 없으면 404), `Answer.modify(content)`, 글쓴이가 아니면 403, 상세 화면의 답변마다 글쓴이에게만 "수정" 버튼, `templates/question/answer/modify.html`
+- 이유:
+  - 흐름은 교재(3-09 답변 수정)와 같음
+  - URL: 교재 `/answer/modify/{id}` → 답변은 "몇 번 질문의 답변"이라는 011-02의 자원 구조를 따라 `/questions/{questionId}/answers/{id}/modify`(14168의 `/posts/{postId}/comments/{id}/modify`와 같은 모양), 처리는 PUT(020-01과 같은 이유)
+  - 답변 찾기: 교재는 `AnswerRepository.findById`. 강의(14168 `Post.findCommentById`)처럼 질문의 `answers`에서 찾음 → 강의 방식. `AnswerRepository` 없이 동작하고, 주소의 질문 번호와 답변이 맞지 않으면(다른 질문의 답변) 404가 됨
+  - 권한·폼·검증은 020-01과 같은 방식(403, 별도 `ModifyForm`, 순번 메시지)
+- 결과: 테스트 41개 통과(글쓴이 수정, 다른 회원 403, 다른 질문의 답변 번호 404). 브라우저 user1로 1번 질문에 답변 작성 → 그 답변의 "수정" → 내용 변경 → 상세에 "(수정됨)" 반영

@@ -31,4 +31,8 @@ public class Answer extends BaseEntity {
         this.author = author;
         this.content = content;
     }
+
+    public void modify(String content) {
+        this.content = content;
+    }
 }

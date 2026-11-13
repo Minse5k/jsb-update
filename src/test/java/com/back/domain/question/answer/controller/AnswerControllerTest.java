@@ -17,6 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -84,5 +85,48 @@ public class AnswerControllerTest {
         em.flush();
         em.clear();
         assertThat(questionRepository.findById(1).get().getAnswers()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("답변 수정 : 글쓴이(user2)는 수정 폼과 수정 처리가 되고, 다른 회원(user1)은 403")
+    void t3() throws Exception {
+        Question question = questionRepository.findById(2).get();
+        int answerId = question.getAnswers().getFirst().getId(); // user2 가 쓴 첫 번째 답변
+
+        mvc
+                .perform(get("/questions/2/answers/%d/modify".formatted(answerId)).with(user("user2")))
+                .andExpect(status().isOk())
+                .andExpect(view().name("question/answer/modify"))
+                .andExpect(content().string(containsString("네 자동으로 생성됩니다.")));
+
+        mvc
+                .perform(get("/questions/2/answers/%d/modify".formatted(answerId)).with(user("user1")))
+                .andExpect(status().isForbidden());
+
+        mvc
+                .perform(
+                        post("/questions/2/answers/%d/modify".formatted(answerId))
+                                .param("_method", "PUT")
+                                .with(csrf())
+                                .with(user("user2"))
+                                .param("content", "수정된 답변")
+                )
+                .andExpect(handler().methodName("modify"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/questions/2"));
+
+        em.flush();
+        em.clear();
+        assertThat(questionRepository.findById(2).get().getAnswers().getFirst().getContent()).isEqualTo("수정된 답변");
+    }
+
+    @Test
+    @DisplayName("답변 수정 : 다른 질문의 답변 번호로 접근하면 404")
+    void t4() throws Exception {
+        int answerIdOfQuestion2 = questionRepository.findById(2).get().getAnswers().getFirst().getId();
+
+        mvc
+                .perform(get("/questions/1/answers/%d/modify".formatted(answerIdOfQuestion2)).with(user("user2")))
+                .andExpect(status().isNotFound());
     }
 }

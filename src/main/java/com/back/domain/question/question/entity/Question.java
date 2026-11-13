@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static jakarta.persistence.CascadeType.PERSIST;
 import static jakarta.persistence.CascadeType.REMOVE;
@@ -55,5 +56,13 @@ public class Question extends BaseEntity { // id, createDate, modifyDate 는 Bas
         answers.add(answer); // 트랜잭션이 끝날 때 PERSIST 에 의해 INSERT 된다.
 
         return answer;
+    }
+
+    // 이 질문에 달린 답변 중 id 번 답변 (다른 질문의 답변은 찾지 않는다)
+    public Optional<Answer> findAnswerById(int id) {
+        return answers
+                .stream()
+                .filter(answer -> answer.getId() == id)
+                .findFirst();
     }
 }
