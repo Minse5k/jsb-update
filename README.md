@@ -543,3 +543,13 @@
   - 실패하면 시큐리티가 `/users/login?error`로 돌려보냄 → 템플릿이 `${param.error}`로 안내 문구 표시(교재와 같음)
   - 테스트는 시큐리티 테스트 도구 `formLogin()`으로 로그인 폼 전송을 흉내 내고 `authenticated()`/`unauthenticated()`로 로그인 여부까지 확인
 - 결과: 테스트 30개 통과. 브라우저에서 틀린 비밀번호 → `/users/login?error`와 안내 문구, 맞는 비밀번호 → 메인(`/questions`)으로 이동
+
+### 018-03 로그인, 로그인 상태에 따라 바뀌는 내비게이션 바
+- [링크](https://github.com/Minse5k/jsb-update/tree/018-03)
+- 작업: 로그인 상태에 따라 바뀌는 내비게이션 바 — `thymeleaf-extras-springsecurity6` 의존성, 로그인 전 `sec:authorize="isAnonymous()"`로 로그인·회원가입, 로그인 후 `isAuthenticated()`로 "아이디님"
+- 이유:
+  - 교재(3-07)와 같은 `sec:authorize` 방식. 교재는 `thymeleaf-extras-springsecurity6`를 버전과 함께 적지만, 여기서는 스프링부트가 관리하는 버전(3.1.5)을 그대로 씀(버전 생략)
+  - 로그인 후 아이디(`sec:authentication="name"`)를 보여 줘서 "누구로 로그인했는지"가 화면에 드러나게 함(교재에는 없음, 이 프로젝트의 판단)
+  - 로그아웃 링크는 다음 커밋(로그아웃은 POST로 보내야 해서 준비가 필요)
+  - 테스트는 시큐리티 테스트 도구 `user("navUser")`로 "로그인한 상태의 요청"을 만들어 비교
+- 결과: 테스트 31개 통과. 브라우저에서 로그인 전 `질문 목록, 로그인, 회원가입` → user1로 로그인 후 `질문 목록, user1님`

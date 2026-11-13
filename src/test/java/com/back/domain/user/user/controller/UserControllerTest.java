@@ -13,8 +13,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -124,5 +126,19 @@ public class UserControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/users/login?error"))
                 .andExpect(unauthenticated());
+    }
+
+    @Test
+    @DisplayName("내비게이션 바 : 로그인 전에는 로그인·회원가입, 로그인 후에는 아이디가 보인다.")
+    void t6() throws Exception {
+        mvc
+                .perform(get("/users/join"))
+                .andExpect(content().string(containsString("href=\"/users/login\"")))
+                .andExpect(content().string(not(containsString("님</span>"))));
+
+        mvc
+                .perform(get("/users/join").with(user("navUser"))) // user() : navUser 로 로그인한 상태로 요청
+                .andExpect(content().string(not(containsString("href=\"/users/login\""))))
+                .andExpect(content().string(containsString("<span>navUser</span>님")));
     }
 }
