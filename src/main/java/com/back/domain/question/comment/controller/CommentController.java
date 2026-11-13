@@ -1,5 +1,7 @@
 package com.back.domain.question.comment.controller;
 
+import com.back.domain.question.answer.entity.Answer;
+import com.back.domain.question.answer.service.AnswerService;
 import com.back.domain.question.comment.entity.Comment;
 import com.back.domain.question.question.entity.Question;
 import com.back.domain.question.question.service.QuestionService;
@@ -25,12 +27,13 @@ import java.security.Principal;
 
 // 댓글은 질문 아래, 답변 아래 두 곳에 달리므로 주소도 두 갈래
 //   질문 댓글 : /questions/{questionId}/comments
-//   답변 댓글 : /questions/{questionId}/answers/{answerId}/comments (029-03)
+//   답변 댓글 : /questions/{questionId}/answers/{answerId}/comments
 @Controller
 @RequiredArgsConstructor
 public class CommentController {
     private final QuestionService questionService;
     private final UserService userService;
+    private final AnswerService answerService;
 
     public record WriteForm(
             @NotBlank
@@ -77,5 +80,49 @@ public class CommentController {
         question.deleteComment(comment);
 
         return "redirect:/questions/%d#question_comments".formatted(questionId);
+    }
+
+    private Answer getAnswer(Question question, int answerId) {
+        return question.findAnswerById(answerId).orElseThrow(() -> new DataNotFoundException("answer not found"));
+    }
+
+    // 답변 댓글 등록·삭제 후에는 그 답변이 있는 답변 페이지의 그 답변 위치로 (026-03)
+    private String redirectToAnswer(int questionId, Answer answer) {
+        return "redirect:/questions/%d?ap=%d#answer_%d".formatted(questionId, answerService.latestPageOf(answer), answer.getId());
+    }
+
+    @PostMapping("/questions/{questionId}/answers/{answerId}/comments") // 답변 댓글 등록
+    @PreAuthorize("isAuthenticated()")
+    @Transactional
+    public String writeOnAnswer(
+            @PathVariable int questionId,
+            @PathVariable int answerId,
+            @ModelAttribute("commentForm") @Valid WriteForm form,
+            BindingResult bindingResult,
+            Principal principal
+    ) {
+        Question question = questionService.getQuestion(questionId);
+        Answer answer = getAnswer(question, answerId);
+
+        if (!bindingResult.hasErrors()) {
+            SiteUser author = userService.findByUsername(principal.getName()).get();
+            answer.addComment(author, form.content().trim());
+        }
+
+        return redirectToAnswer(questionId, answer);
+    }
+
+    @DeleteMapping("/questions/{questionId}/answers/{answerId}/comments/{id}") // 답변 댓글 삭제
+    @PreAuthorize("isAuthenticated()")
+    @Transactional
+    public String deleteOnAnswer(@PathVariable int questionId, @PathVariable int answerId, @PathVariable int id, Principal principal) {
+        Question question = questionService.getQuestion(questionId);
+        Answer answer = getAnswer(question, answerId);
+        Comment comment = answer.findCommentById(id).orElseThrow(() -> new DataNotFoundException("comment not found"));
+        checkAuthor(comment, principal);
+
+        answer.deleteComment(comment);
+
+        return redirectToAnswer(questionId, answer);
     }
 }

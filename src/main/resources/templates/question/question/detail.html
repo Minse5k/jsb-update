@@ -101,6 +101,12 @@
                    sec:authorize="isAuthenticated()"
                    th:if="${answer.author != null and #authentication.name == answer.author.username}">삭제</a>
             </div>
+            <!-- 답변 댓글 -->
+            <div th:replace="~{question/comment/comments :: commentsFragment(
+                    ${answer.comments},
+                    @{|/questions/${question.id}/answers/${answer.id}/comments|},
+                    @{|/questions/${question.id}/answers/${answer.id}/comments|},
+                    |answer_comments_${answer.id}|)}"></div>
         </div>
     </div>
 

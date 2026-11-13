@@ -74,4 +74,36 @@ public class CommentControllerTest {
         em.clear();
         assertThat(questionRepository.findById(1).get().getComments()).isEmpty();
     }
+
+    @Test
+    @DisplayName("답변 댓글 : 답변 아래에 등록·표시되고, 글쓴이만 삭제할 수 있으며, 그 답변 위치로 돌아간다.")
+    void t3() throws Exception {
+        int answerId = questionRepository.findById(2).get().getAnswers().getFirst().getId();
+        String base = "/questions/2/answers/%d/comments".formatted(answerId);
+
+        mvc
+                .perform(post(base).with(csrf()).with(user("user1")).param("content", "답변에 단 댓글"))
+                .andExpect(handler().methodName("writeOnAnswer"))
+                .andExpect(redirectedUrl("/questions/2?ap=0#answer_%d".formatted(answerId)));
+
+        mvc
+                .perform(get("/questions/2"))
+                .andExpect(content().string(containsString("id=\"answer_comments_%d\"".formatted(answerId))))
+                .andExpect(content().string(containsString("답변에 단 댓글")));
+
+        em.flush();
+        em.clear();
+        Comment comment = questionRepository.findById(2).get().getAnswers().getFirst().getComments().getFirst();
+
+        mvc
+                .perform(post(base + "/" + comment.getId()).param("_method", "DELETE").with(csrf()).with(user("user2")))
+                .andExpect(status().isForbidden());
+        mvc
+                .perform(post(base + "/" + comment.getId()).param("_method", "DELETE").with(csrf()).with(user("user1")))
+                .andExpect(handler().methodName("deleteOnAnswer"));
+
+        em.flush();
+        em.clear();
+        assertThat(questionRepository.findById(2).get().getAnswers().getFirst().getComments()).isEmpty();
+    }
 }
