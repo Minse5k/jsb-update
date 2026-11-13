@@ -161,3 +161,13 @@
   - 이 테스트는 답변이 달린 2번 질문을 삭제해 `cascade = REMOVE`(004-04)가 실제로 동작하는지까지 확인(14163 9강 "질문이 삭제되기 전에 관련된 답변들이 먼저 삭제된다")
   - `flush()`: 테스트는 끝나면 롤백되므로 DELETE가 실행되지 않고 끝날 수 있음. 로그로 순서를 보기 위해 강제로 실행(14163 21강의 flush 설명)
 - 결과: 테스트 9개 통과. 로그 순서 `delete Answer` → `delete Answer` → `delete Question` 확인 (외래키 때문에 답변이 먼저 지워져야 함)
+
+### 005-07 리포지터리, 답변 생성과 조회를 질문을 통해서
+- [링크](https://github.com/Minse5k/jsb-update/tree/005-07)
+- 작업: 답변 생성 테스트(t8, `question.addAnswer()`), 답변 조회 테스트(t9, `question.getAnswers()`)
+- 이유:
+  - 교재(2-05): `AnswerRepository`를 만들고 `answerRepository.save(answer)`로 생성, `answerRepository.findById()`로 조회
+  - 강의(14163 9·21강, 레포 t9·t11): `@OneToMany` 필드로 생성·조회하는 객체지향적인 방법을 함께 보여 주고, 실제 답변 등록 기능(14163 37강 "강사는 oneToMany 필드를 통해서 답변을 생성")도 이 방식으로 만듦 → 강의 방식 채택
+  - 그래서 `AnswerRepository`는 만들지 않음. 답변은 항상 질문을 통해서 만들고 찾기 때문에 필요가 없음(14163 9강 "answerRepository를 주입받아야 한다. 귀찮다")
+  - t8의 `id == 0` → `flush()` → `id > 0`: INSERT는 트랜잭션 끝(또는 flush)에 일어나고, 그때 DB가 번호를 매긴다는 흐름을 보여 줌(14163 21강)
+- 결과: 테스트 11개 통과

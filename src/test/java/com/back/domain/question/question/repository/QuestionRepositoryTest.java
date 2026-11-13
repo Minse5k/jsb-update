@@ -9,6 +9,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import com.back.domain.question.answer.entity.Answer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -96,5 +97,34 @@ public class QuestionRepositoryTest {
         // 실행 순서 : DELETE FROM answer ... (2번) → DELETE FROM question WHERE id = 2
 
         assertThat(questionRepository.count()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("답변 생성 : question.addAnswer() 만 호출하면 PERSIST 에 의해 INSERT 된다.")
+    void t8() {
+        Question question = questionRepository.findById(2).get();
+        int beforeCount = question.getAnswers().size();
+
+        Answer answer = question.addAnswer("네 자동으로 생성됩니다.");
+        // AnswerRepository.save() 가 필요 없다.
+
+        assertThat(answer.getId()).isEqualTo(0); // 아직 INSERT 전이라 id 가 없다.(int 기본값 0)
+
+        questionRepository.flush(); // 지금 INSERT 실행
+
+        assertThat(answer.getId()).isGreaterThan(0); // INSERT 후 DB가 매긴 번호가 들어온다.
+        assertThat(question.getAnswers()).hasSize(beforeCount + 1);
+    }
+
+    @Test
+    @DisplayName("답변 조회 : question.getAnswers() 로 질문에 달린 답변들을 조회한다.")
+    void t9() {
+        Question question = questionRepository.findById(2).get();
+
+        List<Answer> answers = question.getAnswers();
+        // LAZY 이므로 이 시점에 SELECT * FROM answer WHERE question_id = 2 가 실행된다.
+
+        assertThat(answers).hasSize(2);
+        assertThat(answers.get(0).getContent()).isEqualTo("네 자동으로 생성됩니다.");
     }
 }
