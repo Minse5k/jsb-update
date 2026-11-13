@@ -141,4 +141,23 @@ public class UserControllerTest {
                 .andExpect(content().string(not(containsString("href=\"/users/login\""))))
                 .andExpect(content().string(containsString("<span>navUser</span>님")));
     }
+
+    @Test
+    @DisplayName("POST /users/logout : 로그아웃되고 메인으로 리다이렉트된다.")
+    void t7() throws Exception {
+        mvc
+                .perform(post("/users/logout").with(csrf()).with(user("logoutUser")))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"))
+                .andExpect(unauthenticated());
+    }
+
+    @Test
+    @DisplayName("로그인 상태의 화면에는 로그아웃 링크(method=POST)와 CSRF 메타 태그가 있다.")
+    void t8() throws Exception {
+        mvc
+                .perform(get("/users/join").with(user("navUser")))
+                .andExpect(content().string(containsString("method=\"POST\" href=\"/users/logout\"")))
+                .andExpect(content().string(containsString("<meta name=\"_csrf\"")));
+    }
 }

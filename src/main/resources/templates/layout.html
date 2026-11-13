@@ -12,6 +12,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.8/js/bootstrap.bundle.min.js" defer></script>
 
     <link rel="stylesheet" th:href="@{/resource/style.css}">
+
+    <!-- CSRF 토큰을 메타 태그로 심어 둔다 → global.js 가 읽어서 POST/PUT/DELETE 폼에 붙인다. -->
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <!-- a[method="POST|PUT|DELETE"] 를 클릭하면 그 메서드로 요청을 보내 주는 공통 스크립트 -->
+    <script th:src="@{/resource/global.js}" defer></script>
 </head>
 <body>
 

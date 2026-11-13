@@ -553,3 +553,13 @@
   - 로그아웃 링크는 다음 커밋(로그아웃은 POST로 보내야 해서 준비가 필요)
   - 테스트는 시큐리티 테스트 도구 `user("navUser")`로 "로그인한 상태의 요청"을 만들어 비교
 - 결과: 테스트 31개 통과. 브라우저에서 로그인 전 `질문 목록, 로그인, 회원가입` → user1로 로그인 후 `질문 목록, user1님`
+
+### 018-04 로그인, POST 로그아웃과 global.js
+- [링크](https://github.com/Minse5k/jsb-update/tree/018-04)
+- 작업: 로그아웃 — `SecurityConfig.logout`(`POST /users/logout`, 성공 시 `/`), 내비게이션 바 `<a method="POST" href="/users/logout">로그아웃</a>`, 링크를 POST로 보내 주는 공통 스크립트 `static/resource/global.js`와 `layout.html`의 CSRF 메타 태그(`<meta name="_csrf">`)
+- 이유:
+  - 교재(3-07)는 `logoutRequestMatcher(new AntPathRequestMatcher("/user/logout"))`로 GET 로그아웃 링크를 씀. 지금 버전(Spring Security 7)에는 `AntPathRequestMatcher`가 없고, CSRF가 켜져 있으면 로그아웃은 POST로만 받는 것이 기본 → GET 링크로는 로그아웃할 수 없음
+  - 상태를 바꾸는 요청은 GET이 아니라 POST로 보내야 함(14168 7강). 다른 사이트가 `<img src="/users/logout">` 한 줄로 사용자를 로그아웃시키는 것도 막힘
+  - 링크(`<a>`)는 GET만 보낼 수 있어서, 강의(14168 43강 "a 엘리먼트를 통해서 POST/DELETE/PUT이 가능하도록 만들어주는 JS", 44강 "layout.html을 통해서 global.js 파일을 전체 페이지에 적용")의 `global.js`를 그대로 가져옴: `method` 속성이 있는 `<a>`를 클릭하면 숨은 폼을 만들어 그 메서드 + CSRF 토큰(메타 태그에서 읽음)으로 전송
+  - 이 `global.js`는 020(수정·삭제)에서 `method="DELETE"` 링크에도 그대로 쓰임
+- 결과: 테스트 33개 통과(POST 로그아웃 → `/`, 비로그인 상태 / 로그아웃 링크와 CSRF 메타 태그 존재). 브라우저에서 로그아웃 클릭 → 메인으로 이동하고 바가 "로그인, 회원가입"으로 돌아옴

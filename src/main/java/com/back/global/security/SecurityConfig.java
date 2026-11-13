@@ -37,6 +37,11 @@ public class SecurityConfig {
                                 .loginPage("/users/login") // 로그인 화면 : GET /users/login (우리가 만든 화면)
                                 .loginProcessingUrl("/users/login") // 로그인 처리 : POST /users/login (시큐리티가 처리, 컨트롤러 메서드 없음)
                                 .defaultSuccessUrl("/") // 성공하면 메인으로
+                )
+                .logout(
+                        logout -> logout
+                                .logoutUrl("/users/logout") // 로그아웃 처리 : POST /users/logout (CSRF 때문에 GET 으로는 안 된다)
+                                .logoutSuccessUrl("/") // 로그아웃 후 메인으로 (세션은 기본으로 무효화된다)
                 );
 
         return http.build();
