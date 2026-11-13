@@ -17,6 +17,7 @@ import com.back.domain.question.question.service.QuestionService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -118,6 +119,7 @@ public class QuestionControllerTest {
         ResultActions resultActions = mvc
                 .perform(
                         post("/questions/write")
+                                .with(csrf()) // 시큐리티 테스트 도구 : 진짜 폼처럼 CSRF 토큰을 붙여서 보낸다.
                                 .param("subject", "새 질문 제목")
                                 .param("content", "새 질문 내용")
                 )
@@ -142,6 +144,7 @@ public class QuestionControllerTest {
         ResultActions resultActions = mvc
                 .perform(
                         post("/questions/write")
+                                .with(csrf()) // 시큐리티 테스트 도구 : 진짜 폼처럼 CSRF 토큰을 붙여서 보낸다.
                                 .param("subject", "   ") // 공백만
                                 .param("content", "내용은 입력함")
                 )
@@ -182,5 +185,22 @@ public class QuestionControllerTest {
                 .andExpect(content().string(not(containsString("페이징 질문 05"))))
                 .andExpect(content().string(containsString("href=\"/questions?page=0\""))) // 이전 버튼(0페이지)
                 .andExpect(content().string(containsString("href=\"/questions?page=2\""))); // 다음 버튼(2페이지)
+    }
+
+    @Test
+    @DisplayName("POST /questions/write : CSRF 토큰 없이 보내면 시큐리티가 403 으로 막는다.")
+    void t9() throws Exception {
+        ResultActions resultActions = mvc
+                .perform(
+                        post("/questions/write") // .with(csrf()) 없음 = 다른 사이트에서 몰래 보낸 요청과 같다.
+                                .param("subject", "토큰 없는 질문")
+                                .param("content", "토큰 없는 내용")
+                )
+                .andDo(print());
+
+        resultActions
+                .andExpect(status().isForbidden()); // 컨트롤러까지 가지 못하고 필터에서 거절
+
+        assertThat(questionRepository.findBySubject("토큰 없는 질문")).isEmpty();
     }
 }

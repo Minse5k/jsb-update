@@ -6,8 +6,8 @@
 <div layout:fragment="content" class="container">
     <h5 class="my-3 border-bottom pb-2">질문 등록</h5>
     <!-- th:object : 이 폼 안에서 *{...} 는 form.... 을 뜻한다. -->
-    <!-- action 을 생략하면 현재 주소(/questions/write)로 전송된다. method 가 post 이므로 POST /questions/write -->
-    <form method="post" th:object="${form}">
+    <!-- th:action (값 없음) : action 은 현재 주소(/questions/write) 그대로 + 타임리프가 CSRF 토큰 숨은 칸(_csrf)을 자동으로 넣어 준다. -->
+    <form method="post" th:action th:object="${form}">
         <!-- 검증 실패 메시지 (templates/form_errors.html 의 formErrorsFragment 로 교체된다) -->
         <div th:replace="~{form_errors :: formErrorsFragment}"></div>
 
