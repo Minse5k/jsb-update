@@ -95,6 +95,8 @@ public class QuestionControllerTest {
         resultActions
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("2개의 답변이 있습니다.")))
+                .andExpect(content().string(containsString("<div class=\"mb-2\">user1</div>"))) // 질문 글쓴이
+                .andExpect(content().string(containsString("<div class=\"mb-2\">user2</div>"))) // 답변 글쓴이
                 .andExpect(content().string(containsString("네 자동으로 생성됩니다.")))
                 .andExpect(content().string(containsString("맞습니다!")));
     }

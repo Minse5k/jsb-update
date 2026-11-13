@@ -12,6 +12,7 @@
         <tr>
             <th>번호</th>
             <th>제목</th>
+            <th>글쓴이</th>
             <th>작성일시</th>
         </tr>
         </thead>
@@ -29,6 +30,8 @@
                       th:if="${#lists.size(question.answers) > 0}"
                       th:text="${#lists.size(question.answers)}"></span>
             </td>
+            <!-- ?. : author 가 null 이면 오류 없이 빈칸 (14168 16강) -->
+            <td th:text="${question.author?.username}"></td>
             <td th:text="${#temporals.format(question.createDate, 'yyyy-MM-dd HH:mm')}"></td>
         </tr>
         </tbody>
