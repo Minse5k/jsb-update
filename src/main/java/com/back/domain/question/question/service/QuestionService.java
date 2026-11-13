@@ -13,6 +13,10 @@ import java.util.List;
 public class QuestionService {
     private final QuestionRepository questionRepository;
 
+    public long count() {
+        return questionRepository.count();
+    }
+
     public List<Question> findAll() {
         return questionRepository.findAll();
     }

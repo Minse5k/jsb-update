@@ -1,7 +1,7 @@
 package com.back.global.initData;
 
 import com.back.domain.question.question.entity.Question;
-import com.back.domain.question.question.repository.QuestionRepository;
+import com.back.domain.question.question.service.QuestionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
@@ -18,7 +18,7 @@ public class BaseInitData {
     @Autowired
     @Lazy
     private BaseInitData self;
-    private final QuestionRepository questionRepository;
+    private final QuestionService questionService; // 컨트롤러와 같이 서비스를 통해서 데이터를 만든다.
 
     @Bean
     ApplicationRunner baseInitDataApplicationRunner() {
@@ -30,14 +30,12 @@ public class BaseInitData {
 
     @Transactional
     public void work1() {
-        if (questionRepository.count() > 0) return; // 이미 데이터가 있으면 다시 만들지 않는다.
+        if (questionService.count() > 0) return; // 이미 데이터가 있으면 다시 만들지 않는다.
 
-        Question question1 = new Question("sbb가 무엇인가요?", "sbb에 대해서 알고 싶습니다.");
-        questionRepository.save(question1);
+        questionService.write("sbb가 무엇인가요?", "sbb에 대해서 알고 싶습니다.");
 
-        Question question2 = new Question("스프링부트 모델 질문입니다.", "id는 자동으로 생성되나요?");
-        question2.addAnswer("네 자동으로 생성됩니다.");
+        Question question2 = questionService.write("스프링부트 모델 질문입니다.", "id는 자동으로 생성되나요?");
+        question2.addAnswer("네 자동으로 생성됩니다."); // 트랜잭션(work1)이 끝날 때 PERSIST 에 의해 INSERT
         question2.addAnswer("맞습니다!");
-        questionRepository.save(question2); // 질문을 저장하면 PERSIST 에 의해 답변 2개도 함께 저장된다.
     }
 }
