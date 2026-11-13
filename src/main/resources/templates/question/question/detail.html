@@ -23,6 +23,13 @@
                 </div>
             </div>
             <div class="my-3">
+                <!-- 추천 : POST /questions/{id}/vote (로그인하지 않았으면 로그인 화면으로) -->
+                <a th:href="@{|/questions/${question.id}/vote|}" method="POST"
+                   onclick="return confirm('정말로 추천하시겠습니까?');"
+                   class="btn btn-sm btn-outline-secondary">
+                    추천
+                    <span class="badge rounded-pill bg-success" th:text="${#sets.size(question.voters)}"></span>
+                </a>
                 <!-- 로그인했고, 내가 쓴 질문일 때만 수정 버튼 (#authentication.name = 로그인한 아이디) -->
                 <a th:href="@{|/questions/${question.id}/modify|}" class="btn btn-sm btn-outline-secondary"
                    sec:authorize="isAuthenticated()"

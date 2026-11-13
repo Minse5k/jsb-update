@@ -5,14 +5,17 @@ import com.back.domain.user.user.entity.SiteUser;
 import com.back.global.jpa.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static jakarta.persistence.CascadeType.PERSIST;
 import static jakarta.persistence.CascadeType.REMOVE;
@@ -39,6 +42,11 @@ public class Question extends BaseEntity { // id, createDate, modifyDate 는 Bas
     // orphanRemoval : answers 에서 빼낸 답변은 자동으로 DELETE
     @OneToMany(mappedBy = "question", cascade = {PERSIST, REMOVE}, orphanRemoval = true)
     private final List<Answer> answers = new ArrayList<>(); // null 이 아니라 빈 리스트로 시작해야 add 할 때 NPE가 나지 않는다.
+
+    // 추천한 회원들. 질문 N개 : 회원 N명 → 두 테이블만으로는 표현할 수 없어서 JPA 가 중간 테이블(question_voters)을 만든다.
+    // Set : 같은 회원이 두 번 들어가지 않는다 → 한 사람이 여러 번 추천해도 1번으로 센다.
+    @ManyToMany
+    private final Set<SiteUser> voters = new HashSet<>();
 
     public Question(SiteUser author, String subject, String content) {
         this.author = author;
@@ -68,5 +76,9 @@ public class Question extends BaseEntity { // id, createDate, modifyDate 는 Bas
 
     public void deleteAnswer(Answer answer) {
         answers.remove(answer); // 리스트에서 빼기만 하면 orphanRemoval 에 의해 DELETE 된다.
+    }
+
+    public void vote(SiteUser voter) {
+        voters.add(voter); // 중간 테이블에 INSERT (이미 있으면 아무 일도 일어나지 않음)
     }
 }

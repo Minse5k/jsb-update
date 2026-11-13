@@ -162,4 +162,16 @@ public class QuestionController {
 
         return "redirect:/questions";
     }
+
+    @PostMapping("/{id}/vote") // POST /questions/{id}/vote : 질문 추천 (a[method="POST"] → global.js)
+    @PreAuthorize("isAuthenticated()")
+    @Transactional
+    public String vote(@PathVariable int id, Principal principal) {
+        Question question = questionService.getQuestion(id);
+        SiteUser voter = userService.findByUsername(principal.getName()).get();
+
+        question.vote(voter);
+
+        return "redirect:/questions/" + id;
+    }
 }

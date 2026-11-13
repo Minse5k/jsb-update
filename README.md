@@ -648,3 +648,13 @@
   - 이 프로젝트는 004-01의 `BaseEntity`(강의 14168)에 이미 `@LastModifiedDate modifyDate`가 있어서 엔티티·서비스 변경이 필요 없음 — 공통 부모를 미리 만든 효과
   - 다만 Auditing은 처음 저장할 때도 수정일시를 작성일시와 같은 값으로 채움(null이 아님). 그래서 교재의 `!= null` 조건 대신 "작성일시보다 뒤인가"로 판단. 이 동작은 테스트로 확인(저장 직후 같음 → 수정 후 뒤)
 - 결과: 테스트 43개 통과. 브라우저에서 020-01에서 수정한 1번 질문에는 "modified at 12:57", 수정하지 않은 2번 질문에는 배지 없음
+
+### 021-01 추천, 질문 추천(@ManyToMany)
+- [링크](https://github.com/Minse5k/jsb-update/tree/021-01)
+- 작업: 질문 추천 — `Question.voters`(`@ManyToMany Set<SiteUser>`), `Question.vote(voter)`, `POST /questions/{id}/vote`(로그인 필요), 상세 화면 "추천 N" 버튼(`a[method="POST"]` + 확인 창)
+- 이유:
+  - `@ManyToMany`와 `Set`은 교재(3-10)와 같음. 질문 하나를 여러 회원이, 회원 하나가 여러 질문을 추천할 수 있는 N:N 관계라 JPA가 중간 테이블 `question_voters`를 만듦(004-04의 `mappedBy`로 중간 테이블을 피한 1:N과 비교해 볼 만한 지점, 14163 11·12강). `Set`이라 같은 회원이 두 번 추천해도 한 번으로 셈
+  - 요청: 교재는 `GET /question/vote/{id}` + `location.href`. 추천은 데이터를 바꾸는 요청이라 GET이 아니라 POST로(14168 7강, 020-02와 같은 이유) → 018-04의 `global.js`로 `a[method="POST"]` 처리
+  - 필드 이름: 교재 `voter` → 여러 명이 담기므로 복수형 `voters`(이 프로젝트의 판단). 초기화는 004-04와 같은 이유로 `new HashSet<>()`
+  - 엔티티 메서드 `vote()`로 추가하고 저장은 더티체킹(교재는 서비스에서 `voter.add` 후 `save`)
+- 결과: 테스트 44개 통과(같은 회원이 두 번 추천해도 1), 로그에서 `create table question_voters (question_id, voters_id)` 확인. 브라우저 user1로 2번 질문 "추천" → 0 → 1

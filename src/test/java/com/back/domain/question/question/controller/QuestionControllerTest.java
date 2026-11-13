@@ -317,4 +317,20 @@ public class QuestionControllerTest {
                 .andExpect(content().string(not(containsString("href=\"/questions/1/modify\""))))
                 .andExpect(content().string(not(containsString("href=\"/questions/1\" method=\"DELETE\""))));
     }
+
+    @Test
+    @DisplayName("POST /questions/1/vote : 추천하면 추천 수가 1 늘고, 같은 회원이 다시 추천해도 그대로다.")
+    void t16() throws Exception {
+        for (int i = 0; i < 2; i++) { // user2 가 두 번 추천
+            mvc
+                    .perform(post("/questions/1/vote").with(csrf()).with(user("user2")))
+                    .andExpect(handler().methodName("vote"))
+                    .andExpect(status().is3xxRedirection())
+                    .andExpect(redirectedUrl("/questions/1"));
+        }
+
+        Question question = questionRepository.findById(1).get();
+        assertThat(question.getVoters()).hasSize(1);
+        assertThat(question.getVoters()).extracting("username").containsExactly("user2");
+    }
 }
