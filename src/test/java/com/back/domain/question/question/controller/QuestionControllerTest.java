@@ -517,4 +517,19 @@ public class QuestionControllerTest {
                 .andReturn().getResponse().getContentAsString();
         assertThat(html.split(link, -1).length - 1).isEqualTo(3); // 질문 글쓴이, 답변 글쓴이, 댓글 글쓴이
     }
+
+    @Test
+    @DisplayName("마크다운 편집기 : 질문 등록 화면과 답변 입력칸은 편집기 표시(data-markdown-editor)가 붙고 EasyMDE 를 불러온다.")
+    void t27() throws Exception {
+        mvc
+                .perform(get("/questions/write").with(user("user1")))
+                .andExpect(content().string(containsString("data-markdown-editor")))
+                .andExpect(content().string(containsString("easymde@2.20.0/dist/easymde.min.js")))
+                .andExpect(content().string(containsString("/resource/markdown-editor.js")));
+
+        Question question = questionRepository.findBySubject("sbb가 무엇인가요?").get();
+        mvc
+                .perform(get("/questions/%d".formatted(question.getId())).with(user("user1")))
+                .andExpect(content().string(containsString("data-markdown-editor")));
+    }
 }

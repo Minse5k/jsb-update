@@ -31,3 +31,9 @@ textarea {
 input[type=submit] {
     margin-top: 10px;
 }
+
+/* 마크다운 편집기 툴바의 표 버튼은 class="table" 인데, 부트스트랩의 .table(width: 100%)이 적용돼 버튼이 한 줄을 차지한다. */
+.editor-toolbar button.table {
+    width: auto;
+    margin-bottom: 0;
+}
