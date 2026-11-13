@@ -522,3 +522,13 @@
 - 이유:
   - 교재(3-06)와 같은 위치의 링크. 014-01에서 정한 대로 기능이 생긴 이 시점에 링크를 추가
 - 결과: 테스트 통과, 브라우저 내비게이션 바에 `회원가입` 링크(`href="/users/join"`) 확인
+
+### 018-01 로그인, UserSecurityService(UserDetailsService)
+- [링크](https://github.com/Minse5k/jsb-update/tree/018-01)
+- 작업: `UserSecurityService implements UserDetailsService` — 로그인 시 시큐리티가 아이디로 회원을 찾아 `UserDetails`(아이디, 암호화된 비밀번호, 권한)로 받아 가는 서비스. 테스트
+- 이유:
+  - 교재(3-07)와 같은 구조: 이 빈이 있으면 시큐리티는 기본 회원(아이디 `user`, 콘솔에 찍히는 비밀번호, 14168 46강) 대신 우리 DB의 회원으로 로그인 처리
+  - 비밀번호 비교는 우리가 하지 않음: 시큐리티가 돌려받은 암호화 비밀번호와 입력값을 017-02의 `PasswordEncoder.matches`로 비교
+  - 권한: 교재처럼 `admin`이면 `ROLE_ADMIN`, 나머지는 `ROLE_USER`. 교재는 `UserRole` enum을 따로 만들지만 지금은 두 문자열만 쓰여서 enum 없이 둠(이 프로젝트의 판단)
+  - 없는 아이디는 `findByUsername(...).orElseThrow`로 `UsernameNotFoundException`(교재의 `isEmpty` 검사와 같은 동작을 한 줄로)
+- 결과: 테스트 29개 통과(UserDetails 내용, 권한, 없는 회원 예외)
