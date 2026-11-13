@@ -40,6 +40,7 @@ public class QuestionRepositoryTest {
         // findById 는 Optional 을 리턴한다. 없을 수도 있기 때문. 여기서는 있다고 확신하므로 get()
 
         assertThat(question.getSubject()).isEqualTo("sbb가 무엇인가요?");
+        assertThat(question.getAuthor().getUsername()).isEqualTo("user1"); // 글쓴이 (LAZY → 이때 회원 조회)
     }
 
     @Test
@@ -105,7 +106,7 @@ public class QuestionRepositoryTest {
         Question question = questionRepository.findById(2).get();
         int beforeCount = question.getAnswers().size();
 
-        Answer answer = question.addAnswer("네 자동으로 생성됩니다.");
+        Answer answer = question.addAnswer(question.getAuthor(), "네 자동으로 생성됩니다.");
         // AnswerRepository.save() 가 필요 없다.
 
         assertThat(answer.getId()).isEqualTo(0); // 아직 INSERT 전이라 id 가 없다.(int 기본값 0)

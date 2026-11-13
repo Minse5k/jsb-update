@@ -1,6 +1,8 @@
 package com.back.global.initData;
 
 import com.back.domain.question.question.service.QuestionService;
+import com.back.domain.user.user.entity.SiteUser;
+import com.back.domain.user.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
@@ -19,6 +21,7 @@ public class DevInitData {
     @Lazy
     private DevInitData self;
     private final QuestionService questionService;
+    private final UserService userService;
 
     @Bean
     @Order(2) // BaseInitData(샘플 질문 2개) 다음에 실행
@@ -32,9 +35,11 @@ public class DevInitData {
     public void work1() {
         if (questionService.count() >= 300) return; // 이미 충분히 있으면 건너뜀
 
+        SiteUser user1 = userService.findByUsername("user1").get(); // BaseInitData 가 먼저 만든 회원
+
         // 페이징을 확인할 수 있도록 질문 300개
         for (int i = 1; i <= 300; i++) {
-            questionService.write("테스트 데이터입니다:[%03d]".formatted(i), "내용무");
+            questionService.write(user1, "테스트 데이터입니다:[%03d]".formatted(i), "내용무");
         }
     }
 }

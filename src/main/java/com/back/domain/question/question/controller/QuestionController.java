@@ -79,7 +79,7 @@ public class QuestionController {
         // 검증 실패 → 저장하지 않고 폼을 다시 보여 준다. (form 은 모델에 남아 있어서 입력값이 유지된다.)
         if (bindingResult.hasErrors()) return "question/question/write";
 
-        Question question = questionService.write(form.subject(), form.content());
+        Question question = questionService.write(null, form.subject(), form.content()); // 글쓴이는 다음 단계(로그인 필수)에서 채운다.
 
         return "redirect:/questions/" + question.getId(); // 방금 등록한 질문의 상세 페이지로 이동
     }

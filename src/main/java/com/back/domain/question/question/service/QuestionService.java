@@ -2,6 +2,7 @@ package com.back.domain.question.question.service;
 
 import com.back.domain.question.question.entity.Question;
 import com.back.domain.question.question.repository.QuestionRepository;
+import com.back.domain.user.user.entity.SiteUser;
 import com.back.global.exception.DataNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -35,8 +36,8 @@ public class QuestionService {
                 .orElseThrow(() -> new DataNotFoundException("question not found")); // 없으면 404
     }
 
-    public Question write(String subject, String content) {
-        Question question = new Question(subject, content);
+    public Question write(SiteUser author, String subject, String content) {
+        Question question = new Question(author, subject, content);
 
         return questionRepository.save(question); // INSERT 후 id 가 채워진 질문을 돌려준다.
     }

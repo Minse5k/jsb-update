@@ -1,9 +1,11 @@
 package com.back.domain.question.question.entity;
 
 import com.back.domain.question.answer.entity.Answer;
+import com.back.domain.user.user.entity.SiteUser;
 import com.back.global.jpa.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,11 +15,16 @@ import java.util.List;
 
 import static jakarta.persistence.CascadeType.PERSIST;
 import static jakarta.persistence.CascadeType.REMOVE;
+import static jakarta.persistence.FetchType.LAZY;
 
 @Entity // 이 클래스를 보고 question 테이블을 만든다.
 @Getter
 @NoArgsConstructor // JPA가 DB에서 읽어 온 값으로 객체를 만들 때 빈 생성자가 필요하다.
 public class Question extends BaseEntity { // id, createDate, modifyDate 는 BaseEntity 에서 상속
+    // 글쓴이. 질문 N개 : 회원 1명 → question 테이블에 author_id 외래키
+    @ManyToOne(fetch = LAZY)
+    private SiteUser author;
+
     @Column(length = 200)
     private String subject;
 
@@ -32,7 +39,8 @@ public class Question extends BaseEntity { // id, createDate, modifyDate 는 Bas
     @OneToMany(mappedBy = "question", cascade = {PERSIST, REMOVE}, orphanRemoval = true)
     private final List<Answer> answers = new ArrayList<>(); // null 이 아니라 빈 리스트로 시작해야 add 할 때 NPE가 나지 않는다.
 
-    public Question(String subject, String content) {
+    public Question(SiteUser author, String subject, String content) {
+        this.author = author;
         this.subject = subject;
         this.content = content;
     }
@@ -42,8 +50,8 @@ public class Question extends BaseEntity { // id, createDate, modifyDate 는 Bas
         this.content = content;
     }
 
-    public Answer addAnswer(String content) {
-        Answer answer = new Answer(this, content);
+    public Answer addAnswer(SiteUser author, String content) {
+        Answer answer = new Answer(this, author, content);
         answers.add(answer); // 트랜잭션이 끝날 때 PERSIST 에 의해 INSERT 된다.
 
         return answer;

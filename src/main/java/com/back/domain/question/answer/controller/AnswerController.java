@@ -44,7 +44,7 @@ public class AnswerController {
             return "question/question/detail";
         }
 
-        question.addAnswer(form.content());
+        question.addAnswer(null, form.content()); // 글쓴이는 다음 단계(로그인 필수)에서 채운다.
 
         return "redirect:/questions/" + questionId; // 등록 후 상세 페이지로 이동 (새로고침해도 다시 등록되지 않게)
     }

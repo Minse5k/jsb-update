@@ -28,23 +28,23 @@ public class UserServiceTest {
     @Test
     @DisplayName("join : 비밀번호는 암호화되어 저장되고, 원래 비밀번호와 matches 로만 비교할 수 있다.")
     void t1() {
-        SiteUser user = userService.join("user1", "1234", "user1@test.com");
+        SiteUser user = userService.join("joinUser1", "1234", "joinUser1@test.com");
 
         assertThat(user.getId()).isGreaterThan(0);
         assertThat(user.getPassword()).isNotEqualTo("1234"); // 그대로 저장되지 않음
         assertThat(user.getPassword()).startsWith("$2"); // BCrypt 해시 형식
         assertThat(passwordEncoder.matches("1234", user.getPassword())).isTrue();
-        assertThat(userService.findByUsername("user1")).isPresent();
+        assertThat(userService.findByUsername("joinUser1")).isPresent();
     }
 
     @Test
     @DisplayName("loadUserByUsername : 시큐리티가 로그인할 때 쓰는 회원 정보(UserDetails)를 만든다.")
     void t2() {
-        userService.join("user2", "1234", "user2@test.com");
+        userService.join("joinUser2", "1234", "joinUser2@test.com");
 
-        UserDetails userDetails = userSecurityService.loadUserByUsername("user2");
+        UserDetails userDetails = userSecurityService.loadUserByUsername("joinUser2");
 
-        assertThat(userDetails.getUsername()).isEqualTo("user2");
+        assertThat(userDetails.getUsername()).isEqualTo("joinUser2");
         assertThat(passwordEncoder.matches("1234", userDetails.getPassword())).isTrue();
         assertThat(userDetails.getAuthorities()).extracting("authority").containsExactly("ROLE_USER");
         assertThatThrownBy(() -> userSecurityService.loadUserByUsername("없는회원"))

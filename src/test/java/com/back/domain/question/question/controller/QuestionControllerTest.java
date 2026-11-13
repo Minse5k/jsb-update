@@ -167,7 +167,7 @@ public class QuestionControllerTest {
     void t8() throws Exception {
         // 샘플 2개 + 25개 = 27개 → 0페이지 10개, 1페이지 10개, 2페이지 7개
         for (int i = 1; i <= 25; i++) {
-            questionService.write("페이징 질문 %02d".formatted(i), "내용");
+            questionService.write(null, "페이징 질문 %02d".formatted(i), "내용");
         }
 
         ResultActions resultActions = mvc
