@@ -70,4 +70,18 @@ public class QuestionControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(result -> assertThat(result.getResolvedException()).isInstanceOf(DataNotFoundException.class));
     }
+
+    @Test
+    @DisplayName("GET /questions/2 : 질문에 달린 답변 개수와 답변 내용이 보인다.")
+    void t4() throws Exception {
+        ResultActions resultActions = mvc
+                .perform(get("/questions/2"))
+                .andDo(print());
+
+        resultActions
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("2개의 답변이 있습니다.")))
+                .andExpect(content().string(containsString("네 자동으로 생성됩니다.")))
+                .andExpect(content().string(containsString("맞습니다!")));
+    }
 }

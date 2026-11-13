@@ -8,5 +8,14 @@
 <h1 th:text="${question.subject}"></h1>
 <!-- white-space: pre-line : 내용의 줄바꿈(엔터)을 화면에서도 줄바꿈으로 보여 준다. -->
 <div style="white-space: pre-line;" th:text="${question.content}"></div>
+
+<!-- question.answers 는 LAZY 라서 여기서 처음 읽을 때 SELECT * FROM answer WHERE question_id = ? 가 실행된다. -->
+<h5 th:text="|${#lists.size(question.answers)}개의 답변이 있습니다.|"></h5>
+<ul>
+    <li th:each="answer : ${question.answers}">
+        <div style="white-space: pre-line;" th:text="${answer.content}"></div>
+        <div th:text="${#temporals.format(answer.createDate, 'yyyy-MM-dd HH:mm')}"></div>
+    </li>
+</ul>
 </body>
 </html>

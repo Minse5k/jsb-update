@@ -277,3 +277,12 @@
   - 더 좋은 이유: URL은 "무엇(자원)"만 나타내고 "무엇을 할지"는 HTTP 메서드(GET/POST/PUT/DELETE)로 구분하는 규칙이 앞으로 등록·수정·삭제 URL에도 일관되게 적용됨
   - 이 변경 때문에 앞으로의 URL은 교재와 다름: 교재 `/question/create` → 이 프로젝트 `/questions/write` 처럼(각 커밋에서 대응 관계를 적음)
 - 결과: 테스트 15개 통과, 브라우저에서 `/` → `/questions`, 제목 링크가 `/questions/2`로 바뀐 것 확인
+
+### 011-01 답변 기능, 상세 페이지에 답변 목록 표시
+- [링크](https://github.com/Minse5k/jsb-update/tree/011-01)
+- 작업: 상세 페이지에 답변 개수(`#lists.size(question.answers)`)와 답변 목록(내용·작성일시) 표시
+- 이유:
+  - 교재(2-12)·강의(14163 037)와 같은 화면. 교재는 `question.answerList`, 여기서는 004-04에서 만든 `question.answers`
+  - 컨트롤러는 바뀌지 않음: 질문만 모델에 넣으면 템플릿이 `question.answers`로 답변까지 꺼내 씀(@OneToMany의 장점, 14163 9강 "부모에서 자식들을 바로 조회 가능")
+  - `answers`는 LAZY라서 템플릿에서 처음 읽는 순간 답변 조회 SQL이 실행됨
+- 결과: 테스트 16개 통과, 브라우저 `/questions/2`에 "2개의 답변이 있습니다."와 답변 2개 출력 확인
