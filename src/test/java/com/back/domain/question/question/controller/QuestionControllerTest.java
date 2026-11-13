@@ -9,7 +9,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
+import com.back.global.exception.DataNotFoundException;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -54,5 +56,18 @@ public class QuestionControllerTest {
                 .andExpect(view().name("question/question/detail"))
                 .andExpect(content().string(containsString("sbb가 무엇인가요?")))
                 .andExpect(content().string(containsString("sbb에 대해서 알고 싶습니다.")));
+    }
+
+    @Test
+    @DisplayName("GET /question/detail/999 : 없는 질문이면 404 로 응답한다.")
+    void t3() throws Exception {
+        ResultActions resultActions = mvc
+                .perform(get("/question/detail/999"))
+                .andDo(print());
+
+        resultActions
+                .andExpect(handler().methodName("detail"))
+                .andExpect(status().isNotFound())
+                .andExpect(result -> assertThat(result.getResolvedException()).isInstanceOf(DataNotFoundException.class));
     }
 }

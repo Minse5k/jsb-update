@@ -2,6 +2,7 @@ package com.back.domain.question.question.service;
 
 import com.back.domain.question.question.entity.Question;
 import com.back.domain.question.question.repository.QuestionRepository;
+import com.back.global.exception.DataNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +18,8 @@ public class QuestionService {
     }
 
     public Question getQuestion(int id) {
-        return questionRepository.findById(id).get(); // 일단 있다고 가정 (없는 경우는 다음 단계에서 처리)
+        return questionRepository
+                .findById(id)
+                .orElseThrow(() -> new DataNotFoundException("question not found")); // 없으면 404
     }
 }
