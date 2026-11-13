@@ -2,28 +2,46 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <!-- static 폴더 아래 파일은 그 경로 그대로 주소가 된다: static/resource/style.css → /resource/style.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.8/css/bootstrap.min.css">
     <link rel="stylesheet" th:href="@{/resource/style.css}">
     <title>질문 상세</title>
 </head>
 <body>
-<h1 th:text="${question.subject}"></h1>
-<!-- white-space: pre-line : 내용의 줄바꿈(엔터)을 화면에서도 줄바꿈으로 보여 준다. -->
-<div style="white-space: pre-line;" th:text="${question.content}"></div>
+<div class="container my-3">
+    <!-- 질문 -->
+    <h2 class="border-bottom py-2" th:text="${question.subject}"></h2>
+    <div class="card my-3">
+        <div class="card-body">
+            <!-- white-space: pre-line : 내용의 줄바꿈(엔터)을 화면에서도 줄바꿈으로 보여 준다. -->
+            <div class="card-text" style="white-space: pre-line;" th:text="${question.content}"></div>
+            <div class="d-flex justify-content-end">
+                <div class="badge bg-light text-dark p-2 text-start">
+                    <div th:text="${#temporals.format(question.createDate, 'yyyy-MM-dd HH:mm')}"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<!-- question.answers 는 LAZY 라서 여기서 처음 읽을 때 SELECT * FROM answer WHERE question_id = ? 가 실행된다. -->
-<h5 th:text="|${#lists.size(question.answers)}개의 답변이 있습니다.|"></h5>
-<ul>
-    <li th:each="answer : ${question.answers}">
-        <div style="white-space: pre-line;" th:text="${answer.content}"></div>
-        <div th:text="${#temporals.format(answer.createDate, 'yyyy-MM-dd HH:mm')}"></div>
-    </li>
-</ul>
+    <!-- 답변 개수 : question.answers 는 LAZY 라서 여기서 처음 읽을 때 답변 조회 SQL 이 실행된다. -->
+    <h5 class="border-bottom my-3 py-2" th:text="|${#lists.size(question.answers)}개의 답변이 있습니다.|"></h5>
 
-<!-- 답변 작성 폼 : 전송하면 POST /questions/{id}/answers 요청이 발생한다. -->
-<form th:action="@{|/questions/${question.id}/answers|}" method="post">
-    <textarea name="content" rows="10"></textarea>
-    <input type="submit" value="답변등록">
-</form>
+    <!-- 답변 반복 -->
+    <div class="card my-3" th:each="answer : ${question.answers}">
+        <div class="card-body">
+            <div class="card-text" style="white-space: pre-line;" th:text="${answer.content}"></div>
+            <div class="d-flex justify-content-end">
+                <div class="badge bg-light text-dark p-2 text-start">
+                    <div th:text="${#temporals.format(answer.createDate, 'yyyy-MM-dd HH:mm')}"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 답변 작성 폼 : 전송하면 POST /questions/{id}/answers 요청이 발생한다. -->
+    <form th:action="@{|/questions/${question.id}/answers|}" method="post" class="my-3">
+        <textarea name="content" rows="10" class="form-control"></textarea>
+        <input type="submit" value="답변등록" class="btn btn-primary my-2">
+    </form>
+</div>
 </body>
 </html>

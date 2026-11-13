@@ -308,3 +308,12 @@
   - 위치: 교재는 `static/style.css`, 강의(14168 46강)는 `static/resource/` 아래로 모음 → 강의 방식 채택. 시큐리티 도입(016) 후 `/resource/**` 하나만 허용하면 모든 정적 파일이 열리도록 미리 정리(14168 46강 "정적인 콘텐츠를 static/resource 폴더로 옮기는 이유")
   - `static` 폴더 아래 경로가 그대로 URL이 됨: `static/resource/style.css` → `/resource/style.css`
 - 결과: 테스트 통과, 브라우저에서 `/resource/style.css` 200 응답, 본문 폰트 `Pretendard`, textarea가 화면 폭 전체로 늘어난 것 확인
+
+### 012-02 디자인, 부트스트랩(cdnjs) 적용
+- [링크](https://github.com/Minse5k/jsb-update/tree/012-02)
+- 작업: 부트스트랩 5.3.8 적용 — 목록은 `table`/`table-dark`, 상세는 `card`/`badge`, 답변 폼은 `form-control`/`btn btn-primary`
+- 이유:
+  - 화면 구성(클래스)은 교재(2-14)·강의(14163 039)와 같음
+  - 불러오는 방법: 교재는 bootstrap.min.css 파일을 내려받아 `static`에 복사. 강의(14163 39강 "cdnjs.com를 통해서 프론트엔드 라이브러리를 다운로드 하지 않고 사용")는 cdnjs 주소를 `<link>`로 연결 → 강의 방식 채택. 프로젝트에 큰 라이브러리 파일을 커밋하지 않아도 되고 버전 변경이 주소 한 줄로 끝남
+  - 아직 두 템플릿에 `<head>`가 똑같이 반복됨 → 다음 커밋(012-03)에서 공통 레이아웃으로 정리
+- 결과: 테스트 통과, 브라우저에서 목록 표(검은 헤더)와 상세 카드 화면 확인
