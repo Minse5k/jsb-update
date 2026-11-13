@@ -27,5 +27,26 @@
         </tr>
         </tbody>
     </table>
+
+    <!-- 페이지 이동 -->
+    <!-- @{/questions(page=${...})} : /questions?page=값 형태의 URL 을 만든다. -->
+    <nav th:if="${!paging.isEmpty()}">
+        <ul class="pagination justify-content-center">
+            <!-- 이전 : 첫 페이지면 비활성화 -->
+            <li class="page-item" th:classappend="${!paging.hasPrevious} ? 'disabled'">
+                <a class="page-link" th:href="@{/questions(page=${paging.number - 1})}">이전</a>
+            </li>
+            <!-- 현재 페이지 앞뒤 5개까지만 번호를 보여 준다. 화면에는 1부터 보이도록 +1 -->
+            <li th:each="page : ${#numbers.sequence(0, paging.totalPages - 1)}"
+                th:if="${page >= paging.number - 5 and page <= paging.number + 5}"
+                th:classappend="${page == paging.number} ? 'active'" class="page-item">
+                <a class="page-link" th:href="@{/questions(page=${page})}" th:text="${page + 1}"></a>
+            </li>
+            <!-- 다음 : 마지막 페이지면 비활성화 -->
+            <li class="page-item" th:classappend="${!paging.hasNext} ? 'disabled'">
+                <a class="page-link" th:href="@{/questions(page=${paging.number + 1})}">다음</a>
+            </li>
+        </ul>
+    </nav>
 </div>
 </html>

@@ -176,6 +176,8 @@ public class QuestionControllerTest {
                 .andExpect(content().string(containsString("페이징 질문 15"))) // 1페이지 = 최신순 11~20번째 → 15..06
                 .andExpect(content().string(containsString("페이징 질문 06")))
                 .andExpect(content().string(not(containsString("페이징 질문 16"))))
-                .andExpect(content().string(not(containsString("페이징 질문 05"))));
+                .andExpect(content().string(not(containsString("페이징 질문 05"))))
+                .andExpect(content().string(containsString("href=\"/questions?page=0\""))) // 이전 버튼(0페이지)
+                .andExpect(content().string(containsString("href=\"/questions?page=2\""))); // 다음 버튼(2페이지)
     }
 }
