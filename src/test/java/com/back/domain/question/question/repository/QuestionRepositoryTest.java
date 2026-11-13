@@ -40,4 +40,22 @@ public class QuestionRepositoryTest {
 
         assertThat(question.getSubject()).isEqualTo("sbb가 무엇인가요?");
     }
+
+    @Test
+    @DisplayName("findBySubject : 제목으로 질문을 조회한다.")
+    void t3() {
+        Question question = questionRepository.findBySubject("sbb가 무엇인가요?").get();
+        // SELECT * FROM question WHERE subject = 'sbb가 무엇인가요?'
+
+        assertThat(question.getId()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("findBySubjectAndContent : 제목과 내용이 모두 일치하는 질문을 조회한다.")
+    void t4() {
+        Question question = questionRepository.findBySubjectAndContent("sbb가 무엇인가요?", "sbb에 대해서 알고 싶습니다.").get();
+        // SELECT * FROM question WHERE subject = 'sbb가 무엇인가요?' AND content = 'sbb에 대해서 알고 싶습니다.'
+
+        assertThat(question.getId()).isEqualTo(1);
+    }
 }
