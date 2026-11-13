@@ -15,6 +15,9 @@
 </head>
 <body>
 
+<!-- 내비게이션 바 (templates/navbar.html) -->
+<nav th:replace="~{navbar :: navbarFragment}"></nav>
+
 <!-- 각 페이지의 layout:fragment="content" 가 이 자리에 들어온다. -->
 <th:block layout:fragment="content"></th:block>
 

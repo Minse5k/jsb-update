@@ -44,7 +44,8 @@ public class QuestionControllerTest {
                 .andExpect(view().name("question/question/list")) // 어떤 템플릿으로 그렸는지
                 .andExpect(content().string(containsString("sbb가 무엇인가요?")))
                 .andExpect(content().string(containsString("스프링부트 모델 질문입니다.")))
-                .andExpect(content().string(containsString("href=\"/questions/1\""))); // 제목이 상세 페이지 링크인지
+                .andExpect(content().string(containsString("href=\"/questions/1\""))) // 제목이 상세 페이지 링크인지
+                .andExpect(content().string(containsString("class=\"navbar-brand\""))); // 레이아웃의 내비게이션 바
     }
 
     @Test
