@@ -10,6 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import com.back.domain.question.answer.entity.Answer;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -142,5 +145,25 @@ public class QuestionRepositoryTest {
         questionRepository.flush(); // UPDATE 직전에 @LastModifiedDate 가 갱신된다.
 
         assertThat(question.getModifyDate()).isAfter(question.getCreateDate());
+    }
+
+    @Test
+    @DisplayName("findAllByKeyword : 질문 제목·내용·글쓴이, 답변 내용·글쓴이로 검색한다.")
+    void t11() {
+        Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Order.desc("id")));
+
+        // 질문 제목
+        assertThat(questionRepository.findAllByKeyword("sbb가", pageable).getContent())
+                .extracting("subject").containsExactly("sbb가 무엇인가요?");
+        // 답변 내용 ("맞습니다!" 는 2번 질문의 답변)
+        assertThat(questionRepository.findAllByKeyword("맞습니다", pageable).getContent())
+                .extracting("id").containsExactly(2);
+        // 답변 글쓴이 (user2 는 2번 질문에만 답변) - 답변 2개가 걸려도 distinct 로 한 번만
+        assertThat(questionRepository.findAllByKeyword("user2", pageable).getContent())
+                .extracting("id").containsExactly(2);
+        // 질문 글쓴이 (user1 은 두 질문 모두)
+        assertThat(questionRepository.findAllByKeyword("user1", pageable).getTotalElements()).isEqualTo(2);
+        // 빈 검색어 = 전체
+        assertThat(questionRepository.findAllByKeyword("", pageable).getTotalElements()).isEqualTo(2);
     }
 }

@@ -1,7 +1,11 @@
 package com.back.domain.question.question.repository;
 
 import com.back.domain.question.question.entity.Question;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,4 +18,22 @@ public interface QuestionRepository extends JpaRepository<Question, Integer> {
     Optional<Question> findBySubjectAndContent(String subject, String content); // WHERE subject = ? AND content = ?
 
     List<Question> findBySubjectLike(String subjectLike); // WHERE subject LIKE ?  (결과가 여러 개일 수 있어서 List)
+
+    // 검색 : 질문 제목·내용·글쓴이, 답변 내용·글쓴이 중 하나라도 kw 를 포함하면 결과에 넣는다.
+    // 메서드 이름 규칙으로는 표현하기 어려워서 JPQL(엔티티 기준 SQL)을 직접 쓴다.
+    // left join : 답변·글쓴이가 없는 질문도 빠지지 않게
+    // distinct : 답변이 여러 개 걸리면 같은 질문이 여러 줄 나오므로 하나로
+    @Query("""
+            select distinct q
+            from Question q
+            left join q.author u1
+            left join q.answers a
+            left join a.author u2
+            where q.subject like %:kw%
+               or q.content like %:kw%
+               or u1.username like %:kw%
+               or a.content like %:kw%
+               or u2.username like %:kw%
+            """)
+    Page<Question> findAllByKeyword(@Param("kw") String kw, Pageable pageable);
 }

@@ -345,4 +345,17 @@ public class QuestionControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("<strong>굵게</strong> 쓴 글")));
     }
+
+    @Test
+    @DisplayName("GET /questions?kw=맞습니다 : 답변 내용으로 검색하면 그 답변이 달린 질문만 보인다.")
+    void t18() throws Exception {
+        mvc
+                .perform(get("/questions").param("kw", "맞습니다"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(model().attribute("kw", "맞습니다"))
+                .andExpect(model().attribute("paging", hasProperty("totalElements", is(1L))))
+                .andExpect(content().string(containsString("스프링부트 모델 질문입니다.")))
+                .andExpect(content().string(not(containsString("sbb가 무엇인가요?"))));
+    }
 }

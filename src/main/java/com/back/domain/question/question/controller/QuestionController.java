@@ -40,11 +40,13 @@ public class QuestionController {
     @Transactional(readOnly = true) // 조회만 하는 요청: 이 메서드가 끝날 때까지 하나의 트랜잭션(DB 연결) 안에서 처리
     public String list(
             @RequestParam(defaultValue = "0") int page, // /questions?page=2 → page = 2, 없으면 0 (첫 페이지)
+            @RequestParam(defaultValue = "") String kw, // /questions?kw=스프링 → 검색어, 없으면 "" (전체)
             Model model // 스프링이 Model 객체를 만들어서 넣어 준다.
     ) {
-        Page<Question> paging = questionService.findPage(page); // 질문 10개 + 전체 개수·페이지 정보
+        Page<Question> paging = questionService.findPage(page, kw); // 질문 10개 + 전체 개수·페이지 정보
 
         model.addAttribute("paging", paging); // 템플릿에서 ${paging} 으로 꺼내 쓸 수 있게 등록
+        model.addAttribute("kw", kw); // 검색창과 페이지 링크에 검색어를 유지하기 위해
 
         return "question/question/list"; // templates/question/question/list.html 을 렌더링한 결과가 응답이 된다.
     }

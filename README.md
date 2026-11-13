@@ -707,3 +707,13 @@
   - 해결 위치: `th:text`로 되돌리면 마크다운도 함께 깨지므로, 마크다운을 HTML로 바꾸는 단계에서 "마크다운 문법이 만든 태그만 남기고, 사용자가 직접 쓴 태그는 글자로" 바꿈. 교재(3-12)에는 없는 처리(이 프로젝트에서 추가)
   - commonmark에 원래 있는 옵션이라 코드 두 줄로 해결
 - 결과: 테스트 48개 통과(`<script>` → `&lt;script&gt;`, `javascript:` 링크 제거). 브라우저에서 023-01 때 쓴 질문을 다시 열면 `<script>` 태그가 0개이고 화면에 `<script>alert(1)</script>`가 글자로만 보임, 마크다운(굵게 등)은 그대로 동작
+
+### 024-01 검색, JPQL 검색 쿼리와 kw 파라미터
+- [링크](https://github.com/Minse5k/jsb-update/tree/024-01)
+- 작업: 검색 기능(서버) — `QuestionRepository.findAllByKeyword(kw, pageable)`(JPQL `@Query`), `QuestionService.findPage(page, kw)`, 목록 액션이 `?kw=` 파라미터(기본 빈 문자열)를 받아 검색 결과를 페이징
+- 이유:
+  - 검색 범위(질문 제목·내용·글쓴이, 답변 내용·글쓴이)와 `distinct`, `left join`은 교재(3-13)와 같음. 답변이 여러 개 걸리면 같은 질문이 여러 번 나오므로 `distinct`, 답변이나 글쓴이가 없는 질문도 빠지지 않게 `left join`
+  - 방법: 교재는 `Specification`(자바 코드로 조건 조립)과 `@Query` 두 가지를 보여 주고 최종 코드는 `@Query`를 씀 → 같은 `@Query` 채택. SQL과 비슷한 모양이라 "어떤 조건으로 찾는지"가 한눈에 보임
+  - JPQL 모양: 교재는 `left outer join SiteUser u1 on q.author=u1`처럼 조건을 직접 씀. 여기서는 엔티티의 연관 필드를 따라가는 `left join q.author u1`, `left join q.answers a` — 004에서 만든 `@ManyToOne`/`@OneToMany` 관계를 그대로 이용해서 더 짧음
+  - 빈 검색어면 `like '%%'`가 되어 전체 목록과 같음 → 목록과 검색을 같은 메서드 하나로 처리
+- 결과: 테스트 50개 통과(제목·답변 내용·답변 글쓴이·질문 글쓴이·빈 검색어, 답변 2개가 걸려도 한 번만). 브라우저 `/questions?kw=마크다운` → 1건. 검색창은 다음 커밋
