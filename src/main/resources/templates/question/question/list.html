@@ -19,7 +19,10 @@
     <!-- loop : 반복 상태 변수. loop.count 는 1부터 세는 순번 -->
     <tr th:each="question, loop : ${questions}">
         <td th:text="${loop.count}"></td>
-        <td th:text="${question.subject}"></td>
+        <td>
+            <!-- @{...} : URL 을 만드는 문법, |...| : 문자열 안에 변수를 끼워 넣는 문법 -->
+            <a th:href="@{|/question/detail/${question.id}|}" th:text="${question.subject}"></a>
+        </td>
         <td th:text="${#temporals.format(question.createDate, 'yyyy-MM-dd HH:mm')}"></td>
     </tr>
     </tbody>
