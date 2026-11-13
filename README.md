@@ -22,9 +22,32 @@
 - 개발 실행(dev 프로필)에서는 페이징 확인용 질문 300개가 추가로 만들어짐
 - H2 콘솔: `http://localhost:8080/h2-console` (JDBC URL `jdbc:h2:./db_dev;MODE=MySQL`, 사용자 `sa`)
 
+## 결과 화면
+
+| 질문 목록 (페이징·검색창·글쓴이·답변 개수) | 질문 상세 (답변·추천·수정·삭제) |
+|---|---|
+| ![질문 목록](docs/images/01-question-list.jpg) | ![질문 상세](docs/images/02-question-detail.jpg) |
+| 기능 015 · 019 · 024 | 기능 011 · 019 · 020 · 021 |
+
+| 질문 등록 입력값 검증 (정렬된 에러) | 수정일시 표시 |
+|---|---|
+| ![질문 등록 검증](docs/images/03-write-errors.jpg) | ![수정일시](docs/images/04-modified.jpg) |
+| 기능 013 | 기능 020 |
+
+| 회원가입 (중복 아이디·비밀번호 불일치) | 로그인 실패 |
+|---|---|
+| ![회원가입](docs/images/05-join-errors.jpg) | ![로그인](docs/images/06-login-error.jpg) |
+| 기능 017 | 기능 018 |
+
+| 마크다운 (직접 쓴 `<script>`는 글자로) | 검색 (답변 내용까지 검색) |
+|---|---|
+| ![마크다운](docs/images/07-markdown.jpg) | ![검색](docs/images/08-search.jpg) |
+| 기능 023 | 기능 024 |
+
 ## 커밋을 하나씩 따라가는 방법
 - 커밋 번호는 `기능번호-단계번호`입니다. 예) `020-02` = 20번째 기능(수정·삭제)의 2단계(질문 삭제)
 - 각 커밋에는 같은 이름의 태그가 있습니다. 아래 작업내역의 `[링크]`를 누르면 그 시점의 코드 전체를 볼 수 있습니다.
+- 기능 번호만으로도 볼 수 있습니다: `https://github.com/Minse5k/jsb-update/commit/002` (기능 002의 마지막 단계)
 - 그 단계에서 바뀐 코드만 보려면:
   ```bash
   git show 020-02
@@ -41,32 +64,35 @@
 
 ## 기능 목차
 
-| 기능 | 내용 | 교재 |
-|---|---|---|
-| 001 | 프로젝트 세팅 | 1-03 |
-| 002 | Hello 페이지 | 1-03, 2-02 |
-| 003 | DB 설정 (yaml, dev/test 프로필, SQL 로그) | 2-03 |
-| 004 | 질문·답변 엔티티 (BaseEntity, 연관관계) | 2-04 |
-| 005 | 리포지터리와 샘플 데이터 | 2-05, 2-06 |
-| 006 | 질문 목록 | 2-07 |
-| 007 | 루트 URL | 2-08 |
-| 008 | 서비스 | 2-09 |
-| 009 | 상세 페이지 | 2-10 |
-| 010 | URL 프리픽스 (`/questions`) | 2-11 |
-| 011 | 답변 기능 | 2-12 |
-| 012 | 디자인 (CSS, 부트스트랩, 레이아웃) | 2-13 ~ 2-15 |
-| 013 | 질문 등록과 입력값 검증 | 2-16 |
-| 014 | 내비게이션 바 | 3-01 |
-| 015 | 페이징, 게시물 번호, 답변 개수 | 3-02 ~ 3-04 |
-| 016 | 스프링 시큐리티 | 3-05 |
-| 017 | 회원가입 | 3-06 |
-| 018 | 로그인·로그아웃 | 3-07 |
-| 019 | 글쓴이 | 3-08 |
-| 020 | 수정·삭제 | 3-09 |
-| 021 | 추천 | 3-10 |
-| 022 | 앵커 | 3-11 |
-| 023 | 마크다운 | 3-12 |
-| 024 | 검색 | 3-13 |
+`/commit/기능번호` 주소는 그 기능의 **마지막 단계** 커밋 하나를 보여 줍니다. 단계가 여러 개인 기능은 **전체 단계** 링크로 모든 단계의 커밋 목록과 합친 변경을 한 번에 볼 수 있습니다.
+
+| 기능 | 내용 | 교재 | 단계 | 보기 |
+|---|---|---|---|---|
+| 001 | 프로젝트 세팅 | 1-03 | 1 | [커밋](https://github.com/Minse5k/jsb-update/commit/001) |
+| 002 | Hello 페이지 | 1-03, 2-02 | 2 | [전체 단계](https://github.com/Minse5k/jsb-update/compare/001...002) · [마지막 단계](https://github.com/Minse5k/jsb-update/commit/002) |
+| 003 | DB 설정 (yaml, dev/test 프로필, SQL 로그) | 2-03 | 2 | [전체 단계](https://github.com/Minse5k/jsb-update/compare/002...003) · [마지막 단계](https://github.com/Minse5k/jsb-update/commit/003) |
+| 004 | 질문·답변 엔티티 (BaseEntity, 연관관계) | 2-04 | 4 | [전체 단계](https://github.com/Minse5k/jsb-update/compare/003...004) · [마지막 단계](https://github.com/Minse5k/jsb-update/commit/004) |
+| 005 | 리포지터리와 샘플 데이터 | 2-05, 2-06 | 7 | [전체 단계](https://github.com/Minse5k/jsb-update/compare/004...005) · [마지막 단계](https://github.com/Minse5k/jsb-update/commit/005) |
+| 006 | 질문 목록 | 2-07 | 3 | [전체 단계](https://github.com/Minse5k/jsb-update/compare/005...006) · [마지막 단계](https://github.com/Minse5k/jsb-update/commit/006) |
+| 007 | 루트 URL | 2-08 | 1 | [커밋](https://github.com/Minse5k/jsb-update/commit/007) |
+| 008 | 서비스 | 2-09 | 2 | [전체 단계](https://github.com/Minse5k/jsb-update/compare/007...008) · [마지막 단계](https://github.com/Minse5k/jsb-update/commit/008) |
+| 009 | 상세 페이지 | 2-10 | 3 | [전체 단계](https://github.com/Minse5k/jsb-update/compare/008...009) · [마지막 단계](https://github.com/Minse5k/jsb-update/commit/009) |
+| 010 | URL 프리픽스 (`/questions`) | 2-11 | 2 | [전체 단계](https://github.com/Minse5k/jsb-update/compare/009...010) · [마지막 단계](https://github.com/Minse5k/jsb-update/commit/010) |
+| 011 | 답변 기능 | 2-12 | 2 | [전체 단계](https://github.com/Minse5k/jsb-update/compare/010...011) · [마지막 단계](https://github.com/Minse5k/jsb-update/commit/011) |
+| 012 | 디자인 (CSS, 부트스트랩, 레이아웃) | 2-13 ~ 2-15 | 3 | [전체 단계](https://github.com/Minse5k/jsb-update/compare/011...012) · [마지막 단계](https://github.com/Minse5k/jsb-update/commit/012) |
+| 013 | 질문 등록과 입력값 검증 | 2-16 | 6 | [전체 단계](https://github.com/Minse5k/jsb-update/compare/012...013) · [마지막 단계](https://github.com/Minse5k/jsb-update/commit/013) |
+| 014 | 내비게이션 바 | 3-01 | 1 | [커밋](https://github.com/Minse5k/jsb-update/commit/014) |
+| 015 | 페이징, 게시물 번호, 답변 개수 | 3-02 ~ 3-04 | 5 | [전체 단계](https://github.com/Minse5k/jsb-update/compare/014...015) · [마지막 단계](https://github.com/Minse5k/jsb-update/commit/015) |
+| 016 | 스프링 시큐리티 | 3-05 | 3 | [전체 단계](https://github.com/Minse5k/jsb-update/compare/015...016) · [마지막 단계](https://github.com/Minse5k/jsb-update/commit/016) |
+| 017 | 회원가입 | 3-06 | 4 | [전체 단계](https://github.com/Minse5k/jsb-update/compare/016...017) · [마지막 단계](https://github.com/Minse5k/jsb-update/commit/017) |
+| 018 | 로그인·로그아웃 | 3-07 | 4 | [전체 단계](https://github.com/Minse5k/jsb-update/compare/017...018) · [마지막 단계](https://github.com/Minse5k/jsb-update/commit/018) |
+| 019 | 글쓴이 | 3-08 | 3 | [전체 단계](https://github.com/Minse5k/jsb-update/compare/018...019) · [마지막 단계](https://github.com/Minse5k/jsb-update/commit/019) |
+| 020 | 수정·삭제 | 3-09 | 5 | [전체 단계](https://github.com/Minse5k/jsb-update/compare/019...020) · [마지막 단계](https://github.com/Minse5k/jsb-update/commit/020) |
+| 021 | 추천 | 3-10 | 2 | [전체 단계](https://github.com/Minse5k/jsb-update/compare/020...021) · [마지막 단계](https://github.com/Minse5k/jsb-update/commit/021) |
+| 022 | 앵커 | 3-11 | 2 | [전체 단계](https://github.com/Minse5k/jsb-update/compare/021...022) · [마지막 단계](https://github.com/Minse5k/jsb-update/commit/022) |
+| 023 | 마크다운 | 3-12 | 2 | [전체 단계](https://github.com/Minse5k/jsb-update/compare/022...023) · [마지막 단계](https://github.com/Minse5k/jsb-update/commit/023) |
+| 024 | 검색 | 3-13 | 2 | [전체 단계](https://github.com/Minse5k/jsb-update/compare/023...024) · [마지막 단계](https://github.com/Minse5k/jsb-update/commit/024) |
+| 025 | 문서 정리 (README, 결과 화면) | - | 2 | [전체 단계](https://github.com/Minse5k/jsb-update/compare/024...025) · [마지막 단계](https://github.com/Minse5k/jsb-update/commit/025) |
 
 교재 3-14(추가 기능 도전과제)는 별도 과제로 남겨 두었습니다.
 
@@ -810,3 +836,11 @@
   - 미션 목표 중 하나가 "누군가 커밋 내용을 보면서 천천히 따라할 수 있는 저장소". 작업내역이 길어져서 처음 보는 사람이 어디서부터 어떻게 보면 되는지 입구가 필요함
   - URL 비교표: 010-02 이후 URL이 교재와 달라졌으므로 교재와 나란히 볼 때 한눈에 대응되도록
 - 결과: 문서만 변경. 전체 테스트 51개 통과 상태 유지
+
+### 025-02 문서, 결과 화면 캡처와 기능별 링크
+- [링크](https://github.com/Minse5k/jsb-update/tree/025-02)
+- 작업: README에 결과 화면 캡처 8장(`docs/images/`), 기능 목차에 기능별 링크(`/commit/기능번호`, 여러 단계면 `/compare/이전기능...기능번호`) 추가. 기능 번호 태그 `001`~`025`를 각 기능의 마지막 단계 커밋에 붙임
+- 이유:
+  - 저장소를 처음 보는 사람이 코드를 읽기 전에 결과물이 어떻게 생겼는지 먼저 볼 수 있게
+  - `https://github.com/Minse5k/jsb-update/commit/002`처럼 기능 번호만으로 바로 열리게. GitHub의 커밋 페이지는 커밋 하나만 보여 주므로, 여러 단계로 나뉜 기능은 비교(compare) 링크로 전체 단계를 한 번에 보게 함
+- 결과: 테스트 51개 통과(문서만 변경). 캡처는 dev 실행 화면(로그인: user1)
