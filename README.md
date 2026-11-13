@@ -326,3 +326,15 @@
   - 페이지 제목: 교재는 layout.html에 `Hello, sbb!` 고정. 강의(14168 45강 "title 엘리먼트의 layout:title-pattern 속성을 통해서 각 페이지 별 고유의 title")는 페이지마다 `<title>`을 쓰면 `질문 목록 | SBB`처럼 합쳐 줌 → 강의 방식 채택. 브라우저 탭만 봐도 어느 화면인지 구분됨
   - 부트스트랩 JS도 layout에서 한 번 불러옴(다음 기능의 내비게이션 바 접기 버튼에 필요). `bootstrap.bundle.min.js`는 드롭다운 등에 필요한 Popper까지 포함한 파일
 - 결과: 테스트 통과, 브라우저 탭 제목이 `질문 목록 | SBB`, `질문 상세 | SBB`로 표시, `<!doctype html>`과 CSS 2개 로드 확인
+
+### 013-01 질문 등록, 등록 버튼과 등록 화면
+- [링크](https://github.com/Minse5k/jsb-update/tree/013-01)
+- 작업: 목록에 "질문 등록하기" 버튼, `GET /questions/write` 질문 등록 화면(`write.html`)
+- 이유:
+  - 교재(2-16)는 `/question/create`. 강의(14168 26강)는 `GET /posts/write`(폼 화면)와 `POST /posts/write`(처리)처럼 같은 URL을 HTTP 메서드로 구분 → 강의 방식 채택해 `/questions/write`
+  - 왜 `/questions`(POST)만 쓰지 않는가: 14168 26강 설명대로 REST API라면 `POST /questions`만 있으면 되지만, 이 프로젝트는 서버가 폼 화면까지 그리는 방식이라 "폼을 보여 주는 주소"가 필요함
+  - `<form method="post">`에 action이 없으면 현재 주소로 전송됨(14168 26강 "action이 가리키는 주소가 현재 페이지라면 생략이 가능")
+  - 제목 칸에 `autofocus`(14168 10강): 화면이 열리면 바로 입력 가능
+  - `GET /questions/write`와 `GET /questions/{id}`가 겹쳐 보이지만, 스프링은 고정된 경로(`write`)를 변수 경로(`{id}`)보다 먼저 고름 — 테스트에서 `showWrite`가 처리하는 것으로 확인
+  - 이 단계는 화면만. 저장 버튼을 누르면 아직 처리하는 메서드가 없음(다음 커밋)
+- 결과: 테스트 18개 통과, 브라우저에서 버튼 클릭 → 등록 폼 화면 확인

@@ -37,4 +37,9 @@ public class QuestionController {
 
         return "question/question/detail";
     }
+
+    @GetMapping("/write") // GET /questions/write : 질문 등록 "화면"
+    public String showWrite() {
+        return "question/question/write";
+    }
 }

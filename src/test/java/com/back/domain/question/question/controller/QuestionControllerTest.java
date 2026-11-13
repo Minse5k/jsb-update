@@ -84,4 +84,19 @@ public class QuestionControllerTest {
                 .andExpect(content().string(containsString("네 자동으로 생성됩니다.")))
                 .andExpect(content().string(containsString("맞습니다!")));
     }
+
+    @Test
+    @DisplayName("GET /questions/write : 질문 등록 폼이 보인다.")
+    void t5() throws Exception {
+        ResultActions resultActions = mvc
+                .perform(get("/questions/write"))
+                .andDo(print());
+
+        resultActions
+                .andExpect(handler().methodName("showWrite"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("question/question/write"))
+                .andExpect(content().string(containsString("name=\"subject\"")))
+                .andExpect(content().string(containsString("name=\"content\"")));
+    }
 }
