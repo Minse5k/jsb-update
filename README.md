@@ -286,3 +286,15 @@
   - 컨트롤러는 바뀌지 않음: 질문만 모델에 넣으면 템플릿이 `question.answers`로 답변까지 꺼내 씀(@OneToMany의 장점, 14163 9강 "부모에서 자식들을 바로 조회 가능")
   - `answers`는 LAZY라서 템플릿에서 처음 읽는 순간 답변 조회 SQL이 실행됨
 - 결과: 테스트 16개 통과, 브라우저 `/questions/2`에 "2개의 답변이 있습니다."와 답변 2개 출력 확인
+
+### 011-02 답변 기능, 답변 등록(POST /questions/{id}/answers)
+- [링크](https://github.com/Minse5k/jsb-update/tree/011-02)
+- 작업: 답변 등록 — `AnswerController`의 `POST /questions/{questionId}/answers`, 상세 페이지에 답변 작성 폼, 테스트
+- 이유:
+  - URL: 교재(2-12)·강의 14163 코드는 `POST /answer/create/{id}`. 강의(14163 37강 URL 표)는 이를 나쁜 예로, `POST /questions/5/answers`를 좋은 예로 듦 → 강의가 권장한 방식 채택(010-02와 같은 규칙: 자원은 URL, 행위는 POST)
+  - 저장 방식: 교재는 `AnswerService.create()`에서 `answerRepository.save()`. 강의(14163 37강 "강사는 oneToMany 필드를 통해서 답변을 생성했습니다")는 `question.addAnswer(content)`만 호출 → 강의 방식 채택. 그래서 `AnswerService`·`AnswerRepository`가 없음
+  - `@Transactional`(14163 레포 `AnswerController`, 14168 레포와 같음): 메서드가 끝날 때 커밋되면서 PERSIST로 답변 INSERT
+  - 등록 후 `redirect:/questions/{id}`: 결과 화면을 직접 그리지 않고 상세 페이지로 다시 요청하게 함. 새로고침해도 POST가 다시 전송되지 않음(14168 28강 302)
+  - 테스트의 `em.flush(); em.clear();`: 테스트 전체가 한 트랜잭션이라, 그냥 조회하면 메모리에 있는 객체를 돌려줌. DB에 진짜 INSERT 됐는지 보려면 비우고 다시 읽어야 함
+  - 이 단계에서는 빈 답변도 등록됨 → 013(질문 등록·폼 검증)에서 처리
+- 결과: 테스트 17개 통과(테스트 로그에 answer INSERT 확인), 브라우저에서 1번 질문에 답변을 입력·등록하면 "1개의 답변이 있습니다."로 바뀜

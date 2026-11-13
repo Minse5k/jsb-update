@@ -17,5 +17,11 @@
         <div th:text="${#temporals.format(answer.createDate, 'yyyy-MM-dd HH:mm')}"></div>
     </li>
 </ul>
+
+<!-- 답변 작성 폼 : 전송하면 POST /questions/{id}/answers 요청이 발생한다. -->
+<form th:action="@{|/questions/${question.id}/answers|}" method="post">
+    <textarea name="content" rows="10"></textarea>
+    <input type="submit" value="답변등록">
+</form>
 </body>
 </html>
