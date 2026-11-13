@@ -11,6 +11,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 
 @Service // 스프링이 이 클래스를 서비스 빈으로 등록한다.
 @RequiredArgsConstructor
@@ -28,6 +30,10 @@ public class QuestionService {
         // kw 가 빈 문자열이면 like '%%' 라서 모든 질문이 나온다. (= 검색하지 않은 목록)
         return questionRepository.findAllByKeyword(kw, pageable);
         // + 전체 페이지 수를 알기 위한 count 쿼리도 함께 실행된다.
+    }
+
+    public Optional<Question> findBySubject(String subject) {
+        return questionRepository.findBySubject(subject);
     }
 
     public Question getQuestion(int id) {

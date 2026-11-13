@@ -1,6 +1,7 @@
 package com.back.domain.question.answer.controller;
 
 import com.back.domain.question.answer.entity.Answer;
+import com.back.domain.question.answer.service.AnswerService;
 import com.back.domain.question.question.entity.Question;
 import com.back.domain.question.question.service.QuestionService;
 import com.back.domain.user.user.entity.SiteUser;
@@ -31,8 +32,9 @@ import java.security.Principal;
 @RequestMapping("/questions/{questionId}/answers") // "몇 번 질문의 답변들" 이라는 자원
 @RequiredArgsConstructor
 public class AnswerController {
-    private final QuestionService questionService; // 답변은 질문을 통해서 만든다. (AnswerService, AnswerRepository 가 필요 없다.)
+    private final QuestionService questionService; // 답변의 생성·수정·삭제는 질문을 통해서 한다.
     private final UserService userService;
+    private final AnswerService answerService; // 상세 화면에 답변을 페이지 단위로 읽어 올 때만
 
     public record WriteForm(
             @NotBlank(message = "01-content-답변 내용을 입력해주세요.")
@@ -56,6 +58,7 @@ public class AnswerController {
         if (bindingResult.hasErrors()) {
             // 검증 실패 → 상세 페이지를 다시 그린다. 상세 페이지에는 질문이 필요하므로 모델에 넣어 준다.
             model.addAttribute("question", question);
+            model.addAttribute("answerPaging", answerService.findPage(question, 0));
             return "question/question/detail";
         }
 

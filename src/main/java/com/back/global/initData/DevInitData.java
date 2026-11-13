@@ -1,5 +1,6 @@
 package com.back.global.initData;
 
+import com.back.domain.question.question.entity.Question;
 import com.back.domain.question.question.service.QuestionService;
 import com.back.domain.user.user.entity.SiteUser;
 import com.back.domain.user.user.service.UserService;
@@ -28,6 +29,7 @@ public class DevInitData {
     ApplicationRunner devInitDataApplicationRunner() {
         return args -> {
             self.work1();
+            self.work2();
         };
     }
 
@@ -40,6 +42,21 @@ public class DevInitData {
         // 페이징을 확인할 수 있도록 질문 300개
         for (int i = 1; i <= 300; i++) {
             questionService.write(user1, "테스트 데이터입니다:[%03d]".formatted(i), "내용무");
+        }
+    }
+
+    @Transactional
+    public void work2() {
+        // 답변 페이징을 확인할 수 있도록 답변 25개가 달린 질문 하나
+        String subject = "답변이 많은 질문입니다";
+        if (questionService.findBySubject(subject).isPresent()) return;
+
+        SiteUser user1 = userService.findByUsername("user1").get();
+        SiteUser user2 = userService.findByUsername("user2").get();
+
+        Question question = questionService.write(user1, subject, "답변 페이징 확인용 질문입니다.");
+        for (int i = 1; i <= 25; i++) {
+            question.addAnswer(user2, "%d번째 답변입니다.".formatted(i));
         }
     }
 }

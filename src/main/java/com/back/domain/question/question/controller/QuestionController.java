@@ -1,6 +1,8 @@
 package com.back.domain.question.question.controller;
 
 import com.back.domain.question.answer.controller.AnswerController;
+import com.back.domain.question.answer.entity.Answer;
+import com.back.domain.question.answer.service.AnswerService;
 import com.back.domain.question.question.entity.Question;
 import com.back.domain.question.question.service.QuestionService;
 import com.back.domain.user.user.entity.SiteUser;
@@ -35,6 +37,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 public class QuestionController {
     private final QuestionService questionService; // 컨트롤러는 리포지터리를 직접 쓰지 않고 서비스를 통한다.
     private final UserService userService;
+    private final AnswerService answerService;
 
     @GetMapping // → GET /questions (질문 "목록" = 질문들)
     @Transactional(readOnly = true) // 조회만 하는 요청: 이 메서드가 끝날 때까지 하나의 트랜잭션(DB 연결) 안에서 처리
@@ -55,12 +58,15 @@ public class QuestionController {
     @Transactional(readOnly = true)
     public String detail(
             @PathVariable int id,
+            @RequestParam(defaultValue = "0") int ap, // 답변 페이지 (answer page)
             @ModelAttribute("answerForm") AnswerController.WriteForm answerForm, // 상세 화면 아래 답변 폼(th:object="${answerForm}")용 빈 폼
             Model model
     ) {
         Question question = questionService.getQuestion(id);
+        Page<Answer> answerPaging = answerService.findPage(question, ap); // 답변 10개 + 전체 개수·페이지 정보
 
         model.addAttribute("question", question);
+        model.addAttribute("answerPaging", answerPaging);
 
         return "question/question/detail";
     }

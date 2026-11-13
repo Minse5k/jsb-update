@@ -372,4 +372,25 @@ public class QuestionControllerTest {
                 .andExpect(content().string(containsString("name=\"kw\" value=\"검색용\"")))
                 .andExpect(content().string(containsString("href=\"/questions?page=1&amp;kw=%EA%B2%80%EC%83%89%EC%9A%A9\""))); // 한글은 URL 인코딩
     }
+
+    @Test
+    @DisplayName("GET /questions/{id}?ap=1 : 답변은 한 페이지에 10개씩, 최신 답변부터 보인다.")
+    void t20() throws Exception {
+        Question question = questionService.write(null, "답변 많은 질문", "내용");
+        for (int i = 1; i <= 25; i++) {
+            question.addAnswer(null, "답변 %02d".formatted(i));
+        }
+        questionRepository.flush();
+
+        mvc
+                .perform(get("/questions/" + question.getId()).param("ap", "1"))
+                .andExpect(status().isOk())
+                .andExpect(model().attribute("answerPaging", hasProperty("number", is(1))))
+                .andExpect(model().attribute("answerPaging", hasProperty("totalPages", is(3))))
+                .andExpect(content().string(containsString("25개의 답변이 있습니다.")))
+                .andExpect(content().string(containsString("답변 15"))) // 최신순 11~20번째 = 15..06
+                .andExpect(content().string(containsString("답변 06")))
+                .andExpect(content().string(not(containsString("답변 16"))))
+                .andExpect(content().string(not(containsString("답변 05"))));
+    }
 }

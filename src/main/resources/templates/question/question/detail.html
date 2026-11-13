@@ -46,11 +46,11 @@
         </div>
     </div>
 
-    <!-- 답변 개수 : question.answers 는 LAZY 라서 여기서 처음 읽을 때 답변 조회 SQL 이 실행된다. -->
-    <h5 class="border-bottom my-3 py-2" th:text="|${#lists.size(question.answers)}개의 답변이 있습니다.|"></h5>
+    <!-- 답변 개수 : 전체 답변을 읽지 않고 count 쿼리로 센 값 -->
+    <h5 class="border-bottom my-3 py-2" th:text="|${answerPaging.totalElements}개의 답변이 있습니다.|"></h5>
 
-    <!-- 답변 반복 -->
-    <div class="card my-3" th:each="answer : ${question.answers}">
+    <!-- 답변 반복 : 이번 페이지의 답변 10개만 (최신순) -->
+    <div class="card my-3" th:each="answer : ${answerPaging}">
         <!-- 앵커 : 주소 끝에 #answer_3 을 붙이면 브라우저가 이 위치로 스크롤한다. -->
         <a th:id="|answer_${answer.id}|"></a>
         <div class="card-body">
@@ -83,6 +83,23 @@
             </div>
         </div>
     </div>
+
+    <!-- 답변 페이지 이동 (답변이 한 페이지를 넘을 때만) -->
+    <nav th:if="${answerPaging.totalPages > 1}">
+        <ul class="pagination justify-content-center">
+            <li class="page-item" th:classappend="${!answerPaging.hasPrevious} ? 'disabled'">
+                <a class="page-link" th:href="@{|/questions/${question.id}|(ap=${answerPaging.number - 1})}">이전</a>
+            </li>
+            <li th:each="p : ${#numbers.sequence(0, answerPaging.totalPages - 1)}"
+                th:if="${p >= answerPaging.number - 5 and p <= answerPaging.number + 5}"
+                th:classappend="${p == answerPaging.number} ? 'active'" class="page-item">
+                <a class="page-link" th:href="@{|/questions/${question.id}|(ap=${p})}" th:text="${p + 1}"></a>
+            </li>
+            <li class="page-item" th:classappend="${!answerPaging.hasNext} ? 'disabled'">
+                <a class="page-link" th:href="@{|/questions/${question.id}|(ap=${answerPaging.number + 1})}">다음</a>
+            </li>
+        </ul>
+    </nav>
 
     <!-- 답변 작성 폼 : 전송하면 POST /questions/{id}/answers 요청이 발생한다. -->
     <form th:action="@{|/questions/${question.id}/answers|}" method="post" class="my-3" th:object="${answerForm}">
