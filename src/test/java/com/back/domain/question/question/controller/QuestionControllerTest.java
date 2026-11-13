@@ -48,7 +48,10 @@ public class QuestionControllerTest {
                 .andExpect(content().string(containsString("sbb가 무엇인가요?")))
                 .andExpect(content().string(containsString("스프링부트 모델 질문입니다.")))
                 .andExpect(content().string(containsString("href=\"/questions/1\""))) // 제목이 상세 페이지 링크인지
-                .andExpect(content().string(containsString("class=\"navbar-brand\""))); // 레이아웃의 내비게이션 바
+                .andExpect(content().string(containsString("class=\"navbar-brand\""))) // 레이아웃의 내비게이션 바
+                // 답변 개수 표시 : 샘플 중 2번 질문만 답변(2개)이 있으므로 딱 1군데에 "2" 가 나와야 한다.
+                .andExpect(content().string(containsString("<span class=\"text-danger small ms-2\">2</span>")))
+                .andExpect(result -> assertThat(result.getResponse().getContentAsString().split("text-danger small ms-2")).hasSize(2));
     }
 
     @Test

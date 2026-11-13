@@ -24,6 +24,10 @@
             <td>
                 <!-- @{...} : URL 을 만드는 문법, |...| : 문자열 안에 변수를 끼워 넣는 문법 -->
                 <a th:href="@{|/questions/${question.id}|}" th:text="${question.subject}"></a>
+                <!-- 답변이 있을 때만 제목 옆에 빨간 숫자로 답변 개수 -->
+                <span class="text-danger small ms-2"
+                      th:if="${#lists.size(question.answers) > 0}"
+                      th:text="${#lists.size(question.answers)}"></span>
             </td>
             <td th:text="${#temporals.format(question.createDate, 'yyyy-MM-dd HH:mm')}"></td>
         </tr>
