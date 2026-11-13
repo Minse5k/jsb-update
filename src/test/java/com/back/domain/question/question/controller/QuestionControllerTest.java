@@ -13,6 +13,8 @@ import com.back.global.exception.DataNotFoundException;
 import com.back.domain.question.question.entity.Question;
 import com.back.domain.question.question.repository.QuestionRepository;
 import com.back.domain.question.question.service.QuestionService;
+import com.back.domain.user.user.entity.SiteUser;
+import com.back.domain.user.user.service.UserService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -36,6 +38,8 @@ public class QuestionControllerTest {
     private QuestionRepository questionRepository;
     @Autowired
     private QuestionService questionService;
+    @Autowired
+    private UserService userService;
 
     @Test
     @DisplayName("GET /questions : 질문 목록에 샘플 질문 제목들이 보인다.")
@@ -392,5 +396,30 @@ public class QuestionControllerTest {
                 .andExpect(content().string(containsString("답변 06")))
                 .andExpect(content().string(not(containsString("답변 16"))))
                 .andExpect(content().string(not(containsString("답변 05"))));
+    }
+
+    @Test
+    @DisplayName("GET /questions/{id}?so=vote : 추천이 많은 답변부터 보이고, 페이지 링크에도 정렬이 유지된다.")
+    void t21() throws Exception {
+        SiteUser user1 = userService.findByUsername("user1").get();
+        SiteUser user2 = userService.findByUsername("user2").get();
+
+        Question question = questionService.write(null, "추천순 질문", "내용");
+        question.addAnswer(null, "추천 0개 답변");
+        question.addAnswer(null, "추천 2개 답변").vote(user1);
+        question.getAnswers().getLast().vote(user2);
+        question.addAnswer(null, "추천 1개 답변").vote(user1);
+        questionRepository.flush();
+
+        String html = mvc
+                .perform(get("/questions/" + question.getId()).param("so", "vote"))
+                .andExpect(status().isOk())
+                .andExpect(model().attribute("so", "vote"))
+                .andReturn().getResponse().getContentAsString();
+
+        // 화면에 나오는 순서 확인
+        int two = html.indexOf("추천 2개 답변"), one = html.indexOf("추천 1개 답변"), zero = html.indexOf("추천 0개 답변");
+        assertThat(two).isLessThan(one);
+        assertThat(one).isLessThan(zero);
     }
 }

@@ -59,14 +59,16 @@ public class QuestionController {
     public String detail(
             @PathVariable int id,
             @RequestParam(defaultValue = "0") int ap, // 답변 페이지 (answer page)
+            @RequestParam(defaultValue = "latest") AnswerService.SortCode so, // 답변 정렬 (latest, vote) — 문자열이 enum 으로 자동 변환
             @ModelAttribute("answerForm") AnswerController.WriteForm answerForm, // 상세 화면 아래 답변 폼(th:object="${answerForm}")용 빈 폼
             Model model
     ) {
         Question question = questionService.getQuestion(id);
-        Page<Answer> answerPaging = answerService.findPage(question, ap); // 답변 10개 + 전체 개수·페이지 정보
+        Page<Answer> answerPaging = answerService.findPage(question, ap, so); // 답변 10개 + 전체 개수·페이지 정보
 
         model.addAttribute("question", question);
         model.addAttribute("answerPaging", answerPaging);
+        model.addAttribute("so", so.name()); // 정렬 버튼 표시와 페이지 링크에 정렬을 유지하기 위해
 
         return "question/question/detail";
     }

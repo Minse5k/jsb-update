@@ -16,8 +16,19 @@ public class AnswerService {
 
     private final AnswerRepository answerRepository;
 
-    // 질문 하나의 답변 중 page 번째 페이지 (최신순)
-    public Page<Answer> findPage(Question question, int page) {
+    // 정렬 기준 : 주소의 ?so= 값
+    public enum SortCode {
+        latest, // 최신순 (기본)
+        vote    // 추천순
+    }
+
+    // 질문 하나의 답변 중 page 번째 페이지
+    public Page<Answer> findPage(Question question, int page, SortCode sortCode) {
+        if (sortCode == SortCode.vote) {
+            // 정렬은 쿼리 안의 order by 가 하므로 Pageable 에는 페이지 번호와 크기만
+            return answerRepository.findByQuestionOrderByVotes(question, PageRequest.of(page, PAGE_SIZE));
+        }
+
         return answerRepository.findByQuestion(
                 question,
                 PageRequest.of(page, PAGE_SIZE, Sort.by(Sort.Order.desc("id")))

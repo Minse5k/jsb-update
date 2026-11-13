@@ -58,7 +58,8 @@ public class AnswerController {
         if (bindingResult.hasErrors()) {
             // 검증 실패 → 상세 페이지를 다시 그린다. 상세 페이지에는 질문이 필요하므로 모델에 넣어 준다.
             model.addAttribute("question", question);
-            model.addAttribute("answerPaging", answerService.findPage(question, 0));
+            model.addAttribute("answerPaging", answerService.findPage(question, 0, AnswerService.SortCode.latest));
+            model.addAttribute("so", AnswerService.SortCode.latest.name());
             return "question/question/detail";
         }
 
