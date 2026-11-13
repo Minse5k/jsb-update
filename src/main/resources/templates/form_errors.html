@@ -14,16 +14,21 @@
         ></li>
     </ul>
     <script>
-        // 이 조각이 들어간 폼 = 지금까지 나온 폼 중 가장 마지막 폼
-        const forms = document.querySelectorAll('form');
-        const lastForm = forms[forms.length - 1];
+        { // 블록 : 한 화면에 이 조각이 두 번 들어가도 const 이름이 겹치지 않게
+            // 이 조각이 들어간 폼 = 지금까지 나온 폼 중 가장 마지막 폼
+            const forms = document.querySelectorAll('form');
+            const lastForm = forms[forms.length - 1];
 
-        // 첫 번째 에러의 필드명(data-error-field-name)
-        const errorFieldName = lastForm.querySelector('ul > li')?.dataset?.errorFieldName || '';
+            // 첫 번째 에러의 필드명(data-error-field-name)
+            const errorFieldName = lastForm.querySelector('ul > li')?.dataset?.errorFieldName || '';
 
-        if (errorFieldName.length > 0) {
-            // 이 스크립트가 실행되는 시점에는 아래쪽 입력칸이 아직 그려지지 않았으므로 한 박자 늦춰서 포커스
-            setTimeout(() => lastForm[errorFieldName].focus());
+            if (errorFieldName.length > 0) {
+                // 이 스크립트가 실행되는 시점에는 아래쪽 입력칸이 아직 그려지지 않았다.
+                // setTimeout(한 박자 늦추기)은 화면이 다 그려지기 전에 실행될 수 있어서(입력칸 없음 → 오류),
+                // 화면을 끝까지 읽은 뒤(DOMContentLoaded)에 포커스한다.
+                // 마크다운 편집기 칸이면 markdown-editor.js 가 이어서 편집기로 포커스를 넘긴다.
+                document.addEventListener('DOMContentLoaded', () => lastForm[errorFieldName]?.focus());
+            }
         }
     </script>
 </th:block>
