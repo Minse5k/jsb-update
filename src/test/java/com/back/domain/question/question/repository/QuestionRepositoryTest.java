@@ -69,4 +69,19 @@ public class QuestionRepositoryTest {
         assertThat(questions).hasSize(1);
         assertThat(questions.get(0).getSubject()).isEqualTo("sbb가 무엇인가요?");
     }
+
+    @Test
+    @DisplayName("수정 : 엔티티의 값만 바꾸면 트랜잭션 안에서 자동으로 UPDATE 된다.(더티체킹)")
+    void t6() {
+        Question question = questionRepository.findById(1).get();
+
+        question.modify("수정된 제목", "수정된 내용");
+        // questionRepository.save(question) 를 호출하지 않아도 된다.
+        // JPA가 조회 시점의 값과 지금 값을 비교해서 바뀐 것이 있으면 UPDATE 한다.
+
+        Question foundQuestion = questionRepository.findBySubject("수정된 제목").get();
+        // 조회 쿼리를 날리기 전에 JPA가 먼저 UPDATE 를 실행(flush)하므로 바뀐 제목으로 찾을 수 있다.
+
+        assertThat(foundQuestion.getId()).isEqualTo(1);
+    }
 }

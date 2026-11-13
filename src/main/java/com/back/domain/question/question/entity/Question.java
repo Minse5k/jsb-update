@@ -37,6 +37,11 @@ public class Question extends BaseEntity { // id, createDate, modifyDate 는 Bas
         this.content = content;
     }
 
+    public void modify(String subject, String content) {
+        this.subject = subject;
+        this.content = content;
+    }
+
     public Answer addAnswer(String content) {
         Answer answer = new Answer(this, content);
         answers.add(answer); // 트랜잭션이 끝날 때 PERSIST 에 의해 INSERT 된다.
