@@ -9,8 +9,9 @@
     <h2 class="border-bottom py-2" th:text="${question.subject}"></h2>
     <div class="card my-3">
         <div class="card-body">
-            <!-- white-space: pre-line : 내용의 줄바꿈(엔터)을 화면에서도 줄바꿈으로 보여 준다. -->
-            <div class="card-text" style="white-space: pre-line;" th:text="${question.content}"></div>
+            <!-- 마크다운 → HTML 로 바꾼 결과를 th:utext 로 출력 (th:text 는 태그를 글자 그대로 보여 준다) -->
+            <!-- 줄바꿈·목록은 마크다운이 HTML 로 처리하므로 pre-line 은 더 이상 필요 없다. -->
+            <div class="card-text" th:utext="${commonUtil.markdown(question.content)}"></div>
             <div class="d-flex justify-content-end">
                 <!-- 수정한 적이 있을 때만 (처음 저장 때는 수정일시 = 작성일시) -->
                 <div th:if="${question.modifyDate.isAfter(question.createDate)}" class="badge bg-light text-dark p-2 text-start mx-3">
@@ -53,7 +54,7 @@
         <!-- 앵커 : 주소 끝에 #answer_3 을 붙이면 브라우저가 이 위치로 스크롤한다. -->
         <a th:id="|answer_${answer.id}|"></a>
         <div class="card-body">
-            <div class="card-text" style="white-space: pre-line;" th:text="${answer.content}"></div>
+            <div class="card-text" th:utext="${commonUtil.markdown(answer.content)}"></div>
             <div class="d-flex justify-content-end">
                 <div th:if="${answer.modifyDate.isAfter(answer.createDate)}" class="badge bg-light text-dark p-2 text-start mx-3">
                     <div class="mb-2">modified at</div>

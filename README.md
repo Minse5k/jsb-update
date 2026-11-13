@@ -687,3 +687,14 @@
   - 해결: 강의(14163 21강 "`flush()` 역할: 영속성 컨텍스트의 변경 내용을 즉시 데이터베이스에 반영하도록 강제로 쿼리를 실행")의 `flush`를 서비스에 두고 호출. INSERT가 지금 실행되면서 DB가 매긴 번호가 객체에 채워짐. 트랜잭션은 그대로라 이후 오류가 나면 함께 롤백됨
   - `AnswerRepository`를 다시 만들지 않고 "질문을 통해서 답변을 다룬다"는 방침(005-07)을 유지한 채 해결
 - 결과: 테스트 45개 통과(리다이렉트 주소의 번호가 실제 새 답변 번호와 같음). 브라우저에서 2번 질문에 답변 등록 → `/questions/2#answer_4`, 그 앵커 바로 아래가 새 답변
+
+### 023-01 마크다운, commonmark 적용(XSS 취약점 발견)
+- [링크](https://github.com/Minse5k/jsb-update/tree/023-01)
+- 작업: 마크다운 적용 — `commonmark` 라이브러리, 마크다운을 HTML로 바꾸는 `global.util.CommonUtil`, 상세 화면의 질문·답변 내용을 `th:utext="${commonUtil.markdown(...)}"`로 출력. 모든 템플릿에 `commonUtil`을 넘겨주는 `global.web.GlobalModelAttribute`(`@ControllerAdvice`) — **이 커밋에는 XSS 취약점이 있음(다음 커밋에서 해결)**
+- 이유:
+  - `commonmark` + `CommonUtil.markdown()` + `th:utext`는 교재(3-12)와 같음. `th:text`는 HTML 태그를 글자 그대로 보여 주므로(14168 16강 표) 변환된 HTML을 그리려면 `th:utext`가 필요
+  - 버전: 교재는 0.21.0. 지금 최신은 0.32.0(2026-11-01 배포)인데 나온 지 2주가 안 되어서, 그 전 안정 버전 0.31.0을 씀(이 프로젝트의 판단)
+  - 템플릿에서 부르는 방법: 교재는 `${@commonUtil.markdown(...)}`(템플릿에서 스프링 빈을 직접 호출). 지금 버전의 타임리프(3.1)에서는 이 위치에서 `Instantiation of new objects and access to static classes or parameters is forbidden` 오류로 막힘 → 강의(14168 19강 "`@ControllerAdvice` + `@ModelAttribute`로 모든 컨트롤러의 액션메서드 실행 시 사용할 공통 템플릿 변수 세팅")로 `commonUtil`을 모델 변수로 넘겨 `${commonUtil.markdown(...)}`로 해결
+  - 마크다운이 줄바꿈·목록을 HTML로 처리하므로 009-01의 `white-space: pre-line`은 제거
+  - **발견한 문제**: 브라우저에서 내용에 `<script>alert(1)</script>`를 넣으면 변환 결과에 그 태그가 그대로 들어감. `th:utext`로 출력하므로 다른 사람이 그 글을 열면 스크립트가 실행될 수 있음(XSS, 14168 16강 "th:utext: XSS 공격 위험 있음, 신뢰할 수 있는 HTML 콘텐츠에만 사용"). 교재도 같은 상태
+- 결과: 테스트 47개 통과(마크다운 단위 테스트, 상세 화면 `<strong>` 출력). 브라우저에서 제목·굵게·기울임·목록·코드블록이 HTML로 표시됨 확인 — 동시에 `<script>` 태그가 그대로 출력되는 것도 확인

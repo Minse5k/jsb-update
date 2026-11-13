@@ -334,4 +334,15 @@ public class QuestionControllerTest {
         assertThat(question.getVoters()).hasSize(1);
         assertThat(question.getVoters()).extracting("username").containsExactly("user2");
     }
+
+    @Test
+    @DisplayName("상세 화면 : 내용의 마크다운이 HTML 로 바뀌어 보인다.")
+    void t17() throws Exception {
+        Question question = questionService.write(null, "마크다운 질문", "**굵게** 쓴 글");
+
+        mvc
+                .perform(get("/questions/" + question.getId()))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("<strong>굵게</strong> 쓴 글")));
+    }
 }
