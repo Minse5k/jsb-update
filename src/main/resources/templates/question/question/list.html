@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>질문 목록</title>
+</head>
+<body>
+<h1>질문 목록</h1>
+
+<ul>
+    <!-- questions 의 원소 하나하나를 question 이라는 이름으로 꺼내며 <li> 를 반복 -->
+    <li th:each="question : ${questions}" th:text="|${question.id} / ${question.subject}|"></li>
+</ul>
+</body>
+</html>

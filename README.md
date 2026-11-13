@@ -181,3 +181,16 @@
   - 강의 순서가 더 좋은 이유: 템플릿 엔진이 "HTML 문자열 만들기"를 대신해 주는 도구라는 걸 직접 비교할 수 있음. 다음 커밋(006-02)과 diff를 보면 무엇이 컨트롤러에서 템플릿으로 옮겨 가는지 보임
   - `@RequiredArgsConstructor` + `final` 필드: 생성자 주입(교재·강의 공통)
 - 결과: 테스트 12개 통과, 브라우저에서 `localhost:8080/question/list`에 `1 / sbb가 무엇인가요?`, `2 / 스프링부트 모델 질문입니다.` 출력 확인
+
+### 006-02 질문 목록, 타임리프 템플릿으로 전환
+- [링크](https://github.com/Minse5k/jsb-update/tree/006-02)
+- 작업: 타임리프 도입 — 컨트롤러는 `Model`에 `questions`를 담고 템플릿 이름(`question/question/list`)을 리턴, HTML은 `templates/question/question/list.html`이 `th:each`로 만듦. dev 프로필에서 템플릿 캐시 끄기
+- 이유:
+  - 006-01과 비교: HTML 조립 코드가 컨트롤러에서 사라지고 템플릿으로 옮겨 감. 컨트롤러는 "데이터 준비", 템플릿은 "화면 그리기"로 역할이 나뉨(14163 28강 "컨트롤러가 아니라 템플릿에서 응답 내용을 생성")
+  - `@ResponseBody`가 빠졌으므로 리턴값 `"question/question/list"`는 응답 본문이 아니라 템플릿 이름으로 해석됨(002-01에서 설명한 차이)
+  - 템플릿 위치: 교재는 `templates/question_list.html`, 강의(14168)는 `templates/post/post/list.html`처럼 패키지 구조와 같은 폴더 → 강의 방식 채택. 화면이 많아져도 도메인별로 모여 있음
+  - 변수 이름: 교재는 `questionList`, 여기서는 `questions`(14163 레포 엔티티 필드 `answers`처럼 복수형)
+  - `thymeleaf.cache: false`: 교재에는 없음. 강의(14163 28·29강 "타임리프 캐시는 오직 개발환경에서만 꺼야 합니다")처럼 dev에서만 끔
+  - `thymeleaf.prefix: file:src/main/resources/templates/`: 강의(14168 레포 `application-dev.yaml`) 설정. 빌드 없이 소스 폴더의 템플릿을 바로 읽어서 HTML을 저장하고 새로고침만 하면 반영됨
+  - 테스트에 `view().name(...)` 추가: 어떤 템플릿으로 그렸는지까지 확인
+- 결과: 테스트 12개 통과, 브라우저 출력이 006-01과 똑같음(같은 결과를 템플릿으로 만든 것)

@@ -1,4 +1,7 @@
 spring:
+  thymeleaf:
+    cache: false # 템플릿을 매번 다시 읽는다. (개발 중에만 끈다)
+    prefix: file:src/main/resources/templates/ # 빌드 결과물이 아니라 소스 폴더의 템플릿을 바로 읽는다 → 저장만 하면 새로고침에 반영
   datasource:
     url: jdbc:h2:./db_dev;MODE=MySQL # 프로젝트 폴더의 db_dev.mv.db 파일에 저장 (재시작해도 데이터 유지)
     username: sa

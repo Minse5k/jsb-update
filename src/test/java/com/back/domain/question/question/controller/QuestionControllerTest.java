@@ -34,6 +34,7 @@ public class QuestionControllerTest {
                 .andExpect(handler().handlerType(QuestionController.class))
                 .andExpect(handler().methodName("list"))
                 .andExpect(status().isOk())
+                .andExpect(view().name("question/question/list")) // 어떤 템플릿으로 그렸는지
                 .andExpect(content().string(containsString("sbb가 무엇인가요?")))
                 .andExpect(content().string(containsString("스프링부트 모델 질문입니다.")));
     }
