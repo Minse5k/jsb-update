@@ -495,3 +495,12 @@
   - 메서드 이름: 교재 코드는 `findByusername`(소문자 u). 메서드 이름 규칙상 `findByUsername`이 정확한 표기라 고쳐서 씀
   - `findByEmail`은 다음 커밋의 이메일 중복 확인에 사용
 - 결과: 테스트 통과, 로그에서 `create table site_user`와 `unique (email)`, `unique (username)` 제약 생성 확인
+
+### 017-02 회원가입, UserService와 비밀번호 암호화(BCrypt)
+- [링크](https://github.com/Minse5k/jsb-update/tree/017-02)
+- 작업: `UserService.join(username, password, email)` — 비밀번호를 `PasswordEncoder`(BCrypt)로 암호화해 저장. `SecurityConfig`에 `PasswordEncoder` 빈 등록. 서비스 테스트
+- 이유:
+  - 교재(3-06)와 같은 방식: `BCryptPasswordEncoder`를 빈으로 등록해 서비스에서 주입받음. 비밀번호를 그대로 저장하면 DB가 유출됐을 때 그대로 드러나므로 해시로 저장
+  - 메서드 이름: 교재 `create` → 여기서는 `join`(회원 "가입"이라는 의미가 이름에 드러나게, 이 프로젝트의 판단)
+  - 테스트로 "저장된 값 ≠ 원래 비밀번호, 하지만 `matches`로는 맞음"을 확인 — 로그인(018) 때 시큐리티가 바로 이 `matches`로 비교함
+- 결과: 테스트 24개 통과
