@@ -25,6 +25,14 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    // 소셜 로그인 회원 : 처음이면 만들고, 이미 있으면 그 회원
+    // 비밀번호·이메일은 없다. (카카오가 로그인을 확인해 주므로) → 아이디·비밀번호 로그인, 비밀번호 찾기 대상이 아니다.
+    public SiteUser findOrCreateSocialUser(String username) {
+        return userRepository
+                .findByUsername(username)
+                .orElseGet(() -> userRepository.save(new SiteUser(username, null, null)));
+    }
+
     // 입력한 비밀번호가 저장된 (암호화된) 비밀번호와 맞는지
     public boolean matchesPassword(SiteUser user, String rawPassword) {
         return passwordEncoder.matches(rawPassword, user.getPassword());

@@ -3,6 +3,7 @@ package com.back.domain.user.user.controller;
 import com.back.domain.question.answer.service.AnswerService;
 import com.back.domain.question.comment.service.CommentService;
 import com.back.domain.question.question.service.QuestionService;
+import com.back.domain.user.user.service.UserOAuth2Service;
 import com.back.domain.user.user.service.UserService;
 import com.back.global.exception.DataNotFoundException;
 import jakarta.validation.Valid;
@@ -65,6 +66,10 @@ public class UserController {
         // 어노테이션으로는 검사할 수 없는 규칙은 직접 검사해서 에러를 추가한다. (메시지 형식은 form_errors 와 같게)
         if (!form.password1().equals(form.password2())) {
             bindingResult.rejectValue("password2", "passwordInCorrect", "06-password2-2개의 비밀번호가 일치하지 않습니다.");
+        }
+        // kakao_ 로 시작하는 아이디는 카카오 로그인 회원용 (먼저 가입해서 카카오 회원 자리를 차지하지 못하게)
+        if (form.username().startsWith(UserOAuth2Service.KAKAO_USERNAME_PREFIX)) {
+            bindingResult.rejectValue("username", "reserved", "03-username-kakao_ 로 시작하는 아이디는 사용할 수 없습니다.");
         }
         if (userService.findByUsername(form.username()).isPresent()) {
             bindingResult.rejectValue("username", "duplicated", "03-username-이미 사용 중인 아이디입니다.");

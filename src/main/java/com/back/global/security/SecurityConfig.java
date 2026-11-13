@@ -1,5 +1,6 @@
 package com.back.global.security;
 
+import com.back.domain.user.user.service.UserOAuth2Service;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -13,7 +14,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity // 컨트롤러 메서드에 @PreAuthorize 를 붙여 메서드 단위로 권한을 검사할 수 있게 한다.
 public class SecurityConfig {
     @Bean // 이 빈이 있으면 시큐리티 기본 설정 대신 아래 규칙을 쓴다.
-    public SecurityFilterChain filterChain(HttpSecurity http) {
+    public SecurityFilterChain filterChain(HttpSecurity http, UserOAuth2Service userOAuth2Service) {
         http
                 .authorizeHttpRequests(
                         auth -> auth
@@ -44,6 +45,8 @@ public class SecurityConfig {
                         oauth2Login -> oauth2Login
                                 .loginPage("/users/login") // 카카오 로그인 버튼도 우리 로그인 화면에 둔다.
                                 .defaultSuccessUrl("/")
+                                // 카카오에서 받은 회원 정보를 우리 회원(SiteUser)으로 바꾸는 서비스
+                                .userInfoEndpoint(userInfo -> userInfo.userService(userOAuth2Service))
                                 // 카카오 버튼 : GET /oauth2/authorization/kakao → 카카오 로그인 화면으로 리다이렉트
                                 // 카카오가 돌려보내는 주소 : GET /login/oauth2/code/kakao (시큐리티가 처리)
                 )

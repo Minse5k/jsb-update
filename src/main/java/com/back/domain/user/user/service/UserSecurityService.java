@@ -25,6 +25,9 @@ public class UserSecurityService implements UserDetailsService {
                 .findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
 
+        // 소셜 로그인 회원은 비밀번호가 없다 → 아이디·비밀번호로는 로그인할 수 없다.
+        if (siteUser.getPassword() == null) throw new UsernameNotFoundException("소셜 로그인 회원입니다.");
+
         // 권한 : 아이디가 admin 이면 관리자, 나머지는 일반 회원
         String role = "admin".equals(username) ? "ROLE_ADMIN" : "ROLE_USER";
 

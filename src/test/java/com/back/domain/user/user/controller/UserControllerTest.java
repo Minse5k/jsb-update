@@ -17,6 +17,8 @@ import java.util.regex.Pattern;
 import com.back.domain.question.question.entity.Question;
 import com.back.domain.question.question.service.QuestionService;
 import com.back.domain.user.user.entity.SiteUser;
+import com.back.domain.user.user.service.UserOAuth2Service;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -24,6 +26,7 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.startsWith;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oauth2Login;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
@@ -46,6 +49,8 @@ public class UserControllerTest {
     private DevMailService devMailService;
     @Autowired
     private QuestionService questionService;
+    @Autowired
+    private UserOAuth2Service userOAuth2Service;
 
     @Test
     @DisplayName("GET /users/join : 회원가입 폼이 보인다.")
@@ -305,5 +310,41 @@ public class UserControllerTest {
                 .andExpect(header().string("Location", startsWith("https://kauth.kakao.com/oauth/authorize?")))
                 .andExpect(header().string("Location", containsString("client_id=test-kakao-client-id")))
                 .andExpect(header().string("Location", containsString("redirect_uri=http://localhost/login/oauth2/code/kakao")));
+    }
+
+    @Test
+    @DisplayName("카카오 로그인 회원 : 카카오 회원 번호로 우리 회원이 한 번만 만들어지고, 로그인 이름이 우리 아이디(kakao_번호)다.")
+    void t17() throws Exception {
+        OAuth2User first = userOAuth2Service.toPrincipal("123456789");
+        OAuth2User second = userOAuth2Service.toPrincipal("123456789"); // 두 번째 로그인
+
+        assertThat(first.getName()).isEqualTo("kakao_123456789");
+        assertThat(second.getName()).isEqualTo("kakao_123456789");
+        SiteUser user = userService.findByUsername("kakao_123456789").get();
+        assertThat(user.getPassword()).isNull();
+
+        // 카카오로 로그인한 상태에서 질문 등록 → 글쓴이가 그 회원
+        mvc
+                .perform(post("/questions/write").with(csrf()).with(oauth2Login().oauth2User(first))
+                        .param("category", "qna").param("subject", "카카오 회원의 질문").param("content", "내용"))
+                .andExpect(status().is3xxRedirection());
+        assertThat(questionService.findBySubject("카카오 회원의 질문").get().getAuthor().getUsername())
+                .isEqualTo("kakao_123456789");
+    }
+
+    @Test
+    @DisplayName("카카오 로그인 회원 아이디(kakao_)는 회원가입·아이디/비밀번호 로그인에 쓸 수 없다.")
+    void t18() throws Exception {
+        mvc
+                .perform(post("/users/join").with(csrf())
+                        .param("username", "kakao_1").param("password1", "1234").param("password2", "1234")
+                        .param("email", "kakao_1@test.com"))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeHasFieldErrorCode("form", "username", "reserved"));
+
+        userOAuth2Service.toPrincipal("777");
+        mvc
+                .perform(formLogin("/users/login").user("kakao_777").password(""))
+                .andExpect(unauthenticated());
     }
 }
