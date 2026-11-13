@@ -22,4 +22,10 @@ public class QuestionService {
                 .findById(id)
                 .orElseThrow(() -> new DataNotFoundException("question not found")); // 없으면 404
     }
+
+    public Question write(String subject, String content) {
+        Question question = new Question(subject, content);
+
+        return questionRepository.save(question); // INSERT 후 id 가 채워진 질문을 돌려준다.
+    }
 }

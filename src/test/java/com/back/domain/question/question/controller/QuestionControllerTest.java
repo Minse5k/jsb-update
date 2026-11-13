@@ -10,10 +10,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 import com.back.global.exception.DataNotFoundException;
+import com.back.domain.question.question.entity.Question;
+import com.back.domain.question.question.repository.QuestionRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -24,6 +27,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class QuestionControllerTest {
     @Autowired
     private MockMvc mvc;
+    @Autowired
+    private QuestionRepository questionRepository;
 
     @Test
     @DisplayName("GET /questions : 질문 목록에 샘플 질문 제목들이 보인다.")
@@ -98,5 +103,27 @@ public class QuestionControllerTest {
                 .andExpect(view().name("question/question/write"))
                 .andExpect(content().string(containsString("name=\"subject\"")))
                 .andExpect(content().string(containsString("name=\"content\"")));
+    }
+
+    @Test
+    @DisplayName("POST /questions/write : 질문이 등록되고, 등록된 질문의 상세 페이지로 리다이렉트된다.")
+    void t6() throws Exception {
+        ResultActions resultActions = mvc
+                .perform(
+                        post("/questions/write")
+                                .param("subject", "새 질문 제목")
+                                .param("content", "새 질문 내용")
+                )
+                .andDo(print());
+
+        resultActions
+                .andExpect(handler().methodName("write"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrlPattern("/questions/*"));
+
+        // 번호는 다른 테스트 실행 순서에 따라 달라질 수 있어서(롤백돼도 auto increment 는 되돌아가지 않음) 제목으로 찾는다.
+        Question question = questionRepository.findBySubject("새 질문 제목").get();
+        assertThat(question.getContent()).isEqualTo("새 질문 내용");
+        resultActions.andExpect(redirectedUrl("/questions/" + question.getId())); // 그 질문의 상세 페이지로 갔는지
     }
 }

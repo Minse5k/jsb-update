@@ -8,7 +8,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -41,5 +43,16 @@ public class QuestionController {
     @GetMapping("/write") // GET /questions/write : 질문 등록 "화면"
     public String showWrite() {
         return "question/question/write";
+    }
+
+    @PostMapping("/write") // POST /questions/write : 질문 등록 "처리" (URL 은 화면과 같고 메서드가 다르다)
+    @Transactional
+    public String write(
+            @RequestParam("subject") String subject,
+            @RequestParam("content") String content
+    ) {
+        Question question = questionService.write(subject, content);
+
+        return "redirect:/questions/" + question.getId(); // 방금 등록한 질문의 상세 페이지로 이동
     }
 }
