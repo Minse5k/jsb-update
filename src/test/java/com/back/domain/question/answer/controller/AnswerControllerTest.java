@@ -115,7 +115,7 @@ public class AnswerControllerTest {
                 )
                 .andExpect(handler().methodName("modify"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/questions/2"));
+                .andExpect(redirectedUrl("/questions/2#answer_%d".formatted(answerId))); // 수정한 답변 위치로
 
         em.flush();
         em.clear();
@@ -167,7 +167,7 @@ public class AnswerControllerTest {
             mvc
                     .perform(post("/questions/2/answers/%d/vote".formatted(answerId)).with(csrf()).with(user(username)))
                     .andExpect(handler().methodName("vote"))
-                    .andExpect(redirectedUrl("/questions/2"));
+                    .andExpect(redirectedUrl("/questions/2#answer_%d".formatted(answerId)));
         }
 
         em.flush();
