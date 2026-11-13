@@ -298,3 +298,13 @@
   - 테스트의 `em.flush(); em.clear();`: 테스트 전체가 한 트랜잭션이라, 그냥 조회하면 메모리에 있는 객체를 돌려줌. DB에 진짜 INSERT 됐는지 보려면 비우고 다시 읽어야 함
   - 이 단계에서는 빈 답변도 등록됨 → 013(질문 등록·폼 검증)에서 처리
 - 결과: 테스트 17개 통과(테스트 로그에 answer INSERT 확인), 브라우저에서 1번 질문에 답변을 입력·등록하면 "1개의 답변이 있습니다."로 바뀜
+
+### 012-01 디자인, 정적 CSS와 프리텐다드 폰트
+- [링크](https://github.com/Minse5k/jsb-update/tree/012-01)
+- 작업: 정적 CSS `static/resource/style.css`(프리텐다드 폰트, textarea 폭 100%, 제출 버튼 여백) 생성, 목록·상세 템플릿에 연결
+- 이유:
+  - 교재(2-13)는 `static/style.css`에 textarea·버튼 스타일만 둠. 그 규칙은 그대로 가져옴
+  - 폰트: 강의(14163 39강 "강사는 프리텐다드 폰트를 사용")처럼 CDN의 프리텐다드 woff2를 `@font-face`로 불러옴. 파일을 내려받지 않아도 됨
+  - 위치: 교재는 `static/style.css`, 강의(14168 46강)는 `static/resource/` 아래로 모음 → 강의 방식 채택. 시큐리티 도입(016) 후 `/resource/**` 하나만 허용하면 모든 정적 파일이 열리도록 미리 정리(14168 46강 "정적인 콘텐츠를 static/resource 폴더로 옮기는 이유")
+  - `static` 폴더 아래 경로가 그대로 URL이 됨: `static/resource/style.css` → `/resource/style.css`
+- 결과: 테스트 통과, 브라우저에서 `/resource/style.css` 200 응답, 본문 폰트 `Pretendard`, textarea가 화면 폭 전체로 늘어난 것 확인
