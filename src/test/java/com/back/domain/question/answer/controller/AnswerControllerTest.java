@@ -52,7 +52,7 @@ public class AnswerControllerTest {
                 .andExpect(handler().handlerType(AnswerController.class))
                 .andExpect(handler().methodName("write"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/questions/1"));
+                .andExpect(redirectedUrlPattern("/questions/1#answer_*")); // 새 답변 위치로
 
         // 테스트 전체가 하나의 트랜잭션이라 아직 커밋 전이다.
         // flush : 지금까지의 변경(INSERT)을 DB에 실제로 보낸다. / clear : 메모리에 있던 엔티티를 비운다.
@@ -63,6 +63,8 @@ public class AnswerControllerTest {
         Question question = questionRepository.findById(1).get();
         assertThat(question.getAnswers()).hasSize(1);
         assertThat(question.getAnswers().getLast().getContent()).isEqualTo("답변 내용입니다.");
+        int newAnswerId = question.getAnswers().getLast().getId();
+        resultActions.andExpect(redirectedUrl("/questions/1#answer_" + newAnswerId)); // 번호가 0 이 아니라 실제 번호
     }
 
     @Test

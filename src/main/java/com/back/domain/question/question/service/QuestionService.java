@@ -42,6 +42,10 @@ public class QuestionService {
         return questionRepository.save(question); // INSERT 후 id 가 채워진 질문을 돌려준다.
     }
 
+    public void flush() {
+        questionRepository.flush(); // 쌓여 있는 INSERT/UPDATE 를 지금 바로 DB 에 보낸다.
+    }
+
     public void delete(Question question) {
         questionRepository.delete(question); // cascade REMOVE 로 답변들도 함께 삭제 (005-06)
     }

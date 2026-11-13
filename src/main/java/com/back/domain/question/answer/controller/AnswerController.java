@@ -60,9 +60,14 @@ public class AnswerController {
         }
 
         SiteUser author = userService.findByUsername(principal.getName()).get();
-        question.addAnswer(author, form.content());
+        Answer answer = question.addAnswer(author, form.content());
 
-        return "redirect:/questions/" + questionId; // 등록 후 상세 페이지로 이동 (새로고침해도 다시 등록되지 않게)
+        // 답변은 트랜잭션이 끝날 때 INSERT 되므로 지금은 id 가 0 이다. (005-07)
+        // flush 로 INSERT 를 지금 실행시키면 DB 가 매긴 번호가 answer.id 에 들어온다. → 앵커 주소를 만들 수 있다.
+        questionService.flush();
+
+        // 등록 후 상세 페이지의 새 답변 위치로 이동 (새로고침해도 다시 등록되지 않게)
+        return "redirect:/questions/%d#answer_%d".formatted(questionId, answer.getId());
     }
 
     // questionId 번 질문의 id 번 답변. 없으면 404
