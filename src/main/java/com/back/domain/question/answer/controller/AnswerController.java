@@ -137,4 +137,17 @@ public class AnswerController {
 
         return "redirect:/questions/" + questionId;
     }
+
+    @PostMapping("/{id}/vote") // POST /questions/{questionId}/answers/{id}/vote : 답변 추천
+    @PreAuthorize("isAuthenticated()")
+    @Transactional
+    public String vote(@PathVariable int questionId, @PathVariable int id, Principal principal) {
+        Question question = questionService.getQuestion(questionId);
+        Answer answer = getAnswer(question, id);
+        SiteUser voter = userService.findByUsername(principal.getName()).get();
+
+        answer.vote(voter);
+
+        return "redirect:/questions/" + questionId;
+    }
 }

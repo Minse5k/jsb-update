@@ -63,6 +63,12 @@
                 </div>
             </div>
             <div class="my-3">
+                <a th:href="@{|/questions/${question.id}/answers/${answer.id}/vote|}" method="POST"
+                   onclick="return confirm('정말로 추천하시겠습니까?');"
+                   class="btn btn-sm btn-outline-secondary">
+                    추천
+                    <span class="badge rounded-pill bg-success" th:text="${#sets.size(answer.voters)}"></span>
+                </a>
                 <a th:href="@{|/questions/${question.id}/answers/${answer.id}/modify|}" class="btn btn-sm btn-outline-secondary"
                    sec:authorize="isAuthenticated()"
                    th:if="${answer.author != null and #authentication.name == answer.author.username}">수정</a>

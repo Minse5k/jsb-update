@@ -157,4 +157,21 @@ public class AnswerControllerTest {
         assertThat(questionRepository.findById(2).get().getAnswers()).hasSize(1);
         assertThat(em.find(Answer.class, answerId)).isNull(); // answer 테이블에서도 사라짐
     }
+
+    @Test
+    @DisplayName("POST /questions/2/answers/{id}/vote : 답변 추천 수가 늘고, 같은 회원의 중복 추천은 한 번만 센다.")
+    void t6() throws Exception {
+        int answerId = questionRepository.findById(2).get().getAnswers().getFirst().getId();
+
+        for (String username : new String[]{"user1", "admin", "user1"}) {
+            mvc
+                    .perform(post("/questions/2/answers/%d/vote".formatted(answerId)).with(csrf()).with(user(username)))
+                    .andExpect(handler().methodName("vote"))
+                    .andExpect(redirectedUrl("/questions/2"));
+        }
+
+        em.flush();
+        em.clear();
+        assertThat(em.find(Answer.class, answerId).getVoters()).hasSize(2); // user1, admin
+    }
 }

@@ -658,3 +658,12 @@
   - 필드 이름: 교재 `voter` → 여러 명이 담기므로 복수형 `voters`(이 프로젝트의 판단). 초기화는 004-04와 같은 이유로 `new HashSet<>()`
   - 엔티티 메서드 `vote()`로 추가하고 저장은 더티체킹(교재는 서비스에서 `voter.add` 후 `save`)
 - 결과: 테스트 44개 통과(같은 회원이 두 번 추천해도 1), 로그에서 `create table question_voters (question_id, voters_id)` 확인. 브라우저 user1로 2번 질문 "추천" → 0 → 1
+
+### 021-02 추천, 답변 추천
+- [링크](https://github.com/Minse5k/jsb-update/tree/021-02)
+- 작업: 답변 추천 — `Answer.voters`(`@ManyToMany Set<SiteUser>`), `Answer.vote`, `POST /questions/{questionId}/answers/{id}/vote`, 답변마다 "추천 N" 버튼
+- 이유:
+  - 021-01과 같은 구조를 답변에 적용(교재 3-10과 같은 기능). 중간 테이블은 `answer_voters`
+  - URL은 답변 수정·삭제와 같은 하위 자원 구조, 요청은 POST(021-01과 같은 이유)
+  - 답변은 020-03의 `getAnswer`로 "그 질문의 답변"인지 확인한 뒤 추천
+- 결과: 테스트 45개 통과(user1, admin, user1 순서로 추천 → 2). 브라우저에서 2번 질문의 첫 답변 "추천" → 0 → 1, 다른 답변은 0 그대로
