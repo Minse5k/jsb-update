@@ -422,4 +422,15 @@ public class QuestionControllerTest {
         assertThat(two).isLessThan(one);
         assertThat(one).isLessThan(zero);
     }
+
+    @Test
+    @DisplayName("GET /questions/{id} : 상세 화면을 열 때마다 조회 수가 1씩 오른다.")
+    void t22() throws Exception {
+        int before = questionRepository.findById(1).get().getViewCount();
+
+        mvc.perform(get("/questions/1")).andExpect(status().isOk());
+        mvc.perform(get("/questions/1")).andExpect(status().isOk());
+
+        assertThat(questionRepository.findById(1).get().getViewCount()).isEqualTo(before + 2);
+    }
 }

@@ -55,7 +55,7 @@ public class QuestionController {
     }
 
     @GetMapping("/{id}") // → GET /questions/{id} (질문들 중 id 번), {id} 자리에 오는 값을 아래 @PathVariable int id 로 받는다.
-    @Transactional(readOnly = true)
+    @Transactional // 조회 수를 올리므로(UPDATE) 읽기 전용이 아니다.
     public String detail(
             @PathVariable int id,
             @RequestParam(defaultValue = "0") int ap, // 답변 페이지 (answer page)
@@ -63,6 +63,7 @@ public class QuestionController {
             @ModelAttribute("answerForm") AnswerController.WriteForm answerForm, // 상세 화면 아래 답변 폼(th:object="${answerForm}")용 빈 폼
             Model model
     ) {
+        questionService.increaseViewCount(id); // 먼저 조회 수 +1 (없는 질문이면 0행 수정 → 아래에서 404)
         Question question = questionService.getQuestion(id);
         Page<Answer> answerPaging = answerService.findPage(question, ap, so); // 답변 10개 + 전체 개수·페이지 정보
 

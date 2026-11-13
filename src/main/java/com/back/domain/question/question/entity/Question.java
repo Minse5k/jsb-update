@@ -35,6 +35,10 @@ public class Question extends BaseEntity { // id, createDate, modifyDate 는 Bas
     @Column(columnDefinition = "TEXT") // 글자 수 제한이 없는 칼럼
     private String content;
 
+    // 조회 수. 이미 데이터가 있는 테이블에 칼럼을 추가해도 기존 행이 0 으로 채워지도록 DB 기본값을 둔다.
+    @Column(nullable = false, columnDefinition = "INT DEFAULT 0")
+    private int viewCount;
+
     // 질문 1개 : 답변 N개. DB 칼럼은 생기지 않고, answer.question_id 를 이용해 답변들을 찾아온다.
     // mappedBy = "question" : 외래키의 주인은 Answer.question 필드라는 뜻 (없으면 JPA가 중간 테이블을 만든다)
     // PERSIST : answers 에 새로 추가한 답변은 자동으로 INSERT

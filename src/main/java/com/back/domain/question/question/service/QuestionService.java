@@ -36,6 +36,10 @@ public class QuestionService {
         return questionRepository.findBySubject(subject);
     }
 
+    public void increaseViewCount(int id) {
+        questionRepository.increaseViewCount(id);
+    }
+
     public Question getQuestion(int id) {
         return questionRepository
                 .findById(id)

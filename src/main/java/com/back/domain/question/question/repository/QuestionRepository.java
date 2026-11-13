@@ -4,6 +4,7 @@ import com.back.domain.question.question.entity.Question;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -36,4 +37,11 @@ public interface QuestionRepository extends JpaRepository<Question, Integer> {
                or u2.username like %:kw%
             """)
     Page<Question> findAllByKeyword(@Param("kw") String kw, Pageable pageable);
+
+    // 조회 수 +1 을 DB 에서 한 번에 : UPDATE question SET view_count = view_count + 1 WHERE id = ?
+    // 읽고(10) → 더하고(11) → 저장하는 방식은 두 사람이 동시에 열면 둘 다 11 을 저장해 하나가 사라진다.
+    // clearAutomatically : 실행 후 영속성 컨텍스트를 비워서, 이어서 조회하는 질문이 바뀐 값을 읽게 한다.
+    @Modifying(clearAutomatically = true)
+    @Query("update Question q set q.viewCount = q.viewCount + 1 where q.id = :id")
+    int increaseViewCount(@Param("id") int id);
 }
