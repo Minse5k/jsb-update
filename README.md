@@ -21,6 +21,17 @@
 - 샘플 회원: `admin`, `user1`, `user2` (비밀번호 모두 `1234`, 개발·테스트용)
 - 개발 실행(dev 프로필)에서는 페이징 확인용 질문 300개가 추가로 만들어짐
 - H2 콘솔: `http://localhost:8080/h2-console` (JDBC URL `jdbc:h2:./db_dev;MODE=MySQL`, 사용자 `sa`)
+- 개발용 메일함: `http://localhost:8080/dev/mailbox` (비밀번호 찾기 메일이 실제로 나가지 않고 여기에 쌓임)
+
+### 카카오 로그인 실행
+키는 저장소에 올리지 않고 환경 변수로 넣습니다. 키가 없으면 로그인 화면에 카카오 버튼이 보이지 않습니다.
+1. [카카오 디벨로퍼스](https://developers.kakao.com)에서 애플리케이션 생성
+2. 카카오 로그인 활성화, Redirect URI에 `http://localhost:8080/login/oauth2/code/kakao` 등록
+3. 보안 메뉴에서 Client Secret 발급·활성화
+4. REST API 키와 Client Secret을 환경 변수로 넣고 실행
+```bash
+KAKAO_CLIENT_ID=REST_API_키 KAKAO_CLIENT_SECRET=시크릿 ./gradlew bootRun
+```
 
 ## 결과 화면
 
@@ -43,6 +54,21 @@
 |---|---|
 | ![마크다운](docs/images/07-markdown.jpg) | ![검색](docs/images/08-search.jpg) |
 | 기능 023 | 기능 024 |
+
+| 답변 추천순 정렬·조회 수·카테고리·댓글 | 카테고리 탭 |
+|---|---|
+| ![답변 정렬과 댓글](docs/images/09-answer-sort-comments.jpg) | ![카테고리](docs/images/10-category.jpg) |
+| 기능 026 · 027 · 028 · 029 | 기능 028 |
+
+| 최근 활동 (최근 답변·댓글) | 비밀번호 찾기 (개발용 메일함) |
+|---|---|
+| ![최근 활동](docs/images/11-recent.jpg) | ![개발용 메일함](docs/images/12-dev-mailbox.jpg) |
+| 기능 030 | 기능 032 |
+
+| 프로필 (쓴 질문·답변·댓글) | 마크다운 편집기 (나란히 보기) |
+|---|---|
+| ![프로필](docs/images/13-profile.jpg) | ![마크다운 편집기](docs/images/14-markdown-editor.jpg) |
+| 기능 033 | 기능 034 |
 
 ## 커밋을 하나씩 따라가는 방법
 - 커밋 번호는 `기능번호-단계번호`입니다. 예) `020-02` = 20번째 기능(수정·삭제)의 2단계(질문 삭제)
@@ -93,8 +119,19 @@
 | 023 | 마크다운 | 3-12 | 2 | [전체 단계](https://github.com/Minse5k/jsb-update/compare/022...023) · [마지막 단계](https://github.com/Minse5k/jsb-update/commit/023) |
 | 024 | 검색 | 3-13 | 2 | [전체 단계](https://github.com/Minse5k/jsb-update/compare/023...024) · [마지막 단계](https://github.com/Minse5k/jsb-update/commit/024) |
 | 025 | 문서 정리 (README, 결과 화면) | - | 2 | [전체 단계](https://github.com/Minse5k/jsb-update/compare/024...025) · [마지막 단계](https://github.com/Minse5k/jsb-update/commit/025) |
+| 026 | 답변 페이징·정렬 (최신순·추천순) | 3-14 | 3 | [전체 단계](https://github.com/Minse5k/jsb-update/compare/025...026) · [마지막 단계](https://github.com/Minse5k/jsb-update/commit/026) |
+| 027 | 조회 수 | 3-14 | 2 | [전체 단계](https://github.com/Minse5k/jsb-update/compare/026...027) · [마지막 단계](https://github.com/Minse5k/jsb-update/commit/027) |
+| 028 | 카테고리 | 3-14 | 3 | [전체 단계](https://github.com/Minse5k/jsb-update/compare/027...028) · [마지막 단계](https://github.com/Minse5k/jsb-update/commit/028) |
+| 029 | 댓글 (질문·답변) | 3-14 | 3 | [전체 단계](https://github.com/Minse5k/jsb-update/compare/028...029) · [마지막 단계](https://github.com/Minse5k/jsb-update/commit/029) |
+| 030 | 최근 활동 (최근 답변·댓글) | 3-14 | 2 | [전체 단계](https://github.com/Minse5k/jsb-update/compare/029...030) · [마지막 단계](https://github.com/Minse5k/jsb-update/commit/030) |
+| 031 | 비밀번호 변경 | 3-14 | 1 | [커밋](https://github.com/Minse5k/jsb-update/commit/031) |
+| 032 | 비밀번호 찾기 (임시 비밀번호, 개발용 메일함) | 3-14 | 2 | [전체 단계](https://github.com/Minse5k/jsb-update/compare/031...032) · [마지막 단계](https://github.com/Minse5k/jsb-update/commit/032) |
+| 033 | 프로필 | 3-14 | 2 | [전체 단계](https://github.com/Minse5k/jsb-update/compare/032...033) · [마지막 단계](https://github.com/Minse5k/jsb-update/commit/033) |
+| 034 | 마크다운 편집기 (EasyMDE) | 3-14 | 2 | [전체 단계](https://github.com/Minse5k/jsb-update/compare/033...034) · [마지막 단계](https://github.com/Minse5k/jsb-update/commit/034) |
+| 035 | 카카오 로그인 | 3-14 | 2 | [전체 단계](https://github.com/Minse5k/jsb-update/compare/034...035) · [마지막 단계](https://github.com/Minse5k/jsb-update/commit/035) |
+| 036 | 문서 정리 (도전과제) | - | 1 | [커밋](https://github.com/Minse5k/jsb-update/commit/036) |
 
-교재 3-14(추가 기능 도전과제)는 별도 과제로 남겨 두었습니다.
+기능 026~035는 교재 3-14(추가 기능 도전과제)입니다. 카카오 로그인(035)은 키가 있어야 실제로 동작합니다. 실행 방법은 아래 "카카오 로그인 실행"을 보세요.
 
 ## URL 정리 (교재와 비교)
 
@@ -113,6 +150,22 @@
 | 회원가입 | `GET·POST /user/signup` | `GET·POST /users/join` |
 | 로그인 | `GET·POST /user/login` | `GET·POST /users/login` |
 | 로그아웃 | `GET /user/logout` | `POST /users/logout` |
+
+도전과제(3-14)는 교재에 주소가 정해져 있지 않아 이 프로젝트에서 정했습니다.
+
+| 기능 | 이 프로젝트 |
+|---|---|
+| 답변 페이지·정렬 | `GET /questions/{id}?ap=1&so=vote` |
+| 답변 하나로 이동 | `GET /questions/{qid}/answers/{id}` (그 답변이 있는 페이지·위치로 리다이렉트) |
+| 카테고리별 목록 | `GET /questions?category=free` |
+| 질문 댓글 | `POST /questions/{qid}/comments`, `DELETE /questions/{qid}/comments/{id}` |
+| 답변 댓글 | `POST /questions/{qid}/answers/{aid}/comments`, `DELETE …/comments/{id}` |
+| 최근 활동 | `GET /recent` |
+| 비밀번호 변경 | `GET /users/password`, `PUT /users/password` |
+| 비밀번호 찾기 | `GET·POST /users/password/reset` |
+| 개발용 메일함 | `GET /dev/mailbox` (dev·test 프로필에서만) |
+| 프로필 | `GET /users/{username}/profile`, `GET /users/me` |
+| 카카오 로그인 | `GET /oauth2/authorization/kakao` → 카카오 → `GET /login/oauth2/code/kakao` |
 
 ## 작업내역
 
@@ -1065,3 +1118,9 @@
   - `kakao_`로 시작하는 아이디는 회원가입에서 막음: 누군가 먼저 `kakao_번호`로 가입해 카카오 회원 자리를 차지하지 못하게
   - 카카오 회원 정보 요청 부분과 회원 연결 부분(`toPrincipal`)을 나눠서, 테스트는 실제 카카오 요청 없이 연결 부분만 확인
 - 결과: 테스트 79개 통과(두 번 로그인해도 회원은 하나, 카카오 로그인 상태로 쓴 질문의 글쓴이가 그 회원, `kakao_` 가입 거절, 비밀번호 로그인 거절). 키가 없는 개발 서버에서는 카카오 버튼이 보이지 않음을 브라우저로 확인
+
+### 036-01 문서 정리(도전과제), 결과 화면과 기능 목차
+- [링크](https://github.com/Minse5k/jsb-update/tree/036-01)
+- 작업: 도전과제(3-14) 문서 정리 — 결과 화면 캡처 6장 추가, 기능 목차에 026~036, 도전과제 URL 표, 개발용 메일함·카카오 로그인 실행 방법, 기능 번호 태그 026~036
+- 이유: 025와 같은 이유. 코드보다 결과 화면을 먼저 볼 수 있게, 기능 번호 주소(`/commit/033`)로 바로 열리게. 카카오 키는 저장소에 없으므로 직접 실행하는 방법을 README에 적음
+- 결과: 테스트 79개 통과(문서만 변경)
