@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -15,9 +16,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
-import java.util.List;
 
 @Controller
 @RequestMapping("/questions") // 이 컨트롤러의 모든 URL 앞에 /questions 가 붙는다.
@@ -27,10 +28,13 @@ public class QuestionController {
 
     @GetMapping // → GET /questions (질문 "목록" = 질문들)
     @Transactional(readOnly = true) // 조회만 하는 요청: 이 메서드가 끝날 때까지 하나의 트랜잭션(DB 연결) 안에서 처리
-    public String list(Model model) { // 스프링이 Model 객체를 만들어서 넣어 준다.
-        List<Question> questions = questionService.findAll();
+    public String list(
+            @RequestParam(defaultValue = "0") int page, // /questions?page=2 → page = 2, 없으면 0 (첫 페이지)
+            Model model // 스프링이 Model 객체를 만들어서 넣어 준다.
+    ) {
+        Page<Question> paging = questionService.findPage(page); // 질문 10개 + 전체 개수·페이지 정보
 
-        model.addAttribute("questions", questions); // 템플릿에서 ${questions} 로 꺼내 쓸 수 있게 등록
+        model.addAttribute("paging", paging); // 템플릿에서 ${paging} 으로 꺼내 쓸 수 있게 등록
 
         return "question/question/list"; // templates/question/question/list.html 을 렌더링한 결과가 응답이 된다.
     }

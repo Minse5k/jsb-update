@@ -12,9 +12,10 @@ import org.springframework.transaction.annotation.Transactional;
 import com.back.global.exception.DataNotFoundException;
 import com.back.domain.question.question.entity.Question;
 import com.back.domain.question.question.repository.QuestionRepository;
+import com.back.domain.question.question.service.QuestionService;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -29,6 +30,8 @@ public class QuestionControllerTest {
     private MockMvc mvc;
     @Autowired
     private QuestionRepository questionRepository;
+    @Autowired
+    private QuestionService questionService;
 
     @Test
     @DisplayName("GET /questions : 질문 목록에 샘플 질문 제목들이 보인다.")
@@ -151,5 +154,28 @@ public class QuestionControllerTest {
                 .andExpect(content().string(containsString("내용은 입력함"))); // 입력값 유지
 
         assertThat(questionRepository.count()).isEqualTo(beforeCount); // 저장되지 않음
+    }
+
+    @Test
+    @DisplayName("GET /questions?page=1 : 한 페이지에 10개씩, 최신 질문부터 보인다.")
+    void t8() throws Exception {
+        // 샘플 2개 + 25개 = 27개 → 0페이지 10개, 1페이지 10개, 2페이지 7개
+        for (int i = 1; i <= 25; i++) {
+            questionService.write("페이징 질문 %02d".formatted(i), "내용");
+        }
+
+        ResultActions resultActions = mvc
+                .perform(get("/questions").param("page", "1"))
+                .andDo(print());
+
+        resultActions
+                .andExpect(handler().methodName("list"))
+                .andExpect(status().isOk())
+                .andExpect(model().attribute("paging", hasProperty("number", is(1)))) // 현재 페이지 번호
+                .andExpect(model().attribute("paging", hasProperty("totalPages", is(3))))
+                .andExpect(content().string(containsString("페이징 질문 15"))) // 1페이지 = 최신순 11~20번째 → 15..06
+                .andExpect(content().string(containsString("페이징 질문 06")))
+                .andExpect(content().string(not(containsString("페이징 질문 16"))))
+                .andExpect(content().string(not(containsString("페이징 질문 05"))));
     }
 }

@@ -17,7 +17,7 @@
         </thead>
         <tbody>
         <!-- loop : 반복 상태 변수. loop.count 는 1부터 세는 순번 -->
-        <tr th:each="question, loop : ${questions}">
+        <tr th:each="question, loop : ${paging}"> <!-- Page 도 반복할 수 있다 (이번 페이지의 질문들) -->
             <td th:text="${loop.count}"></td>
             <td>
                 <!-- @{...} : URL 을 만드는 문법, |...| : 문자열 안에 변수를 끼워 넣는 문법 -->
