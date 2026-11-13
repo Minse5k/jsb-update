@@ -4,6 +4,7 @@ import com.back.domain.question.question.entity.Question;
 import com.back.domain.question.question.service.QuestionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
@@ -15,6 +16,7 @@ public class QuestionController {
     private final QuestionService questionService; // 컨트롤러는 리포지터리를 직접 쓰지 않고 서비스를 통한다.
 
     @GetMapping("/question/list")
+    @Transactional(readOnly = true) // 조회만 하는 요청: 이 메서드가 끝날 때까지 하나의 트랜잭션(DB 연결) 안에서 처리
     public String list(Model model) { // 스프링이 Model 객체를 만들어서 넣어 준다.
         List<Question> questions = questionService.findAll();
 
