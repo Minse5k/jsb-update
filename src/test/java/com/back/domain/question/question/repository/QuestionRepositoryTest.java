@@ -84,4 +84,17 @@ public class QuestionRepositoryTest {
 
         assertThat(foundQuestion.getId()).isEqualTo(1);
     }
+
+    @Test
+    @DisplayName("삭제 : 질문을 삭제하면 cascade REMOVE 에 의해 답변들도 함께 삭제된다.")
+    void t7() {
+        assertThat(questionRepository.count()).isEqualTo(2);
+
+        Question question = questionRepository.findById(2).get(); // 답변이 2개 달린 질문
+        questionRepository.delete(question);
+        questionRepository.flush(); // DELETE 쿼리를 지금 바로 실행 (로그에서 확인용)
+        // 실행 순서 : DELETE FROM answer ... (2번) → DELETE FROM question WHERE id = 2
+
+        assertThat(questionRepository.count()).isEqualTo(1);
+    }
 }
