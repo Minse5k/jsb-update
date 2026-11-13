@@ -6,6 +6,7 @@
 
 <div layout:fragment="content" class="container my-3">
     <!-- 질문 -->
+    <span class="badge text-bg-secondary mt-2" th:text="${question.category?.name}"></span>
     <h2 class="border-bottom py-2" th:text="${question.subject}"></h2>
     <div class="card my-3">
         <div class="card-body">

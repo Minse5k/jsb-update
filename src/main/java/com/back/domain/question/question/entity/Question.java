@@ -1,6 +1,7 @@
 package com.back.domain.question.question.entity;
 
 import com.back.domain.question.answer.entity.Answer;
+import com.back.domain.question.category.entity.Category;
 import com.back.domain.user.user.entity.SiteUser;
 import com.back.global.jpa.entity.BaseEntity;
 import jakarta.persistence.Column;
@@ -29,6 +30,10 @@ public class Question extends BaseEntity { // id, createDate, modifyDate 는 Bas
     @ManyToOne(fetch = LAZY)
     private SiteUser author;
 
+    // 게시판 분류. 질문 N개 : 카테고리 1개 → question 테이블에 category_id 외래키
+    @ManyToOne(fetch = LAZY)
+    private Category category;
+
     @Column(length = 200)
     private String subject;
 
@@ -52,8 +57,9 @@ public class Question extends BaseEntity { // id, createDate, modifyDate 는 Bas
     @ManyToMany
     private final Set<SiteUser> voters = new HashSet<>();
 
-    public Question(SiteUser author, String subject, String content) {
+    public Question(SiteUser author, Category category, String subject, String content) {
         this.author = author;
+        this.category = category;
         this.subject = subject;
         this.content = content;
     }

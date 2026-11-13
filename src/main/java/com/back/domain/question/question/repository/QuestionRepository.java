@@ -1,5 +1,6 @@
 package com.back.domain.question.question.repository;
 
+import com.back.domain.question.category.entity.Category;
 import com.back.domain.question.question.entity.Question;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -44,4 +45,9 @@ public interface QuestionRepository extends JpaRepository<Question, Integer> {
     @Modifying(clearAutomatically = true)
     @Query("update Question q set q.viewCount = q.viewCount + 1 where q.id = :id")
     int increaseViewCount(@Param("id") int id);
+
+    // 카테고리가 없는 질문(카테고리 기능 전에 만든 질문)에 카테고리를 채운다.
+    @Modifying(clearAutomatically = true)
+    @Query("update Question q set q.category = :category where q.category is null")
+    int assignCategoryWhereNull(@Param("category") Category category);
 }

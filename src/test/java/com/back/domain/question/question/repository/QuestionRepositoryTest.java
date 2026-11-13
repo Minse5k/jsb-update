@@ -135,7 +135,7 @@ public class QuestionRepositoryTest {
     @Test
     @DisplayName("수정일시 : 처음 저장할 때는 작성일시와 같고, 수정하면 작성일시보다 뒤가 된다.(JPA Auditing)")
     void t10() throws Exception {
-        Question question = questionRepository.save(new Question(null, "날짜 확인", "내용"));
+        Question question = questionRepository.save(new Question(null, null, "날짜 확인", "내용"));
         questionRepository.flush();
 
         assertThat(question.getModifyDate()).isEqualTo(question.getCreateDate());
@@ -165,5 +165,14 @@ public class QuestionRepositoryTest {
         assertThat(questionRepository.findAllByKeyword("user1", pageable).getTotalElements()).isEqualTo(2);
         // 빈 검색어 = 전체
         assertThat(questionRepository.findAllByKeyword("", pageable).getTotalElements()).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("카테고리 : 기본 카테고리 3개가 있고, 샘플 질문은 질문답변 카테고리다.")
+    void t12() {
+        Question question = questionRepository.findById(1).get();
+
+        assertThat(question.getCategory().getCode()).isEqualTo("qna");
+        assertThat(question.getCategory().getName()).isEqualTo("질문답변");
     }
 }

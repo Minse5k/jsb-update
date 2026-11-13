@@ -1,5 +1,6 @@
 package com.back.global.initData;
 
+import com.back.domain.question.category.service.CategoryService;
 import com.back.domain.question.question.entity.Question;
 import com.back.domain.question.question.service.QuestionService;
 import com.back.domain.user.user.entity.SiteUser;
@@ -23,14 +24,22 @@ public class BaseInitData {
     private BaseInitData self;
     private final QuestionService questionService; // 컨트롤러와 같이 서비스를 통해서 데이터를 만든다.
     private final UserService userService;
+    private final CategoryService categoryService;
 
     @Bean
     @Order(1) // 여러 ApplicationRunner 중 가장 먼저 실행
     ApplicationRunner baseInitDataApplicationRunner() {
         // 스프링부트가 시작을 마치면 자동으로 실행된다.
         return args -> {
+            self.work0();
             self.work1();
         };
+    }
+
+    @Transactional
+    public void work0() {
+        categoryService.ensureDefaults(); // 질문답변, 강좌, 자유게시판 (없을 때만)
+        questionService.assignDefaultCategory(); // 카테고리가 없는 기존 질문은 질문답변으로
     }
 
     @Transactional

@@ -1,5 +1,7 @@
 package com.back.domain.question.question.service;
 
+import com.back.domain.question.category.entity.Category;
+import com.back.domain.question.category.service.CategoryService;
 import com.back.domain.question.question.entity.Question;
 import com.back.domain.question.question.repository.QuestionRepository;
 import com.back.domain.user.user.entity.SiteUser;
@@ -18,6 +20,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class QuestionService {
     private final QuestionRepository questionRepository;
+    private final CategoryService categoryService;
 
     public long count() {
         return questionRepository.count();
@@ -46,10 +49,20 @@ public class QuestionService {
                 .orElseThrow(() -> new DataNotFoundException("question not found")); // 없으면 404
     }
 
-    public Question write(SiteUser author, String subject, String content) {
-        Question question = new Question(author, subject, content);
+    public Question write(SiteUser author, Category category, String subject, String content) {
+        Question question = new Question(author, category, subject, content);
 
         return questionRepository.save(question); // INSERT 후 id 가 채워진 질문을 돌려준다.
+    }
+
+    // 카테고리를 고르지 않으면 기본 카테고리(질문답변)
+    public Question write(SiteUser author, String subject, String content) {
+        return write(author, categoryService.getDefault(), subject, content);
+    }
+
+    // 카테고리가 생기기 전에 만든 질문들을 기본 카테고리로 (이미 데이터가 있는 DB 용)
+    public int assignDefaultCategory() {
+        return questionRepository.assignCategoryWhereNull(categoryService.getDefault());
     }
 
     public void flush() {
