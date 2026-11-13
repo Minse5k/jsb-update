@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
@@ -23,5 +24,15 @@ public class QuestionController {
         model.addAttribute("questions", questions); // 템플릿에서 ${questions} 로 꺼내 쓸 수 있게 등록
 
         return "question/question/list"; // templates/question/question/list.html 을 렌더링한 결과가 응답이 된다.
+    }
+
+    @GetMapping("/question/detail/{id}") // {id} 자리에 오는 값을 아래 @PathVariable int id 로 받는다.
+    @Transactional(readOnly = true)
+    public String detail(@PathVariable int id, Model model) {
+        Question question = questionService.getQuestion(id);
+
+        model.addAttribute("question", question);
+
+        return "question/question/detail";
     }
 }

@@ -38,4 +38,20 @@ public class QuestionControllerTest {
                 .andExpect(content().string(containsString("sbb가 무엇인가요?")))
                 .andExpect(content().string(containsString("스프링부트 모델 질문입니다.")));
     }
+
+    @Test
+    @DisplayName("GET /question/detail/1 : 1번 질문의 제목과 내용이 보인다.")
+    void t2() throws Exception {
+        ResultActions resultActions = mvc
+                .perform(get("/question/detail/1"))
+                .andDo(print());
+
+        resultActions
+                .andExpect(handler().handlerType(QuestionController.class))
+                .andExpect(handler().methodName("detail"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("question/question/detail"))
+                .andExpect(content().string(containsString("sbb가 무엇인가요?")))
+                .andExpect(content().string(containsString("sbb에 대해서 알고 싶습니다.")));
+    }
 }

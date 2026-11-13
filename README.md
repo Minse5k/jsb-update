@@ -230,3 +230,14 @@
   - 강의 방식이 더 좋은 이유: "이 요청은 조회만 한다"가 코드에 보이고, `readOnly`면 Hibernate가 변경 감지(더티체킹)를 하지 않아 불필요한 작업이 줄어듦. 003-02에서 켠 트랜잭션 로그로 언제 시작·끝나는지 확인 가능
   - open-in-view(기본값 켜짐)는 강의 설정과 같이 그대로 둠 — 템플릿에서 LAZY 필드(`answers`)를 읽을 때 필요
 - 결과: 테스트 13개 통과
+
+### 009-01 상세 페이지, 질문을 조회해 상세 화면에 표시
+- [링크](https://github.com/Minse5k/jsb-update/tree/009-01)
+- 작업: `GET /question/detail/{id}` 상세 페이지 — `@PathVariable`로 id를 받아 `QuestionService.getQuestion(id)`로 조회, `detail.html`에 제목·내용 출력
+- 이유:
+  - 교재(2-10)·강의(14163 035-1 "질문을 조회해 상세 화면에 표시")와 같은 흐름. 강의처럼 상세 페이지를 3단계(표시 → 목록 링크 → 404)로 나눔
+  - URL의 `{id}` 부분이 `@PathVariable int id`로 들어옴: `/question/detail/2` → id = 2
+  - 이 단계에서는 강의 035-1과 같이 `findById(id).get()` — 없는 id면 500 에러가 남(009-03에서 처리)
+  - 내용에 `white-space: pre-line`: 교재에는 없음. 강의(14168 29강 "글 본문 보여줄 때 style=white-space: pre-line 적용하여 줄바꿈 표시")처럼 사용자가 친 줄바꿈이 화면에도 보이게
+  - 조회 액션이라 `@Transactional(readOnly = true)`(008-02)
+- 결과: 테스트 14개 통과, 브라우저에서 `/question/detail/2`에 제목·내용 출력 확인

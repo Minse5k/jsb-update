@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>질문 상세</title>
+</head>
+<body>
+<h1 th:text="${question.subject}"></h1>
+<!-- white-space: pre-line : 내용의 줄바꿈(엔터)을 화면에서도 줄바꿈으로 보여 준다. -->
+<div style="white-space: pre-line;" th:text="${question.content}"></div>
+</body>
+</html>

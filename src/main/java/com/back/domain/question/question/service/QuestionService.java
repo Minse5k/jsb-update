@@ -15,4 +15,8 @@ public class QuestionService {
     public List<Question> findAll() {
         return questionRepository.findAll();
     }
+
+    public Question getQuestion(int id) {
+        return questionRepository.findById(id).get(); // 일단 있다고 가정 (없는 경우는 다음 단계에서 처리)
+    }
 }
